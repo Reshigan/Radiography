@@ -10,7 +10,6 @@ import { registerModalitySim } from '../../sim/modality.js';
 
 const r = router();
 const CONSOLE = ['RAD', 'NUR', 'RGT', 'PRM', 'FDK', 'BKG', 'BIO', 'CMP', 'EXE', 'SUP', 'AIO'] as const;
-const WRITE = ['RAD', 'NUR', 'PRM', 'RGT', 'SUP'] as const;
 
 /* ---------- Protocol Hand (M20 registration) ---------- */
 const protocolHand = defineHand({

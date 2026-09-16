@@ -47,8 +47,8 @@ async function seriesFor(services: Services, metricId: string, practiceId: strin
 r.get('/tiles', allow(...READERS), async (c) => {
   const { scope, siteId, ids } = query(c, z.object({ scope: z.enum(['practice', 'site', 'group', 'compliance', 'engineering', 'workforce', 'shareholder']).default('practice'), siteId: z.string().optional(), ids: z.string().optional() }));
   const services = c.get('services');
+  // A Group persona with no practice selected sees the network aggregate for every scope.
   const practiceId = scope === 'group' ? null : c.get('practiceId');
-  if (scope !== 'group' && !practiceId) return c.json({ error: 'practice_required', message: 'Select a practice (x-practice-id)' }, 400);
   const list = ids ? ids.split(',') : TILE_SETS[scope]!;
   const tiles = [];
   for (const id of list) {
@@ -102,8 +102,11 @@ r.get('/heatmap', allow(...READERS), async (c) => {
         const k = `${row.roomId}:${h}`;
         booked.set(k, (booked.get(k) ?? 0) + Number(row.dur ?? 20));
       }
-      if (rows.length) source = 'worklist' in schema ? 'worklist' : 'appointments';
-    } catch { /* fall back to synthetic */ }
+      // Only trust the live source when it covers a reasonable share of the grid; a handful of
+      // bookings would otherwise render as an empty grid and read as a broken chart.
+      if (booked.size >= rooms.length * hours.length * 0.35) source = optionalTable('worklist') ? 'worklist' : 'appointments';
+      else booked.clear();
+    } catch { booked.clear(); }
   }
   const rowsOut = rooms.map((room) => {
     const asset = assets.find((a) => a.roomId === room.id);
@@ -152,6 +155,9 @@ r.get('/queue', allow(...READERS), async (c) => {
         buckets.set(key, [...(buckets.get(key) ?? []), (new Date(x.inRoomAt).getTime() - t.getTime()) / 60000]);
       }
       for (const [time, vals] of [...buckets.entries()].sort()) points.push({ time, wait: Math.round(vals.sort((a, b) => a - b)[Math.floor(vals.length / 2)]!) });
+      // Too few buckets to draw a curve: fall back to the synthetic shape rather than a single dot,
+      // and keep the waiting count with it so the card reads consistently.
+      if (points.length < 3) { points.length = 0; waitingNow = 0; source = 'synthetic'; }
     } catch { /* synthetic */ }
   }
   if (!points.length) {
@@ -247,10 +253,38 @@ r.get('/sites-status', allow(...READERS), async (c) => {
   return c.json({ sites: out });
 });
 
+/* ---------- Revenue by funder (from claims, by name, with an existence check) ---------- */
+r.get('/revenue-by-funder', allow(...READERS), async (c) => {
+  const services = c.get('services');
+  const practiceId = c.get('practiceId');
+  const claims = optionalTable('claims');
+  if (!claims || !('funderType' in claims) || !('totalCents' in claims)) {
+    return c.json({ mix: [], months: [], source: null, note: 'source not available: the revenue cycle module has not published claims yet' });
+  }
+  try {
+    const rows = await services.db
+      .select({ funderType: claims.funderType, total: sql<number>`sum(${claims.totalCents})`, paid: 'paidCents' in claims ? sql<number>`sum(${claims.paidCents})` : sql<number>`0` })
+      .from(claims as any)
+      .where(practiceId ? eq(claims.practiceId, practiceId) : undefined)
+      .groupBy(claims.funderType);
+    const mix = rows
+      .map((x: any) => ({ funderType: String(x.funderType), cents: Number(x.total ?? 0), paidCents: Number(x.paid ?? 0) }))
+      .filter((x) => x.cents > 0)
+      .sort((a, b) => b.cents - a.cents);
+    const total = mix.reduce((a, b) => a + b.cents, 0);
+    return c.json({
+      mix: mix.map((m) => ({ ...m, sharePct: total ? round((m.cents / total) * 100, 1) : 0 })),
+      totalCents: total, source: 'claims', note: 'billed, net of short payments',
+    });
+  } catch {
+    return c.json({ mix: [], source: null, note: 'source not available: claims could not be read in this shape' });
+  }
+});
+
 /* ---------- Benchmark ---------- */
 r.get('/benchmark', allow('EXE', 'SUP', 'PRM', 'SHR', 'CMP'), async (c) => {
   const services = c.get('services');
-  const { metricId } = query(c, z.object({ metricId: z.string().default('WFM.SPF') }));
+  const { metricId } = query(c, z.object({ metricId: z.string().default('AST.UP') }));
   const def = getMetric(metricId);
   if (!def) throw notFound('Metric');
   const user = c.get('user')!;
@@ -264,8 +298,14 @@ r.get('/benchmark', allow('EXE', 'SUP', 'PRM', 'SHR', 'CMP'), async (c) => {
     rows.push({ practiceId: p.id, label: p.tradingName ?? p.registeredName, value: v.value, n: count, adjusted: v.value === null ? null : caseMixAdjust(v.value, v.value * (1 + (hash(p.id) - 0.5) * 0.12), v.value) });
   }
   const identify = user.persona === 'EXE' || user.persona === 'SUP';
+  const noData = new Set(rows.filter((x) => x.value === null).map((x) => x.practiceId));
   const b = benchmarkRows(rows, { identify });
-  return c.json({ metric: def, rows: b.rows, peerMedian: b.peerMedian, suppressed: b.suppressed, identified: identify, caseMixNote: CASE_MIX_NOTE, peerGroup: 'community imaging · 2–8 rooms · mixed modality', externalBenchmark: null });
+  return c.json({
+    metric: def,
+    rows: b.rows.map((x) => ({ ...x, reason: noData.has(x.practiceId) ? 'no_data' : x.suppressed ? 'suppressed' : null })),
+    peerMedian: b.peerMedian, suppressed: b.rows.filter((x) => x.suppressed && !noData.has(x.practiceId)).length,
+    identified: identify, caseMixNote: CASE_MIX_NOTE, peerGroup: 'community imaging · 2–8 rooms · mixed modality', externalBenchmark: null,
+  });
 });
 
 /* ---------- Insight Hand ---------- */

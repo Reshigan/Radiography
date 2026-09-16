@@ -26,7 +26,6 @@ const DISTRESS = /(scared|frightened|terrified|crying|angry|furious|complain|use
 const CLINICAL_QUESTION = /(is it cancer|do i have|what does .* mean|will it hurt|is this serious|what is wrong with me|results?\b.*\?|diagnos)/i;
 const HUMAN = /\b(person|human|agent|someone|talk to (?:a|someone)|call me)\b/i;
 const YES = /^\s*(yes|yebo|ja|ok(?:ay)?|correct|that'?s right|confirm|y)\b/i;
-const NO = /^\s*(no|nope|not right|wrong|fix it|n)\b/i;
 
 export interface BookingHandInput extends Record<string, unknown> { conversationId: string; text: string; practiceId: string }
 
@@ -58,7 +57,7 @@ export function registerBookingHand() {
     if (CLINICAL_QUESTION.test(text)) return handOver('clinical_question', 'I cannot answer questions about your health or your results. A person from our team will help you, and your doctor discusses results with you.');
     if (HUMAN.test(text) && !/^\s*(yes|no)\b/i.test(text)) return handOver('requested_person', 'Of course. A person from our booking team will pick up this conversation shortly.');
 
-    let state = conv.state;
+    const state = conv.state;
     let patientId = conv.patientId;
 
     // Identify the patient from the number first.
@@ -169,15 +168,16 @@ export function registerBookingHand() {
 /** Wire the WhatsApp simulator's inbound messages to the Booking Hand. */
 export function registerBookingInbound() {
   setInboundHandler(async (services: Services, input) => {
+    const [before] = await services.db.select().from(schema.conversations).where(eq(schema.conversations.id, input.conversationId)).limit(1);
+    const sentBefore = (before?.messages ?? []).filter((m) => m.dir === 'out').length;
     const task = await runHand<BookingHandInput>(services, 'booking', { conversationId: input.conversationId, text: input.text, practiceId: input.practiceId }, { practiceId: input.practiceId, trigger: 'whatsapp.inbound', title: `WhatsApp ${input.from}`, aggregateType: 'conversation', aggregateId: input.conversationId });
-    const [conv] = await services.db.select().from(schema.conversations).where(eq(schema.conversations.id, input.conversationId)).limit(1);
     await services.db.update(schema.conversations).set({ lastTaskId: task.id }).where(eq(schema.conversations.id, input.conversationId));
     if (task.status === 'needs_approval' || task.status === 'failed' || task.status === 'refused') {
       const note = task.status === 'needs_approval' ? 'A person from our booking team will continue this conversation.' : 'A person from our booking team will help you shortly.';
       await appendMessage(services, input.conversationId, { dir: 'out', text: note, at: new Date().toISOString(), by: 'system' }, { state: 'handed_over', handedOverReason: task.approvalReason ?? task.error ?? task.status });
     }
     const [after] = await services.db.select().from(schema.conversations).where(eq(schema.conversations.id, input.conversationId)).limit(1);
-    const sent = (after?.messages ?? []).filter((m) => m.dir === 'out').slice((conv?.messages ?? []).filter((m) => m.dir === 'out').length);
+    const sent = (after?.messages ?? []).filter((m) => m.dir === 'out').slice(sentBefore);
     return { replies: sent, state: after?.state ?? 'new', taskId: task.id };
   });
 }

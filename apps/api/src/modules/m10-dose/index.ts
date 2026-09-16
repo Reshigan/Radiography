@@ -130,9 +130,13 @@ r.get('/qa', allow(...VIEW), async (c) => {
   const now = services.clock.now().toISOString();
   const rows = await services.db.select().from(schema.qaTests).where(and(eq(schema.qaTests.practiceId, practiceId), siteId ? eq(schema.qaTests.siteId, siteId) : undefined, roomId ? eq(schema.qaTests.roomId, roomId) : undefined)).orderBy(schema.qaTests.dueAt).limit(400);
   const withState = rows.map((x) => ({ ...x, state: x.doneAt ? (x.result === 'fail' ? 'failed' : 'done') : x.dueAt < now ? 'overdue' : 'due' }));
+  // What needs action comes first: failures, overdue (blocking first), then due, then the completed history.
+  const rank: Record<string, number> = { failed: 0, overdue: 1, due: 2, done: 3 };
+  withState.sort((a, b) => (rank[a.state]! - rank[b.state]!) || (Number(b.blocking) - Number(a.blocking)) || a.dueAt.localeCompare(b.dueAt) * (a.state === 'done' ? -1 : 1));
   const filtered = status ? withState.filter((x) => x.state === status) : withState;
   const rooms = await services.db.select({ id: schema.rooms.id, name: schema.rooms.name, siteId: schema.rooms.siteId, roomType: schema.rooms.roomType, licenceNo: schema.rooms.licenceNo, licenceExpiry: schema.rooms.licenceExpiry }).from(schema.rooms).where(eq(schema.rooms.practiceId, practiceId));
-  return c.json({ tests: filtered, rooms, overdue: withState.filter((x) => x.state === 'overdue').length, blocking: withState.filter((x) => x.state === 'overdue' && x.blocking).length });
+  const sites = await services.db.select({ id: schema.sites.id, code: schema.sites.code, name: schema.sites.name }).from(schema.sites).where(eq(schema.sites.practiceId, practiceId));
+  return c.json({ tests: filtered, rooms: rooms.map((r) => ({ ...r, siteCode: sites.find((sx) => sx.id === r.siteId)?.code ?? null })), sites, overdue: withState.filter((x) => x.state === 'overdue').length, blocking: withState.filter((x) => x.state === 'overdue' && x.blocking).length });
 });
 
 /** Room QA status used by M05 scheduling and M08 start (M02-R-006). */

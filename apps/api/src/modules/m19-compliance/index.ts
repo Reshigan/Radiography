@@ -7,7 +7,6 @@ import type { Services } from '../../kernel/ports.js';
 import { REPORTABLE_CATEGORIES, categoryFor } from './categories.js';
 
 const r = router();
-const CMP_ALL = ['CMP', 'PRM', 'EXE', 'SUP'] as const;
 const READERS = ['CMP', 'PRM', 'EXE', 'SUP', 'BIO', 'AIO', 'RGT', 'RAD', 'NUR', 'SHR', 'BIL'] as const;
 
 function addDays(date: string, n: number): string {
@@ -29,18 +28,20 @@ async function nextRef(services: Services, prefix: string, practiceId: string): 
 /* ================= Board ================= */
 r.get('/board', allow(...READERS), async (c) => {
   const services = c.get('services');
-  const practiceId = requirePractice(c);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
   const today = todaySast();
-  const obligations = await services.db.select().from(schema.obligations).where(eq(schema.obligations.practiceId, practiceId));
+  const obligations = await services.db.select().from(schema.obligations).where(practiceId ? eq(schema.obligations.practiceId, practiceId) : undefined);
   const overdue = obligations.filter((o) => o.dueDate && o.dueDate < today && (!o.lastDoneAt || o.lastDoneAt < o.dueDate));
   const due30 = obligations.filter((o) => o.dueDate && o.dueDate >= today && (daysUntil(o.dueDate) ?? 999) <= 30);
-  const incidents = await services.db.select().from(schema.incidents).where(and(eq(schema.incidents.practiceId, practiceId), sql`${schema.incidents.status} != 'closed'`));
-  const rr = await services.db.select().from(schema.reportableResults).where(and(eq(schema.reportableResults.practiceId, practiceId), sql`${schema.reportableResults.status} != 'closed'`));
-  const dsr = await services.db.select().from(schema.dataSubjectRequests).where(and(eq(schema.dataSubjectRequests.practiceId, practiceId), sql`${schema.dataSubjectRequests.status} not in ('fulfilled','refused')`));
-  const findings = await services.db.select({ f: schema.auditFindings, a: schema.audits }).from(schema.auditFindings).innerJoin(schema.audits, eq(schema.audits.id, schema.auditFindings.auditId)).where(and(eq(schema.auditFindings.practiceId, practiceId), eq(schema.auditFindings.status, 'open')));
-  const rooms = await services.db.select({ room: schema.rooms, site: schema.sites }).from(schema.rooms).innerJoin(schema.sites, eq(schema.sites.id, schema.rooms.siteId)).where(eq(schema.rooms.practiceId, practiceId));
+  const incidents = await services.db.select().from(schema.incidents).where(and(practiceId ? eq(schema.incidents.practiceId, practiceId) : undefined, sql`${schema.incidents.status} != 'closed'`));
+  const rr = await services.db.select().from(schema.reportableResults).where(and(practiceId ? eq(schema.reportableResults.practiceId, practiceId) : undefined, sql`${schema.reportableResults.status} != 'closed'`));
+  const dsr = await services.db.select().from(schema.dataSubjectRequests).where(and(practiceId ? eq(schema.dataSubjectRequests.practiceId, practiceId) : undefined, sql`${schema.dataSubjectRequests.status} not in ('fulfilled','refused')`));
+  const findings = await services.db.select({ f: schema.auditFindings, a: schema.audits }).from(schema.auditFindings).innerJoin(schema.audits, eq(schema.audits.id, schema.auditFindings.auditId)).where(and(practiceId ? eq(schema.auditFindings.practiceId, practiceId) : undefined, eq(schema.auditFindings.status, 'open')));
+  const rooms = await services.db.select({ room: schema.rooms, site: schema.sites }).from(schema.rooms).innerJoin(schema.sites, eq(schema.sites.id, schema.rooms.siteId)).where(practiceId ? eq(schema.rooms.practiceId, practiceId) : undefined);
   const licences = rooms.filter((x) => x.room.licenceNo && (daysUntil(x.room.licenceExpiry) ?? 999) <= 90).map((x) => ({ roomId: x.room.id, label: `${x.site.name} ${x.room.name}`, licenceNo: x.room.licenceNo, expiry: x.room.licenceExpiry, days: daysUntil(x.room.licenceExpiry) }));
-  const creds = await services.db.select({ c: schema.credentials, s: schema.staff }).from(schema.credentials).innerJoin(schema.staff, eq(schema.staff.id, schema.credentials.staffId)).where(and(eq(schema.credentials.practiceId, practiceId), sql`${schema.credentials.expiry} <= ${addDays(today, 90)}`));
+  const creds = await services.db.select({ c: schema.credentials, s: schema.staff }).from(schema.credentials).innerJoin(schema.staff, eq(schema.staff.id, schema.credentials.staffId)).where(and(practiceId ? eq(schema.credentials.practiceId, practiceId) : undefined, sql`${schema.credentials.expiry} <= ${addDays(today, 90)}`));
   return c.json({
     tiles: {
       obligations: { total: obligations.length, current: obligations.length - overdue.length - due30.length, due30: due30.length, overdue: overdue.length },
@@ -58,9 +59,11 @@ r.get('/board', allow(...READERS), async (c) => {
 
 /* ================= Statutory register ================= */
 r.get('/register', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
   const { domain, status, q } = query(c, z.object({ domain: z.string().optional(), status: z.string().optional(), q: z.string().optional() }));
-  const rows = await c.get('services').db.select().from(schema.obligations).where(and(eq(schema.obligations.practiceId, practiceId), domain ? eq(schema.obligations.domain, domain) : undefined, status ? eq(schema.obligations.status, status) : undefined)).orderBy(asc(schema.obligations.dueDate));
+  const rows = await c.get('services').db.select().from(schema.obligations).where(and(practiceId ? eq(schema.obligations.practiceId, practiceId) : undefined, domain ? eq(schema.obligations.domain, domain) : undefined, status ? eq(schema.obligations.status, status) : undefined)).orderBy(asc(schema.obligations.dueDate));
   const today = todaySast();
   const filtered = q ? rows.filter((o) => `${o.instrument} ${o.obligation} ${o.section ?? ''}`.toLowerCase().includes(q.toLowerCase())) : rows;
   return c.json({
@@ -120,10 +123,12 @@ async function generateCalendar(services: Services, practiceId: string, obligati
 }
 r.get('/calendar', allow(...READERS), async (c) => {
   const services = c.get('services');
-  const practiceId = requirePractice(c);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
   const { days } = query(c, z.object({ days: z.coerce.number().min(30).max(365).default(90) }));
   const rows = await services.db.select({ e: schema.obligationEvents, o: schema.obligations }).from(schema.obligationEvents).innerJoin(schema.obligations, eq(schema.obligations.id, schema.obligationEvents.obligationId))
-    .where(and(eq(schema.obligationEvents.practiceId, practiceId), gte(schema.obligationEvents.dueDate, addDays(todaySast(), -30)), lte(schema.obligationEvents.dueDate, addDays(todaySast(), days)))).orderBy(asc(schema.obligationEvents.dueDate));
+    .where(and(practiceId ? eq(schema.obligationEvents.practiceId, practiceId) : undefined, gte(schema.obligationEvents.dueDate, addDays(todaySast(), -30)), lte(schema.obligationEvents.dueDate, addDays(todaySast(), days)))).orderBy(asc(schema.obligationEvents.dueDate));
   const byDue = new Map<string, { dueDate: string; obligationId: string; title: string; instrument: string; owner: string; automation: string; leads: number[]; state: string; daysToDue: number | null; evidenceCount: number }>();
   for (const { e, o } of rows) {
     const key = `${o.id}:${e.dueDate}`;
@@ -143,9 +148,11 @@ r.post('/calendar/generate', allow('CMP', 'SUP'), async (c) => {
 
 /* ================= Incidents ================= */
 r.get('/incidents', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
   const { status } = query(c, z.object({ status: z.string().optional() }));
-  const rows = await c.get('services').db.select().from(schema.incidents).where(and(eq(schema.incidents.practiceId, practiceId), status ? eq(schema.incidents.status, status) : undefined)).orderBy(desc(schema.incidents.reportedAt));
+  const rows = await c.get('services').db.select().from(schema.incidents).where(and(practiceId ? eq(schema.incidents.practiceId, practiceId) : undefined, status ? eq(schema.incidents.status, status) : undefined)).orderBy(desc(schema.incidents.reportedAt));
   return c.json({ incidents: rows });
 });
 r.get('/incidents/:id', allow(...READERS), async (c) => {
@@ -243,8 +250,10 @@ r.post('/incidents/:id/submit-report', allow('CMP'), async (c) => {
 
 /* ================= Complaints ================= */
 r.get('/complaints', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
-  const rows = await c.get('services').db.select().from(schema.complaints).where(eq(schema.complaints.practiceId, practiceId)).orderBy(desc(schema.complaints.receivedAt));
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
+  const rows = await c.get('services').db.select().from(schema.complaints).where(practiceId ? eq(schema.complaints.practiceId, practiceId) : undefined).orderBy(desc(schema.complaints.receivedAt));
   const now = new Date().toISOString();
   return c.json({ complaints: rows.map((x) => ({ ...x, ackOverdue: !x.acknowledgedAt && x.acknowledgeBy < now, respondOverdue: !x.respondedAt && x.respondBy < now, slaPct: Math.min(100, Math.round(((Date.now() - new Date(x.receivedAt).getTime()) / (new Date(x.respondBy).getTime() - new Date(x.receivedAt).getTime())) * 100)) })) });
 });
@@ -286,8 +295,10 @@ r.patch('/complaints/:id', allow('CMP', 'PRM', 'SUP'), async (c) => {
 /* ================= Data-subject requests ================= */
 const DSR_CHECKLIST = ['Identity verified (ID match plus OTP to the registered number)', 'Record set collected (studies, reports, claims, disclosure log)', 'Third-party data reviewed for redaction under PAIA grounds', 'Response drafted', 'Information Officer approved release', 'Delivered through the Patient Space share link'];
 r.get('/requests', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
-  const rows = await c.get('services').db.select().from(schema.dataSubjectRequests).where(eq(schema.dataSubjectRequests.practiceId, practiceId)).orderBy(desc(schema.dataSubjectRequests.receivedAt));
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
+  const rows = await c.get('services').db.select().from(schema.dataSubjectRequests).where(practiceId ? eq(schema.dataSubjectRequests.practiceId, practiceId) : undefined).orderBy(desc(schema.dataSubjectRequests.receivedAt));
   const now = Date.now();
   return c.json({
     requests: rows.map((x) => {
@@ -338,10 +349,12 @@ r.patch('/requests/:id', allow('CMP', 'SUP'), async (c) => {
 
 /* ================= Audits, findings and policies ================= */
 r.get('/audits', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
   const services = c.get('services');
-  const audits = await services.db.select().from(schema.audits).where(eq(schema.audits.practiceId, practiceId)).orderBy(desc(schema.audits.scheduledAt));
-  const findings = await services.db.select().from(schema.auditFindings).where(eq(schema.auditFindings.practiceId, practiceId));
+  const audits = await services.db.select().from(schema.audits).where(practiceId ? eq(schema.audits.practiceId, practiceId) : undefined).orderBy(desc(schema.audits.scheduledAt));
+  const findings = await services.db.select().from(schema.auditFindings).where(practiceId ? eq(schema.auditFindings.practiceId, practiceId) : undefined);
   return c.json({ audits: audits.map((a) => ({ ...a, findings: findings.filter((f) => f.auditId === a.id) })) });
 });
 r.post('/audits/:id/findings', allow('CMP', 'SUP'), async (c) => {
@@ -362,10 +375,12 @@ r.post('/findings/:id/close', allow('CMP', 'SUP'), async (c) => {
 });
 r.get('/policies', allow(...READERS), async (c) => {
   const services = c.get('services');
-  const practiceId = requirePractice(c);
-  const pols = await services.db.select().from(schema.policies).where(sql`${schema.policies.practiceId} is null or ${schema.policies.practiceId} = ${practiceId}`).orderBy(asc(schema.policies.category));
-  const staffRows = await services.db.select({ id: schema.staff.id }).from(schema.staff).where(and(eq(schema.staff.practiceId, practiceId), eq(schema.staff.status, 'active')));
-  const acks = await services.db.select().from(schema.policyAcknowledgements).where(eq(schema.policyAcknowledgements.practiceId, practiceId));
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
+  const pols = await services.db.select().from(schema.policies).where(practiceId ? sql`${schema.policies.practiceId} is null or ${schema.policies.practiceId} = ${practiceId}` : undefined).orderBy(asc(schema.policies.category));
+  const staffRows = await services.db.select({ id: schema.staff.id }).from(schema.staff).where(and(practiceId ? eq(schema.staff.practiceId, practiceId) : undefined, eq(schema.staff.status, 'active')));
+  const acks = await services.db.select().from(schema.policyAcknowledgements).where(practiceId ? eq(schema.policyAcknowledgements.practiceId, practiceId) : undefined);
   return c.json({ policies: pols.map((p) => ({ ...p, acknowledged: acks.filter((a) => a.policyId === p.id && a.version === p.version).length, inScope: staffRows.length, coveragePct: staffRows.length ? Math.round((acks.filter((a) => a.policyId === p.id && a.version === p.version).length / staffRows.length) * 100) : null })) });
 });
 r.post('/policies/:id/acknowledge', allow('CMP', 'PRM', 'RAD', 'RGT', 'NUR', 'FDK', 'BIO', 'SUP', 'BIL', 'DEB', 'BKG'), async (c) => {
@@ -385,8 +400,10 @@ r.post('/policies/:id/acknowledge', allow('CMP', 'PRM', 'RAD', 'RGT', 'NUR', 'FD
 
 /* ================= Reportable results (docs/24 §3) ================= */
 r.get('/reportable-results', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
-  const rows = await c.get('services').db.select().from(schema.reportableResults).where(eq(schema.reportableResults.practiceId, practiceId)).orderBy(desc(schema.reportableResults.createdAt));
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
+  const rows = await c.get('services').db.select().from(schema.reportableResults).where(practiceId ? eq(schema.reportableResults.practiceId, practiceId) : undefined).orderBy(desc(schema.reportableResults.createdAt));
   const now = new Date().toISOString();
   return c.json({
     results: rows.map((x) => ({ ...x, ackOverdue: !x.ackAt && x.ackDueAt < now, ackPct: Math.min(100, Math.round(((Date.now() - new Date(x.createdAt).getTime()) / Math.max(1, new Date(x.ackDueAt).getTime() - new Date(x.createdAt).getTime())) * 100)) })),
@@ -454,8 +471,10 @@ const PACK_SECTIONS: Record<string, Array<{ section: string; source: string }>> 
   internal: [{ section: 'Obligations', source: 'obligations' }, { section: 'Incidents', source: 'incidents' }, { section: 'Audits', source: 'audits' }],
 };
 r.get('/evidence-packs', allow(...READERS), async (c) => {
-  const practiceId = requirePractice(c);
-  const rows = await c.get('services').db.select().from(schema.evidencePacks).where(eq(schema.evidencePacks.practiceId, practiceId)).orderBy(desc(schema.evidencePacks.createdAt)).limit(30);
+  // Compliance is a cross-tenant oversight role: with no practice selected the read
+  // surfaces aggregate across the practices in scope (docs/12 §17, aggregated view).
+  const practiceId = c.get('practiceId');
+  const rows = await c.get('services').db.select().from(schema.evidencePacks).where(practiceId ? eq(schema.evidencePacks.practiceId, practiceId) : undefined).orderBy(desc(schema.evidencePacks.createdAt)).limit(30);
   return c.json({ packs: rows.map((p) => ({ ...p, html: undefined })), kinds: Object.keys(PACK_SECTIONS) });
 });
 r.get('/evidence-packs/:id', allow(...READERS), async (c) => {
@@ -611,7 +630,7 @@ export default defineModule({
                 break;
               }
               case 'policies': {
-                const q = await ctx.services.db.select().from(schema.policies).where(sql`${schema.policies.practiceId} is null or ${schema.policies.practiceId} = ${practiceId}`);
+                const q = await ctx.services.db.select().from(schema.policies).where(practiceId ? sql`${schema.policies.practiceId} is null or ${schema.policies.practiceId} = ${practiceId}` : undefined);
                 for (const p of q) rows.push(`${p.title} v${p.version} · effective ${p.effectiveDate} · ${p.category}`);
                 break;
               }

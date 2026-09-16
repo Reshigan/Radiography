@@ -50,10 +50,11 @@ export function matchProcedure(list: ProcedureDef[], text: string, opts: { modal
   const candidates = opts.modality ? list.filter((p) => p.modality === opts.modality) : list;
   let best: { procedure: ProcedureDef; score: number } | null = null;
   for (const p of candidates) {
+    const terms = [...p.keywords, ...p.bodyPart.split(/\s+and\s+|\s+/).filter((w) => w.length > 3)];
     let hits = 0;
-    for (const k of p.keywords) if (word(k).test(text)) hits++;
+    for (const k of new Set(terms)) if (word(k).test(text)) hits++;
     if (!hits) continue;
-    let score = Math.min(1, hits / Math.max(2, Math.min(3, p.keywords.length)));
+    let score = Math.min(1, hits / Math.max(2, Math.min(3, terms.length)));
     // Prefer the contrast variant that matches what the referrer asked for.
     if (opts.contrast !== undefined) {
       const wants = opts.contrast;

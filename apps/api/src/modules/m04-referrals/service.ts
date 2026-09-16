@@ -88,8 +88,9 @@ export async function createOrder(services: Services, input: CreateOrderInput, c
   const priority = input.priority ?? 'routine';
   // Justification policy engine (docs/processes/01 §7.7): deterministic, human-only overrides.
   let justification: 'justified' | 'justified_pending_confirmation' | 'not_justified' = 'justified';
+  const STAFF_CHANNELS = ['desk', 'walk_in', 'phone'];
   if (ionising) {
-    if (!referrer) justification = procedures.every((p) => p.modality === 'MG') ? 'justified' : 'not_justified';
+    if (!referrer) justification = procedures.every((p) => p.modality === 'MG') ? 'justified' : STAFF_CHANNELS.includes(input.channel ?? '') ? 'justified_pending_confirmation' : 'not_justified';
     else if (referrer.status !== 'active' || !referrer.hpcsaVerifiedAt) justification = 'justified_pending_confirmation';
     else if (['phone', 'whatsapp'].includes(input.channel ?? '') && !input.referralId) justification = 'justified_pending_confirmation';
   }
@@ -199,12 +200,14 @@ export function registerReferralHand() {
       if (m) { patientId = m.patientId; patientConfidence = m.confidence; }
     }
     const referrerId = ref.referrerId ?? parsed.referrerId ?? null;
-    const missing = [...parsed.missing];
+    const missing = parsed.missing.filter((m) => m !== 'patient' || !patientId);
     if (!patientId) missing.push('patient');
     else if (patientConfidence < Number(ctx.leash['minPatientMatchConfidence'] ?? 0.8)) missing.push('patient_confirmation');
-    if (!referrerId) missing.push('referrer');
+    if (!referrerId && !missing.includes('referrer')) missing.push('referrer');
     const complete = missing.filter((m) => m !== 'clinical').length === 0;
     const status = complete ? 'matched' : 'needs_info';
+    // The patient is known from the session or the match, so it is no longer an open question on the artefact.
+    if (patientId) parsed.missing = parsed.missing.filter((m) => m !== 'patient');
     await ctx.step('referral.update', { status, missing }, () => services.db.update(schema.referrals).set({ parsed, confidence: Math.round(parsed.confidence * 100), patientId: patientId ?? null, referrerId, status, needsInfo: missing, updatedAt: new Date().toISOString() }).where(eq(schema.referrals.id, ref.id)));
     let orderId: string | undefined;
     if (complete && (input.autoConvert ?? true) && parsed.confidence >= Number(ctx.leash['autoConvertMinConfidence'] ?? 0.75) && parsed.procedureCode && patientId) {

@@ -106,13 +106,13 @@ export function parseReferralText(text: string, catalogue: ProcedureDef[], refer
   const mob = /(?:\+27|0)\d{2}[\s-]?\d{3}[\s-]?\d{4}\b/.exec(t);
   const patientMobile = mob ? mob[0].replace(/[\s-]/g, '') : undefined;
   if (patientMobile) conf(fields, 'patientMobile', patientMobile, 0.9);
-  const nm = /(?:patient|pt|name|re)\s*[:\-]\s*(?:(?:Mr|Mrs|Ms|Miss|Mnr|Mev)\.?\s+)?([A-Z][\w'-]+(?:\s+[A-Z][\w'-]+){0,2})/.exec(t) ?? /\bfor\s+(?:Mr|Mrs|Ms|Miss)\.?\s+([A-Z][\w'-]+(?:\s+[A-Z][\w'-]+)?)/.exec(t);
+  const nm = /(?:patient|pt|name|re)\s*[:-]\s*(?:(?:Mr|Mrs|Ms|Miss|Mnr|Mev)\.?\s+)?([A-Z][\w'-]+(?:\s+[A-Z][\w'-]+){0,2})/.exec(t) ?? /\bfor\s+(?:Mr|Mrs|Ms|Miss)\.?\s+([A-Z][\w'-]+(?:\s+[A-Z][\w'-]+)?)/.exec(t);
   const patientName = nm?.[1]?.trim();
   if (patientName) conf(fields, 'patientName', patientName, 0.8);
   if (!patientName && !patientIdNumber && !patientMobile) missing.push('patient');
 
   // Clinical information
-  const cl = /(?:clinical(?:\s+(?:info(?:rmation)?|indication|history|question|details))?|indication|history|hx|dx|diagnosis|reason|query|\?)\s*[:\-]\s*([^\n]+)/i.exec(t);
+  const cl = /(?:clinical(?:\s+(?:info(?:rmation)?|indication|history|question|details))?|indication|history|hx|dx|diagnosis|reason|query|\?)\s*[:-]\s*([^\n]+)/i.exec(t);
   let clinicalInfo = cl?.[1]?.trim();
   if (!clinicalInfo) {
     const stripped = t.replace(/\b\d{13}\b/g, '').replace(/(?:\+27|0)\d{2}[\s-]?\d{3}[\s-]?\d{4}/g, '').replace(/\bDr\.?\s+(?:[A-Z][\w'-]*\.?\s?){1,3}/g, '').replace(/\b(MP|PR)\s?\d{6,7}\b/gi, '');

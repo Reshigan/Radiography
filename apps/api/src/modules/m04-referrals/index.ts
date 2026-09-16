@@ -62,18 +62,6 @@ r.get('/inbox/summary', allow('FDK', 'BKG', 'PRM', 'SUP', 'EXE'), async (c) => {
   return c.json({ summary: rows });
 });
 
-r.get('/:id', allow(...STAFF, 'REF', 'PAT'), async (c) => {
-  const services = c.get('services');
-  const [ref] = await services.db.select().from(schema.referrals).where(eq(schema.referrals.id, param(c, 'id'))).limit(1);
-  if (!ref) throw notFound('Referral');
-  const user = c.get('user')!;
-  if (user.persona === 'PAT' && ref.patientId !== user.patientId) throw forbidden();
-  if (user.persona === 'REF' && ref.referrerId !== user.referrerId) throw forbidden();
-  const task = ref.taskId ? (await services.db.select().from(schema.agentTasks).where(eq(schema.agentTasks.id, ref.taskId)).limit(1))[0] : null;
-  const order = ref.orderId ? await orderWithContext(services, ref.orderId) : null;
-  return c.json({ referral: ref, task: task ?? null, order });
-});
-
 r.post('/:id/convert', allow('BKG', 'FDK', 'PRM', 'SUP'), async (c) => {
   const id = param(c, 'id');
   const services = c.get('services');
@@ -291,6 +279,19 @@ r.post('/referrers/:id/verify', allow('BKG', 'PRM', 'SUP', 'CMP'), async (c) => 
   await services.db.update(schema.referrers).set(ok ? { hpcsaVerifiedAt: at, status: 'active', updatedAt: at } : { status: 'unverified', updatedAt: at }).where(eq(schema.referrers.id, id));
   await audit(c, 'referrer.verified', { type: 'referrer', id }, { ok, hpcsaNo: x.hpcsaNo, source: 'format-check (demo)' });
   return c.json({ ok, verifiedAt: ok ? at : null });
+});
+
+/* Registered last: a bare /:id must not shadow the static routes above. */
+r.get('/:id', allow(...STAFF, 'REF', 'PAT'), async (c) => {
+  const services = c.get('services');
+  const [ref] = await services.db.select().from(schema.referrals).where(eq(schema.referrals.id, param(c, 'id'))).limit(1);
+  if (!ref) throw notFound('Referral');
+  const user = c.get('user')!;
+  if (user.persona === 'PAT' && ref.patientId !== user.patientId) throw forbidden();
+  if (user.persona === 'REF' && ref.referrerId !== user.referrerId) throw forbidden();
+  const task = ref.taskId ? (await services.db.select().from(schema.agentTasks).where(eq(schema.agentTasks.id, ref.taskId)).limit(1))[0] : null;
+  const order = ref.orderId ? await orderWithContext(services, ref.orderId) : null;
+  return c.json({ referral: ref, task: task ?? null, order });
 });
 
 r.get('/status', (c) => c.json({ module: 'M04', status: 'ok' }));

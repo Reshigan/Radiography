@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { newId, notFound, conflict } from '@bonakala/domain';
-import { DEMO_MODELS, getDemoModel } from '@bonakala/domain/bci';
+import { DEMO_MODELS, getDemoModel, routeModels } from '@bonakala/domain/bci';
 import { defineModule, router, allow, body, query, param, audit, emit, on } from '../../kernel/index.js';
 import { ensureRegistry, inferStudy } from './service.js';
 
@@ -86,11 +86,13 @@ r.get('/monitoring', allow(...READ), async (c) => {
   const { days, siteId } = query(c, z.object({ days: z.coerce.number().min(1).max(90).default(14), siteId: z.string().optional() }));
   const since = new Date(services.clock.now().getTime() - days * 86400_000).toISOString();
   const results = await services.db.select().from(schema.inferenceResults).where(and(gte(schema.inferenceResults.createdAt, since), siteId ? eq(schema.inferenceResults.siteId, siteId) : undefined));
-  const studies = await services.db.select({ id: schema.studies.id, siteId: schema.studies.siteId, modality: schema.studies.modality, status: schema.studies.status, receivedAt: schema.studies.receivedAt }).from(schema.studies).where(gte(schema.studies.receivedAt, since));
+  const studies = await services.db.select({ id: schema.studies.id, siteId: schema.studies.siteId, modality: schema.studies.modality, bodyPart: schema.studies.bodyPart, status: schema.studies.status, receivedAt: schema.studies.receivedAt }).from(schema.studies).where(gte(schema.studies.receivedAt, since));
   const reports = await services.db.select({ id: schema.reports.id, studyId: schema.reports.studyId, candidates: schema.reports.candidates, status: schema.reports.status, siteId: schema.reports.siteId }).from(schema.reports).where(and(eq(schema.reports.status, 'signed'), gte(schema.reports.signedAt, since)));
 
   const analysedStudies = new Set(results.filter((x) => x.task !== 'not_analysed').map((x) => x.studyId));
-  const eligible = studies.filter((s) => s.status !== 'cancelled');
+  // Eligible = a study for which the routing rules select at least one model (docs/22 §10).
+  const eligible = studies.filter((s) => s.status !== 'cancelled' && routeModels(s.modality, s.bodyPart).length > 0);
+  const notEligible = studies.length - eligible.length;
   const coverage = eligible.length ? Math.round((eligible.filter((s) => analysedStudies.has(s.id)).length / eligible.length) * 1000) / 10 : 100;
 
   let accepted = 0, rejected = 0, edited = 0, decided = 0;
@@ -124,16 +126,19 @@ r.get('/monitoring', allow(...READ), async (c) => {
     const rs = results.filter((x) => x.createdAt.slice(0, 10) === d && x.task !== 'not_analysed');
     return { date: d, n: rs.length, positiveRate: rs.length ? Math.round((rs.filter((x) => x.flagged).length / rs.length) * 1000) / 10 : 0, latencyP95: pct(rs.map((x) => x.latencyMs), 95) };
   });
-  const slips = await services.db.select({ id: schema.modelEvents.id }).from(schema.modelEvents).where(and(eq(schema.modelEvents.type, 'incident'), gte(schema.modelEvents.createdAt, since)));
+  // A slip is Class 1 or 2 content reaching a record, referrer or patient without its gate (docs/00 §8).
+  // Performance incidents are not slips: only events explicitly categorised as one are counted.
+  const incidents = await services.db.select({ id: schema.modelEvents.id, detail: schema.modelEvents.detail }).from(schema.modelEvents).where(and(eq(schema.modelEvents.type, 'incident'), gte(schema.modelEvents.createdAt, since)));
+  const slips = incidents.filter((x) => /slip/i.test(String((x.detail as Record<string, unknown>)?.category ?? '')));
   return c.json({
-    days, coveragePct: coverage, analysed: analysedStudies.size, eligible: eligible.length,
+    days, coveragePct: coverage, analysed: eligible.filter((s) => analysedStudies.has(s.id)).length, eligible: eligible.length, noModelApplies: notEligible,
     agreement: decided ? Math.round((accepted / decided) * 100) / 100 : null,
     overrideRatePct: decided ? Math.round((rejected / decided) * 1000) / 10 : 0,
     decisions: { accepted, rejected, edited, decided },
     latencyP50: pct(results.map((x) => x.latencyMs), 50), latencyP95: pct(results.map((x) => x.latencyMs), 95),
     models: Object.entries(perModel).map(([modelId, v]) => ({ modelId, name: getDemoModel(modelId)?.name ?? modelId, n: v.n, latencyP50: pct(v.latency, 50), latencyP95: pct(v.latency, 95), positiveRatePct: Math.round((v.positives / v.n) * 1000) / 10, modes: v.mode })),
     sites: Object.entries(perSite).map(([site, v]) => ({ siteId: site, n: v.n, positiveRatePct: Math.round((v.positives / v.n) * 1000) / 10, deltaVsGroupPct: Math.round((v.positives / v.n - groupPositive) * 1000) / 10 })),
-    daily, slipCount: slips.length,
+    daily, slipCount: slips.length, aiIncidents: incidents.length,
   });
 });
 

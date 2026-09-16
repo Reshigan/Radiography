@@ -9,6 +9,8 @@ import { coordsFromAddress, haversineKm, travelMinutes } from './geo.js';
 import { sendWhatsApp } from '../../sim/whatsapp.js';
 
 export const HOLD_MINUTES = 10;
+/** Default travel radius for "earliest near me" before we widen the search. */
+export const RADIUS_KM = 60;
 export const NO_SHOW_MODEL = { modelId: 'noshow-heuristic', modelVersion: '1.0' };
 
 export interface Offer extends Slot { distanceKm: number | null; travelMin: number | null; patientPortionCents: number | null; priceCertainty: 'guaranteed' | 'subject_to_auth' | 'unchecked'; reason: string }
@@ -32,7 +34,7 @@ export async function earliestNearMe(services: Services, input: { orderId: strin
   const days = input.days ?? 14;
   const funding = await fundingForOrder(services, order.id);
   const priceCertainty: Offer['priceCertainty'] = !funding ? 'unchecked' : funding.fundingCase.authRequired && funding.fundingCase.authStatus !== 'approved' ? 'subject_to_auth' : 'guaranteed';
-  const all: Offer[] = [];
+  let all: Offer[] = [];
   const duration = order.procedures[0]!.durationMin ?? proc.durationMin;
   for (let d = 0; d < days && all.length < 400; d++) {
     const date = addDays(from, d);
@@ -45,6 +47,9 @@ export async function earliestNearMe(services: Services, input: { orderId: strin
     }
   }
   all.sort((a, b) => a.startsAt.localeCompare(b.startsAt) || (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
+  // Stay inside the patient's travel radius when anything there is open; only widen when nothing is (docs/processes/02 §7.3).
+  const withinRadius = all.filter((s) => s.distanceKm == null || s.distanceKm <= RADIUS_KM);
+  if (withinRadius.length) all = withinRadius;
   const offers: Offer[] = [];
   const limit = input.limit ?? 3;
   const earliest = all[0];

@@ -134,9 +134,8 @@ export function runDemoModel(modelId: string, input: DemoModelInput): BciResult 
       f.push(finding('motion', 'Motion blur', rng() < 0.06 ? 0.75 + rng() * 0.2 : rng() * 0.2, 0.6));
       f.push(finding('clipped_anatomy', 'Costophrenic angles clipped', rng() < 0.08 ? 0.7 + rng() * 0.25 : rng() * 0.25, 0.6));
       const markerOk = rng() > 0.05;
-      f.push(finding('laterality_marker', 'Laterality marker present', markerOk ? 0.92 + rng() * 0.07 : 0.2 + rng() * 0.2, 0.6, { laterality: side }));
-      for (const x of f) if (x.flag && x.code !== 'laterality_marker') issues.push(x.code);
-      if (!markerOk) issues.push('laterality_marker_missing');
+      f.push(finding('laterality_marker_missing', 'Laterality marker not detected', markerOk ? rng() * 0.25 : 0.78 + rng() * 0.2, 0.6, { laterality: side }));
+      for (const x of f) if (x.flag) issues.push(x.code);
       const usable = !issues.includes('motion') && !issues.includes('clipped_anatomy');
       res.findings = f;
       res.quality = { usable, issues };

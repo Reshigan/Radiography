@@ -28,7 +28,7 @@ export const codingHand = defineHand({
   tools: { 'db.read': 'R0', 'llm.coding_rationale': 'R0', 'charge.propose_codes': 'R1', 'charge.accept_codes': 'R1', 'claim.assemble': 'R1', 'charge.queue_exception': 'R1' },
 });
 
-export interface CodingInput extends Record<string, unknown> { chargeId: string; trigger?: string }
+export interface CodingInput extends Record<string, unknown> { chargeId: string; trigger?: string; /** ICD-10 exactly as the signed report carried it (empty means the Hand had to suggest one). */ reportIcd10?: string[] }
 
 async function runCoding(input: CodingInput, ctx: HandRunContext) {
   const services = ctx.services;
@@ -38,7 +38,8 @@ async function runCoding(input: CodingInput, ctx: HandRunContext) {
   const cctx = await ctx.step('db.read', { patientId: charge.patientId }, async () => chargeContext(db, charge));
   if (!cctx) throw new Error('patient not found');
 
-  const proposal = await ctx.step('charge.propose_codes', { chargeId: charge.id }, async () => proposeCoding({ procedureCodes: charge.procedureCodes, icd10: charge.icd10 }));
+  const reportIcd10 = Array.isArray(input.reportIcd10) ? input.reportIcd10 : charge.icd10;
+  const proposal = await ctx.step('charge.propose_codes', { chargeId: charge.id }, async () => proposeCoding({ procedureCodes: charge.procedureCodes, icd10: reportIcd10 }));
   // Optional LLM rationale; always works when llm.available is false (deterministic fallback).
   let rationale = proposal.evidence.join('; ');
   if (services.llm.available) {
@@ -281,7 +282,7 @@ async function runCollections(input: CollectionsInput, ctx: HandRunContext) {
 
     const channel: Channel = chooseChannel((a.consentChannels ?? []) as Channel[], step, policy);
     const scheduledFor = nextContactSlot(runAt, policy);
-    if (isWithinContactWindow(runAt, policy)) insideWindow++;
+    if (isWithinContactWindow(scheduledFor, policy)) insideWindow++;
     let paylinkToken: string | null = null;
     if (step.action === 'reminder_paylink' || (step.offersPlan && score.band === 'high')) {
       const link = await ctx.step('payment.create_link', { accountId: a.id, cents: a.balanceCents }, async () => createPaymentLink(services, { practiceId, accountId: a.id, amountCents: a.balanceCents, channel, createdBy: 'collections-hand' }));
@@ -302,10 +303,10 @@ async function runCollections(input: CollectionsInput, ctx: HandRunContext) {
   }
 
   await db.insert(schema.dunningRuns).values({
-    id: runId, practiceId, startedAt: runAt, finishedAt: nowIso(), handTaskId: 'collections-hand', policyVersion: policy.version, actions, byChannel, byStep, byBand, exclusions, insideWindow: actions, needsHuman: needsHuman.length, status: 'done',
+    id: runId, practiceId, startedAt: runAt, finishedAt: nowIso(), handTaskId: 'collections-hand', policyVersion: policy.version, actions, byChannel, byStep, byBand, exclusions, insideWindow, needsHuman: needsHuman.length, status: 'done',
   });
   await emitDirect(services, 'collections.run.completed.v1', { runId, practiceId, actions, needsHuman: needsHuman.length, exclusions: Object.values(exclusions).reduce((a, b) => a + b, 0) }, { aggregateType: 'dunning_run', aggregateId: runId, practiceId });
-  return { runId, actions, byChannel, byStep, byBand, exclusions, needsHuman: needsHuman.length, allInsideWindow: true };
+  return { runId, actions, byChannel, byStep, byBand, exclusions, needsHuman: needsHuman.length, insideWindow, allInsideWindow: insideWindow === actions };
 }
 
 /* ---------- Registration ---------- */
@@ -321,7 +322,7 @@ export async function onReportSigned(services: Services, payload: ReportSignedPa
   const result = await captureCharge(services, payload);
   if (!result || !result.created) return result;
   const { runHand } = await import('../../kernel/hands.js');
-  await runHand(services, 'coding', { chargeId: result.charge.id, trigger: 'report.signed.v1' }, { practiceId: payload.practiceId, trigger: 'report.signed.v1', title: `Code charge for ${payload.accession ?? result.charge.id}`, aggregateType: 'charge', aggregateId: result.charge.id });
+  await runHand(services, 'coding', { chargeId: result.charge.id, trigger: 'report.signed.v1', reportIcd10: payload.icd10 ?? [] }, { practiceId: payload.practiceId, trigger: 'report.signed.v1', title: `Code charge for ${payload.accession ?? result.charge.id}`, aggregateType: 'charge', aggregateId: result.charge.id });
   return result;
 }
 

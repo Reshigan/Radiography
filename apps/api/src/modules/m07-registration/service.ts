@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 import { schema, type CollectSnapshot } from '@bonakala/db';
-import { defineHand, newId, notFound, conflict } from '@bonakala/domain';
+import { defineHand, newId, notFound } from '@bonakala/domain';
 import { emit, emitDirect, registerHand, runHand, type AppContext, type Services } from '../../kernel/index.js';
 import { loadCatalogue, type ProcedureDef } from '../m04-referrals/catalogue.js';
 import { ageFrom } from '../m04-referrals/appropriateness.js';
@@ -102,7 +102,7 @@ export async function evaluateGate(services: Services, encounterId: string): Pro
   for (const q of qs) {
     const title = QUESTION_SETS[q.set as SafetySet].title;
     const ok = ['cleared', 'cleared_with_conditions', 'overridden'].includes(q.status);
-    const detail = ok ? (q.conditions?.length ? `${title}: cleared with conditions (${q.conditions.join('; ')})` : `${title}: cleared`) : q.status === 'blocked' ? `${title}: ${q.blockingItems.join('; ')}` : q.completeness < 100 ? `${title}: ${q.completeness} % answered` : `${title}: needs clinician review (${q.conditions.join('; ')})`;
+    const detail = ok ? (q.conditions?.length ? `${title}: cleared with conditions (${(q.conditions ?? []).join('; ')})` : `${title}: cleared`) : q.status === 'blocked' ? `${title}: ${q.blockingItems.join('; ')}` : q.completeness < 100 ? `${title}: ${q.completeness} % answered` : `${title}: needs clinician review (${(q.conditions ?? []).join('; ')})`;
     checks.push({ check: q.set, ok, severity: 'block', detail });
   }
   const fundingOk = !funding || !['expired'].includes(funding.fundingCase.status);

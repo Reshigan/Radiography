@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { and, desc, eq, gte, inArray, lt, lte, ne, sql } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
-import { newId, notFound, forbidden, invalid } from '@bonakala/domain';
+import { newId, notFound, forbidden } from '@bonakala/domain';
 import { defineModule, router, allow, body, query, param, audit, emit, requirePractice, on } from '../../kernel/index.js';
 import { registerWhatsAppSim, handleInbound, whatsappOutbox } from '../../sim/whatsapp.js';
-import { availability, addDays, sastDate, sastTime, loadSheddingFor, roomTypeFor } from './slots.js';
+import { availability, addDays, sastDate, sastTime, loadSheddingFor } from './slots.js';
 import { loadCatalogue } from '../m04-referrals/catalogue.js';
 import { appointmentsWithContext, backfillFromWaitlist, cancelAppointment, confirmHold, earliestNearMe, expireHolds, holdSlot, releaseHold, rescheduleAppointment, sendDueReminders, statInsert } from './service.js';
 import { registerBookingHand, registerBookingInbound } from './hand.js';

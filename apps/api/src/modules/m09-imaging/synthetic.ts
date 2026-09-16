@@ -32,19 +32,11 @@ export function renderSyntheticImage(spec: SyntheticImageSpec): string {
 ${body}
 ${hint}
 <rect width="512" height="512" filter="url(#n)" opacity="0.9"/>
-<g font-family="IBM Plex Mono, monospace" font-size="10" fill="#cfd6d3">
-<text x="8" y="16">${esc(spec.patientLabel)}</text>
-<text x="8" y="30">${esc(spec.accession)}</text>
-<text x="8" y="44">${esc(spec.modality)} · ${esc(spec.seriesDescription)}${spec.view ? ' · ' + esc(spec.view) : ''} · #${spec.instanceNumber}</text>
-<text x="504" y="16" text-anchor="end">DEMO · synthetic image</text>
-<text x="504" y="500" text-anchor="end">${spec.laterality === 'L' ? 'L' : spec.laterality === 'R' ? 'R' : ''}</text>
-<text x="8" y="500">not for diagnostic use</text>
+<g font-family="IBM Plex Mono, monospace" font-size="11" fill="#cfd6d3" opacity="0.75">
+<text x="256" y="500" text-anchor="middle">DEMO · synthetic image · not for diagnostic use</text>
+<text x="486" y="270" text-anchor="middle" font-size="22" font-weight="600">${spec.laterality === 'L' ? 'L' : spec.laterality === 'R' ? 'R' : ''}</text>
 </g>
 </svg>`;
-}
-
-function esc(s: string) {
-  return s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]!);
 }
 
 function pickBody(spec: SyntheticImageSpec, rng: () => number): string {
