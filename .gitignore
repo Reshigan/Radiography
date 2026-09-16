@@ -5,8 +5,9 @@ dist/
 .env
 .env.*
 !.env.example
-data/*.db
-data/*.db-*
+**/data/*.db
+**/data/*.db-*
+**/data/objects/
 apps/web/src/routeTree.gen.ts
 .wrangler/
 test-results/

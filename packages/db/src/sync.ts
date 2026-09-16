@@ -11,6 +11,22 @@ export async function syncSchema(db: Db): Promise<number> {
   const empty = await generateSQLiteDrizzleJson({});
   const current = await generateSQLiteDrizzleJson(schema as any);
   const statements = await generateSQLiteMigration(empty, current);
-  for (const s of statements) await db.run(s as any);
-  return statements.length;
+  let applied = 0;
+  for (const statement of statements) {
+    try {
+      await db.run(statement as any);
+      applied++;
+    } catch (e) {
+      // Idempotent: a dev database that already carries the object is fine. Anything else is a real
+      // error. Drizzle wraps the driver error, so walk the cause chain for the sqlite message.
+      let text = '';
+      let cur: unknown = e;
+      for (let depth = 0; cur instanceof Error && depth < 5; depth++) {
+        text += ` ${cur.message}`;
+        cur = (cur as { cause?: unknown }).cause;
+      }
+      if (!/already exists/i.test(text)) throw e;
+    }
+  }
+  return applied;
 }

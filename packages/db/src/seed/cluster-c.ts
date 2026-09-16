@@ -446,6 +446,29 @@ export async function seedClusterC(db: Db, ctx: SeedContext): Promise<Record<str
     }
   }
 
+  /* ---------------- Today's desk activity, so the cash-up is alive ---------------- */
+  let todaySeq = 0;
+  for (const practiceId of [ctx.practiceA, ctx.practiceB]) {
+    const withBalance = patientAccounts.filter((a) => a.practiceId === practiceId && (accountsByPatient.get(`${a.practiceId}:${a.patientId}:patient`)?.balanceCents ?? 0) > 5000).slice(0, 4);
+    for (const [i, acc] of withBalance.entries()) {
+      const row = accountsByPatient.get(`${acc.practiceId}:${acc.patientId}:patient`)!;
+      const method = (['card', 'payshap', 'cash', 'qr'] as const)[i % 4]!;
+      const amount = Math.min(row.balanceCents, 20000 + Math.round(r() * 60000));
+      const at = dayIso(now, 0.2 + i * 0.05); // earlier today
+      receiptSeq++;
+      todaySeq++;
+      await db.insert(s.payments).values({
+        id: newId('pay'), practiceId, accountId: acc.id, patientId: acc.patientId, siteId: sitesByPractice[practiceId]![0]!, method, amountCents: amount, status: 'settled',
+        reference: `PAY-${practiceId === ctx.practiceA ? 'A' : 'B'}-${String(receiptSeq).padStart(6, '0')}`, receiptNo: `RCT-${practiceId === ctx.practiceA ? 'A' : 'B'}-${String(receiptSeq).padStart(6, '0')}`,
+        takenBy: ctx.users.FDK ?? null, settledAt: at, at, createdAt: at,
+      });
+      await db.insert(s.accountTransactions).values({ id: newId('txn'), practiceId, accountId: acc.id, patientId: acc.patientId, type: 'payment', amountCents: -amount, refType: 'payment', refId: `today-${todaySeq}`, description: `Payment received (${method})`, at, createdAt: at });
+      row.balanceCents -= amount;
+      await db.update(s.patientAccounts).set({ balanceCents: row.balanceCents }).where(eq(s.patientAccounts.id, acc.id));
+    }
+  }
+  summary.paymentsToday = todaySeq;
+
   /* ---------------- Payment plans (8) ---------------- */
   const balanceOf = (a: { practiceId: string; patientId: string }) => accountsByPatient.get(`${a.practiceId}:${a.patientId}:patient`)?.balanceCents ?? 0;
   const byBalance = [...patientAccounts].sort((a, b) => balanceOf(b) - balanceOf(a));

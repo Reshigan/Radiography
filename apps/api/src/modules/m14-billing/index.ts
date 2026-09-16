@@ -845,7 +845,7 @@ r.get('/cash-up', allow(...DESK), async (c) => {
   return c.json({
     day: d, totalCents: todays.reduce((a, x) => a + x.amountCents, 0), count: todays.length, byMethod, bySite,
     cash: { countedCents: byMethod.cash?.cents ?? 0, expectedCents: byMethod.cash?.cents ?? 0, varianceCents: 0, floatCents: 50000 },
-    receipts: todays.slice(0, 50).map((x) => ({ id: x.id, receiptNo: x.receiptNo, method: x.method, amountCents: x.amountCents, at: x.at, reference: x.reference, patientId: x.patientId })),
+    receipts: todays.slice(0, 50).map((x) => ({ id: x.id, receiptNo: x.receiptNo, method: x.method, amountCents: x.amountCents, status: x.status, at: x.at, reference: x.reference, patientId: x.patientId, takenBy: x.takenBy })),
   });
 });
 
