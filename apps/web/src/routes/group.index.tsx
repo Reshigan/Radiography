@@ -1,0 +1,13 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { PageHeader, EmptyState } from '@bonakala/bdl';
+
+export const Route = createFileRoute('/group/')({ component: Page });
+
+function Page() {
+  return (
+    <div className="page">
+      <PageHeader title="Group control tower" subtitle="This surface is built by its module builder." />
+      <EmptyState>Nothing to show yet.</EmptyState>
+    </div>
+  );
+}

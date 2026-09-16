@@ -1,0 +1,21 @@
+{
+  "name": "@bonakala/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./shared": "./src/shared/index.ts",
+    "./billing": "./src/billing/index.ts",
+    "./bci": "./src/bci/index.ts",
+    "./hands": "./src/hands/index.ts",
+    "./analytics": "./src/analytics/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": { "zod": "^3.24.1" },
+  "devDependencies": { "vitest": "^3.0.5", "typescript": "^5.7.3" }
+}

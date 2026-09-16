@@ -1,0 +1,36 @@
+{
+  "name": "bonakala",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter @bonakala/api dev",
+    "dev:web": "pnpm --filter @bonakala/web dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "e2e:smoke": "pnpm --filter @bonakala/web e2e",
+    "db:generate": "pnpm --filter @bonakala/db generate",
+    "db:migrate": "pnpm --filter @bonakala/db migrate",
+    "db:seed": "pnpm --filter @bonakala/db seed",
+    "db:reset": "pnpm --filter @bonakala/db reset",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.20.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "type": "module"
+}

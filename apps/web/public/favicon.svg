@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Bonakala mark: an open, tapered ring with a point of light">
+  <title>Bonakala mark</title>
+  <!--
+    Construction (original geometry):
+    - Outer circle: centre (256,256), radius 182.
+    - Inner circle: centre (270,242), radius 150 — offset toward the gap so the ring tapers from
+      ~52 px at lower-left (the detector) to ~12 px at upper-right (the beam entering).
+    - Gap: 56 degrees, centred at -45 degrees (upper right).
+    - Point of light: circle r=30 just inside the gap.
+  -->
+  <path fill="#0E1113" fill-rule="evenodd"
+        d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/>
+  <circle cx="322" cy="190" r="30" fill="#12B5A5"/>
+</svg>

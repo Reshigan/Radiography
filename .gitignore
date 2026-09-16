@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.turbo/
+*.log
+.env
+.env.*
+!.env.example
+data/*.db
+data/*.db-*
+apps/web/src/routeTree.gen.ts
+.wrangler/
+test-results/
+playwright-report/
+coverage/

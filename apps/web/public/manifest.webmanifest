@@ -1,0 +1,1 @@
+{ "name": "Bonakala", "short_name": "Bonakala", "start_url": "/p", "display": "standalone", "background_color": "#F5F1E9", "theme_color": "#14324A", "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }] }
