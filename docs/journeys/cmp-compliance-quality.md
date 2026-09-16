@@ -55,7 +55,6 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 
 **Edge cases.**
 - SAHPRA requests additional information. The correspondence is attached to the licence record and the timer resets to the new due date.
-- The room is being decommissioned next quarter. Nomvula records the planned decommissioning; the Hand switches the task to a licence cancellation and the slot engine winds down the room's bookings from the planned date.
 
 **Success measure.** No licence at the Practice ever reaches expiry without a submitted renewal; renewal packs prepared with zero manual document hunting.
 
@@ -124,7 +123,6 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 - Events: `accreditation.readiness.changed.v1`, `evidence_pack.generated.v1`, `audit.external.opened.v1`.
 
 **Edge cases.**
-- The framework version changes. The criterion mapping is versioned; the Group's compliance lead updates the mapping once and every Practice inherits it.
 
 **Success measure.** Readiness known continuously; pack generated in under an hour; no criterion without evidence at the visit.
 
