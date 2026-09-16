@@ -3,12 +3,37 @@ import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { newId, notFound, conflict } from '@bonakala/domain';
 import { DEMO_MODELS, getDemoModel, routeModels } from '@bonakala/domain/bci';
-import { defineModule, router, allow, body, query, param, audit, emit, on } from '../../kernel/index.js';
-import { ensureRegistry, inferStudy } from './service.js';
+import { defineHand } from '@bonakala/domain';
+import type { Services } from '../../kernel/ports.js';
+import { defineModule, router, allow, body, query, param, audit, emit, on, registerHand, runHand } from '../../kernel/index.js';
+import { ensureRegistry, inferStudy, runEdgeQc } from './service.js';
 
 const r = router();
 const GOV = ['AIO', 'CMP', 'PRM', 'EXE', 'SUP', 'BIO'] as const;
 const READ = [...GOV, 'RGT', 'RAD'] as const;
+
+/**
+ * QC Hand (docs/11 §6.8, docs/22 §8): runs the on-arrival positioning, exposure, motion and
+ * laterality checks at the Edge Gateway and gives the technologist feedback within seconds. It is
+ * purely advisory: the tool list has no "delete image" or "block acquisition" capability, and the
+ * QC card at /tech always keeps a manual "Send anyway" path, so the Hand can never itself stop a
+ * study reaching the archive.
+ */
+const qcHand = defineHand({
+  id: 'qc', name: 'QC Hand', module: 'M08', level: 'A2',
+  mandate: 'Evaluate positioning, exposure, motion and laterality within seconds of image arrival and suggest a repeat with a reason; never delete an image, never block sending, never repeat without the technologist.',
+  defaultLeash: { maxFlagsPerStudy: 8 },
+  approvalPersona: 'RAD', approvalPolicy: 'The technologist accepts the suggestion (repeats) or sends anyway; nothing here executes without that action',
+  tools: { read_study: 'R0', run_qc_model: 'R1', flag_repeat_suggestion: 'R1' },
+});
+
+/** Called by the Edge Gateway / modality simulator as soon as a study lands (docs/22 §8). */
+export async function runQcHand(services: Services, study: typeof schema.studies.$inferSelect) {
+  return runHand(services, 'qc', { studyId: study.id }, {
+    practiceId: study.practiceId, trigger: 'study.received', title: `QC for ${study.accession}`,
+    aggregateType: 'study', aggregateId: study.id,
+  });
+}
 
 /* ---------- Registry ---------- */
 r.get('/models', allow(...READ), async (c) => {
@@ -232,6 +257,18 @@ export default defineModule({
   code: 'M11', name: 'Clinical Intelligence', basePath: 'bci', routes: r,
   boot(services) {
     void ensureRegistry(services).catch(() => undefined);
+    registerHand<{ studyId: string }, { flagged: boolean; result: unknown } | { skipped: true }>(qcHand, async (input, ctx) => {
+      const study = await ctx.step('read_study', { studyId: input.studyId }, async () => (await services.db.select().from(schema.studies).where(eq(schema.studies.id, input.studyId)).limit(1))[0]);
+      if (!study) throw new Error('Study not found');
+      const outcome = await ctx.step('run_qc_model', { studyId: study.id, modality: study.modality }, async () => runEdgeQc(services, study));
+      if (!outcome) { ctx.log('No QC model applies to this modality; nothing to flag'); return { skipped: true }; }
+      const flagged = outcome.result.findings.some((f) => f.flag);
+      if (flagged) {
+        ctx.leashCheck([{ rule: 'maxFlagsPerStudy', actual: outcome.result.findings.filter((f) => f.flag).length }]);
+        await ctx.step('flag_repeat_suggestion', { studyId: study.id, reasons: outcome.result.findings.filter((f) => f.flag).map((f) => f.code) }, async () => outcome.id);
+      }
+      return { flagged, result: outcome.result };
+    });
     /** Inference orchestration: route models by modality, store results, emit bci.result.available.v1. */
     on('study.completed.v1', async (evt) => {
       const p = evt.payload as { studyId: string };

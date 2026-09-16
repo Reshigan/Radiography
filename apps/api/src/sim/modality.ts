@@ -10,7 +10,7 @@ import { emitDirect } from '../kernel/events.js';
 import type { Services } from '../kernel/ports.js';
 import { registerSim } from './index.js';
 import { createStudy } from '../modules/m09-imaging/service.js';
-import { runEdgeQc } from '../modules/m11-bci/service.js';
+import { runQcHand } from '../modules/m11-bci/index.js';
 import { completeAcquisition } from '../modules/m08-acquisition/service.js';
 
 /**
@@ -47,10 +47,11 @@ export async function simulateSend(services: Services, input: { siteId: string; 
   });
   if (item) await db.update(schema.worklistItems).set({ studyId: study.id, accession: study.accession, status: item.status === 'completed' ? 'completed' : 'in_progress', startedAt: item.startedAt ?? receivedAt, updatedAt: receivedAt }).where(eq(schema.worklistItems.id, item.id));
   await emitDirect(services, 'study.received.v1', { studyId: study.id, accession: study.accession, patientId: study.patientId, practiceId: study.practiceId, siteId: study.siteId, roomId, modality: study.modality, procedureCode: study.procedureCode, orderId: study.orderId, appointmentId: study.appointmentId, seriesCount: series.length, instanceCount: study.instanceCount, unmatched: study.unmatched }, { aggregateType: 'study', aggregateId: study.id, practiceId: study.practiceId });
-  const qc = await runEdgeQc(services, study);
+  const qcTask = await runQcHand(services, study);
+  const qc = (qcTask.output as { result?: unknown } | undefined)?.result ?? null;
   let completion: Awaited<ReturnType<typeof completeAcquisition>> | null = null;
   if (input.autoComplete !== false && !input.unmatched) completion = await completeAcquisition(services, { studyId: study.id, worklistItemId: item?.id ?? null, technologistUserId: input.technologistUserId ?? item?.technologistUserId ?? null, at: receivedAt, overrideIncomplete: 'simulator' });
-  return { study, series, instances, qc: qc?.result ?? null, completion };
+  return { study, series, instances, qc, completion };
 }
 
 export function registerModalitySim() {

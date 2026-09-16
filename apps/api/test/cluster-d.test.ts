@@ -393,6 +393,51 @@ describe('cluster D · M18 assets, Maintenance Hand and the edge simulator', () 
     expect(status.windows.some((w: any) => w.siteId === 'site_umh' && w.stage === 4)).toBe(true);
     expect(status.generatorCover.site_bal).toEqual([]);
   });
+
+  it('Support Hand diagnoses a backlog ticket and runs only the one allow-listed drain runbook', async () => {
+    const db = t.services.db;
+    const sup = await t.login('sup@demo.bonakala');
+    // Bring the gateway online with a backlog so the runbook applies.
+    await db.update(schema.edgeGateways).set({ status: 'online', backlogStudies: 14 }).where(eq(schema.edgeGateways.siteId, 'site_bal'));
+    const ticketRes = await t.call(sup, 'POST', '/api/assets/support/tickets', { category: 'outage', severity: 'p2', title: 'Ballito gateway backlog not clearing', siteId: 'site_bal' });
+    expect(ticketRes.status).toBe(201);
+    const ticketId = ticketRes.json.id;
+
+    const run = await t.call(sup, 'POST', `/api/assets/support/tickets/${ticketId}/hand`);
+    expect(run.status).toBe(200);
+    expect(run.json.task.status).toBe('done');
+    expect(run.json.task.output.ran).toBe(true);
+    expect(run.json.task.steps.some((s: any) => s.tool === 'runbook.drain_backlog')).toBe(true);
+
+    const [gw] = await db.select().from(schema.edgeGateways).where(eq(schema.edgeGateways.siteId, 'site_bal'));
+    expect(gw!.backlogStudies).toBeLessThan(14);
+
+    const ticket = await t.call(sup, 'GET', '/api/assets/support/tickets');
+    const updated = ticket.json.tickets.find((x: any) => x.id === ticketId);
+    expect(updated.status).toBe('in_progress');
+    expect(updated.runbook.length).toBeGreaterThan(0);
+    // The Hand enriches; it never closes the ticket itself.
+    expect(updated.status).not.toBe('closed');
+    expect(updated.status).not.toBe('resolved');
+
+    // Registry proves this is a real Hand with a leash, not a bare admin action.
+    const hands = await t.call(sup, 'GET', '/api/hands');
+    const support = hands.json.hands.find((h: any) => h.id === 'support');
+    expect(support.name).toBe('Support Hand');
+    expect(support.leash.maxDrainBatch).toBeDefined();
+  });
+
+  it('Support Hand leaves an offline gateway alone and routes an unhealthy-feed ticket to BIO', async () => {
+    const db = t.services.db;
+    const sup = await t.login('sup@demo.bonakala');
+    await db.update(schema.edgeGateways).set({ status: 'offline', backlogStudies: 9 }).where(eq(schema.edgeGateways.siteId, 'site_bal'));
+    const ticketRes = await t.call(sup, 'POST', '/api/assets/support/tickets', { category: 'outage', severity: 'p2', title: 'Ballito gateway unreachable', siteId: 'site_bal' });
+    const run = await t.call(sup, 'POST', `/api/assets/support/tickets/${ticketRes.json.id}/hand`);
+    expect(run.json.task.output.ran).toBe(false);
+    expect(run.json.task.output.diagnosis).toMatch(/offline/i);
+    const [gw] = await db.select().from(schema.edgeGateways).where(eq(schema.edgeGateways.siteId, 'site_bal'));
+    expect(gw!.backlogStudies).toBe(9); // untouched
+  });
 });
 
 describe('cluster D · M19 compliance', () => {

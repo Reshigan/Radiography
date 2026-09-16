@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { and, asc, desc, eq, gte, sql } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { defineHand, newId, notFound, invalid, conflict, todaySast, Refused } from '@bonakala/domain';
-import { defineModule, router, allow, body, query, param, audit, emit, requirePractice, registerHand, runHand, on, nextSequence } from '../../kernel/index.js';
+import { defineModule, router, allow, body, query, param, audit, emit, emitDirect, requirePractice, registerHand, runHand, on, nextSequence } from '../../kernel/index.js';
 import type { Services } from '../../kernel/ports.js';
 import { registerEdgeSim } from '../../sim/edge.js';
 import { registerLoadSheddingSim } from '../../sim/loadshedding.js';
@@ -421,7 +421,31 @@ r.patch('/support/tickets/:id', allow('SUP'), async (c) => {
   return c.json({ ok: true });
 });
 
+/**
+ * Support Hand (docs/11 §6.23): first-line triage. Reads the ticket and the related site's
+ * observability (gateway and integration health), writes a diagnosis onto the ticket, and — only
+ * for the one allow-listed, idempotent, reversible runbook (draining an Edge Gateway's
+ * store-and-forward backlog once its link is confirmed back online) — takes that single action.
+ * It never touches clinical or financial data, never closes a ticket and never changes
+ * configuration or permissions; a human always decides what happens next.
+ */
+r.post('/support/tickets/:id/hand', allow('SUP'), async (c) => {
+  const id = param(c, 'id');
+  const task = await runHand(c.get('services'), 'support', { ticketId: id }, {
+    practiceId: c.get('practiceId'), trigger: 'manual', title: `Support Hand triage · ${id}`, aggregateType: 'support_ticket', aggregateId: id,
+  });
+  return c.json({ task });
+});
+
 /* ================= Maintenance Hand ================= */
+const supportHand = defineHand({
+  id: 'support', name: 'Support Hand', module: 'M18', level: 'A3',
+  mandate: 'First-line tenant support: read the ticket and the related site\'s observability, diagnose from device and integration health, enrich the ticket, and run only the allow-listed idempotent runbook (drain an Edge Gateway backlog once its link is confirmed online). Never touches clinical or financial content, never changes configuration or permissions, never closes a ticket.',
+  defaultLeash: { maxDrainBatch: 50 },
+  approvalPersona: 'SUP', approvalPolicy: 'Anything outside the one allow-listed runbook is left for SUP or BIO; the Hand only diagnoses and enriches',
+  tools: { 'ticket.read': 'R0', 'observability.read': 'R0', 'ticket.enrich': 'R1', 'runbook.drain_backlog': 'R2' },
+});
+
 const maintenanceHand = defineHand({
   id: 'maintenance', name: 'Maintenance Hand', module: 'M18', level: 'A3',
   mandate: 'Keep every asset in service, maintained and licensed, and consumables in cover: open work orders and vendor tickets within contract terms, act on predictive signals, and raise purchase orders for catalogue items within the leash. Never approves remote access, never sets an asset in service, never commits capital.',
@@ -441,6 +465,54 @@ export default defineModule({
   boot(services) {
     registerEdgeSim();
     registerLoadSheddingSim();
+
+    registerHand<{ ticketId: string }, { diagnosis: string; ran: boolean }>(supportHand, async (input, ctx) => {
+      const db = ctx.services.db;
+      const ticket = await ctx.step('ticket.read', { ticketId: input.ticketId }, async () => (await db.select().from(schema.supportTickets).where(eq(schema.supportTickets.id, input.ticketId)).limit(1))[0]);
+      if (!ticket) throw new Error('Ticket not found');
+
+      const observed = await ctx.step('observability.read', { siteId: ticket.siteId, category: ticket.category }, async () => {
+        if (!ticket.siteId) return null;
+        const [gw] = await db.select().from(schema.edgeGateways).where(eq(schema.edgeGateways.siteId, ticket.siteId)).limit(1);
+        const feeds = await db.select().from(schema.integrationFeeds).where(eq(schema.integrationFeeds.siteId, ticket.siteId));
+        return { gateway: gw ?? null, feeds };
+      });
+
+      let diagnosis = 'No linked site observability to check; needs a human look.';
+      let ran = false;
+      const looksLikeBacklog = /gateway|backlog|edge|offline/i.test(`${ticket.category} ${ticket.title} ${ticket.description ?? ''}`);
+
+      if (observed?.gateway) {
+        const gw = observed.gateway;
+        const downFeeds = observed.feeds.filter((f) => f.status !== 'healthy');
+        if (gw.status === 'online' && gw.backlogStudies > 0 && looksLikeBacklog) {
+          diagnosis = `Edge Gateway at the linked site is back online with ${gw.backlogStudies} studies still queued. Draining the store-and-forward backlog.`;
+          const batch = Math.min(gw.backlogStudies, 50);
+          ctx.leashCheck([{ rule: 'maxDrainBatch', actual: batch }]);
+          await ctx.step('runbook.drain_backlog', { siteId: ticket.siteId, batch }, async () => {
+            const drained = Math.min(gw.backlogStudies, batch);
+            const now = new Date().toISOString();
+            await db.update(schema.edgeGateways).set({ backlogStudies: gw.backlogStudies - drained, lastHeartbeatAt: now, updatedAt: now }).where(eq(schema.edgeGateways.id, gw.id));
+            if (gw.backlogStudies - drained === 0) await emitDirect(ctx.services, 'edge.backlog.cleared.v1', { gatewayId: gw.id, siteId: gw.siteId, drained }, { aggregateType: 'edge_gateway', aggregateId: gw.id, practiceId: gw.practiceId }).catch(() => undefined);
+            return { drained };
+          }, 'The one allow-listed runbook: drain a backlog that is already confirmed safe to drain');
+          ran = true;
+        } else if (gw.status !== 'online') {
+          diagnosis = `Edge Gateway at the linked site is ${gw.status.replace('_', ' ')}; nothing to drain until the link returns. This is expected behaviour, not a fault.`;
+        } else if (downFeeds.length) {
+          diagnosis = `Gateway is online. ${downFeeds.length} integration feed(s) unhealthy: ${downFeeds.map((f) => `${f.type} (${f.lastError ?? 'no detail'})`).join(', ')}. Outside the Hand's runbook; routed to BIO.`;
+        } else {
+          diagnosis = 'Gateway and integration feeds look healthy from here. Likely a local or user-side issue; needs a human look.';
+        }
+      }
+
+      await ctx.step('ticket.enrich', { ticketId: ticket.id, diagnosis }, async () => {
+        const runbook = [...(ticket.runbook ?? []), { step: diagnosis, done: ran }];
+        await db.update(schema.supportTickets).set({ runbook, status: ticket.status === 'open' ? 'in_progress' : ticket.status, updatedAt: new Date().toISOString() }).where(eq(schema.supportTickets.id, ticket.id));
+      });
+
+      return { diagnosis, ran };
+    });
 
     registerHand<{ action: string; modalityId?: string; assetId?: string; siteId?: string; reason?: string }, Record<string, unknown>>(maintenanceHand, async (input, ctx) => {
       const db = ctx.services.db;

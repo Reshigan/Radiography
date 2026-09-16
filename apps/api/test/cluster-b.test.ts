@@ -395,6 +395,24 @@ describe('cluster B: acquisition, imaging, dose, BCI, reporting and results', ()
     expect(refAnalytics.status).toBe(200);
   });
 
+  it('QC runs as an accountable Hand task, not a bare function call, and never blocks sending', async () => {
+    const patients = await t.services.db.select().from(schema.patients).where(eq(schema.patients.practiceId, 'prac_a')).limit(1);
+    const before = await t.services.db.select({ id: schema.agentTasks.id }).from(schema.agentTasks).where(eq(schema.agentTasks.handId, 'qc'));
+    const send = await t.call(rad, 'POST', '/api/sim/modality/send', { siteId: 'site_san', procedureCode: '30110', patientId: patients[0]!.id });
+    expect(send.status).toBe(201);
+    const after = await t.services.db.select().from(schema.agentTasks).where(eq(schema.agentTasks.handId, 'qc'));
+    expect(after.length).toBe(before.length + 1);
+    const task = after[after.length - 1]!;
+    expect(task.status).toBe('done');
+    expect(task.steps.some((step) => step.tool === 'run_qc_model')).toBe(true);
+    // The Hand's tool list has no delete/block capability; the study exists regardless of the QC outcome.
+    const hands = await t.call(rad, 'GET', '/api/hands');
+    const qc = hands.json.hands.find((h: any) => h.id === 'qc');
+    expect(qc.name).toBe('QC Hand');
+    expect(Object.keys(qc.tools ?? {})).not.toContain('delete_image');
+    expect(Object.keys(qc.tools ?? {})).not.toContain('block_send');
+  });
+
   it('unmatched studies are held out of inference until reconciliation, then analysed', async () => {
     const unmatched = (await t.services.db.select().from(schema.studies).where(eq(schema.studies.unmatched, true)).limit(1))[0]!;
     const before = await t.services.db.select().from(schema.inferenceResults).where(eq(schema.inferenceResults.studyId, unmatched.id));

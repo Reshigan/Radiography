@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, isNull, or } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { PERSONA_HOME, PERSONA_LENS } from '@bonakala/domain';
 import { defineModule, router, login, logout, selectPractice, requireUser, body, audit, allow } from '../../kernel/index.js';
 
 const r = router();
+const GOV = ['PRM', 'EXE', 'CMP', 'AIO', 'SUP', 'BIL', 'DEB', 'FDK', 'BKG', 'RGT', 'RAD', 'NUR', 'BIO'] as const;
 
 r.post('/login', async (c) => {
   const { email, password } = await body(c, z.object({ email: z.string().email(), password: z.string().min(1) }));
@@ -50,6 +51,23 @@ r.get('/demo-accounts', async (c) => {
   const db = c.get('services').db;
   const rows = await db.select({ email: schema.users.email, persona: schema.users.persona, name: schema.users.name }).from(schema.users);
   return c.json({ password: 'bonakala-demo', accounts: rows });
+});
+
+/** Hash-chained audit log, read-side. Governance and platform personas only; filterable by action and object. */
+r.get('/audit', allow(...GOV), async (c) => {
+  const db = c.get('services').db;
+  const practiceId = c.get('practiceId');
+  const action = c.req.query('action');
+  const objectType = c.req.query('objectType');
+  const objectId = c.req.query('objectId');
+  const where = and(
+    practiceId ? or(eq(schema.auditLog.practiceId, practiceId), isNull(schema.auditLog.practiceId)) : undefined,
+    action ? eq(schema.auditLog.action, action) : undefined,
+    objectType ? eq(schema.auditLog.objectType, objectType) : undefined,
+    objectId ? eq(schema.auditLog.objectId, objectId) : undefined,
+  );
+  const rows = await db.select().from(schema.auditLog).where(where).orderBy(desc(schema.auditLog.createdAt)).limit(100);
+  return c.json({ entries: rows });
 });
 
 export default defineModule({ code: 'M01', name: 'Identity & Access', basePath: 'auth', routes: r });
