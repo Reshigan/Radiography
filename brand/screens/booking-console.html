@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="business">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booking Console — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+:root{--inspector:372px}
+.content>*{flex:none}
+.tile{min-width:0}
+.ai .acts{flex-wrap:wrap}
+.bk{display:grid;grid-template-columns:312px 1fr;gap:16px;flex:1;min-height:420px}
+.bk>div{min-height:0;min-width:0;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.bk>div>*{flex:none}
+.queue .row{grid-template-columns:auto minmax(0,1fr) auto}
+.queue .row>div{min-width:0}
+.queue .row .aux{grid-column:2/4;display:flex;gap:6px;flex-wrap:wrap}
+.ch{display:inline-flex;align-items:center;justify-content:center;width:34px;height:22px;border-radius:2px;font:500 10px var(--mono);letter-spacing:.04em;border:1px solid var(--line);color:var(--text-2);background:var(--surface)}
+.ch.wa{color:var(--ok);border-color:var(--ok)}.ch.call{color:var(--info);border-color:var(--info)}.ch.fax{color:var(--warn);border-color:var(--warn)}
+.sla{display:inline-block;width:56px;height:3px;border-radius:2px;background:var(--line);position:relative;vertical-align:middle}
+.sla i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--ok)}.sla.warn i{background:var(--warn)}.sla.crit i{background:var(--crit)}
+.thread{display:flex;flex-direction:column;gap:10px}
+.wa{flex-direction:row;align-items:flex-start;padding:8px}
+.wa .m{max-width:none;flex:1 1 0}
+.wa .more{flex:none;align-self:center;font-size:12px;color:#0A7268;padding:0 6px}
+.wa .m .body{display:flex;gap:8px;align-items:flex-start}
+.tile .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wa .m{font-size:13px}
+.wa .m.hand{border-left:3px dashed var(--ai-line)}
+.wa .m .who{font:11px var(--mono);color:#6B665C;margin-bottom:2px}
+.refphoto{background:#fff;border:1px solid #CFC8BB;border-radius:4px;padding:6px;font-size:10px;color:#6B665C;line-height:1.3;width:96px;flex:none}
+.refphoto .ln{height:5px;background:var(--ash-200);border-radius:2px;margin:5px 0}
+.refphoto .ln.s{width:60%}.refphoto .ln.hw{background:repeating-linear-gradient(90deg,var(--ash-400) 0 6px,transparent 6px 9px);height:7px}
+.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px}
+.fields .f{display:flex;flex-direction:column;gap:2px;font-size:12px}
+.fields .f span{color:var(--text-2)}
+.fields .f b{font-weight:500;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.offers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.offer{border:1px solid var(--line);border-radius:var(--radius);padding:10px;background:var(--surface);display:flex;flex-direction:column;gap:4px;font-size:12px}
+.offer.rec{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+.offer .when{font:600 15px var(--display);color:var(--heading)}
+.offer .site{font-weight:500;font-size:13px;color:var(--text)}
+.cal{grid-template-columns:44px repeat(2,1fr)}
+.cal .t{height:40px}.cal .c{height:40px}
+.cal .ev.hold{background:var(--surface-3);color:var(--text-2);border-color:var(--ash-400);border-left-style:dashed}
+.cal .ev.rec{background:var(--ok-bg);color:var(--ok);border-color:var(--ok);border-style:solid dashed solid solid}
+.cal .ev.off{background:repeating-linear-gradient(135deg,var(--ash-100) 0 4px,var(--surface-2) 4px 8px);color:var(--text-2);border-color:var(--ash-300)}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.kpis .tile{padding:6px 12px;gap:2px}
+.kpis .tile .v{font-size:20px}
+.kpis .tile svg{height:12px;margin-top:0}
+.leg{display:flex;gap:12px;font-size:11px;color:var(--text-2);flex-wrap:wrap}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+@media (max-width:900px){.app,.app.with-inspector{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;height:auto;min-height:100vh}.topbar{grid-column:1;flex-wrap:wrap;height:auto;padding:8px 16px;min-width:0}.topbar .search,.topbar .wl{display:none}.topbar .ctx{flex-wrap:wrap}.topbar .right{margin-left:0;flex-wrap:wrap}.content,.app.with-inspector .content{grid-column:1;grid-row:2;min-width:0}.topbar{grid-row:1}.ph .actions{margin-left:0;flex-wrap:wrap}.grid{grid-template-columns:1fr 1fr}.banner .btn{margin-left:0}.ai .acts,.reg-acts,.pay{flex-wrap:wrap}.pay{grid-template-columns:1fr 1fr 1fr}.card{min-width:0}.queue .row .aux,.row-flex{flex-wrap:wrap}.demo-tag{display:none}.chip{white-space:normal}.banner .bt{min-width:0}}
+@media (max-width:900px){.bk,.offers,.fields{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.wa{flex-direction:column}.bk{min-height:0}.bk>div{overflow:visible}}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Inbox" aria-label="Inbox" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l2 3h4l2-3h5"/></svg></a>
+    <a href="#" title="Calendar" aria-label="Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></a>
+    <a href="#" title="Patients" aria-label="Patients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    <a href="#" title="Waitlist" aria-label="Waitlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a href="#" title="Analytics" aria-label="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Thuli Mahlangu">TM</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Central Booking</span><span class="sep">/</span><span>Practice B · Umhlanga JV</span><span class="sep">/</span><span class="mono">Tue 16 Sep · 09:34</span></div>
+    <div class="search">Search conversations, patients, referrers… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip active"><i></i>On shift · 12 claimed</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 2 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>2</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title"><h1 style="font-size:24px">Omnichannel inbox</h1><span class="muted small">All Practices · exception queue after the Booking Hand's overnight run</span></div>
+      <div class="actions"><button class="btn">Waitlist (38)</button><button class="btn">Tomorrow's no-show calls (11)</button><button class="btn primary">New booking</button></div>
+    </div>
+    <div class="bk">
+      <!-- Inbox -->
+      <div>
+        <div class="spread"><h3>Conversations</h3><div class="row-flex"><span class="chip active"><i></i>By SLA</span><span class="chip"><i></i>Mine</span><span class="pill">54</span></div></div>
+        <div class="row-flex small muted"><span class="ch wa">WA</span>22 <span class="ch call">CALL</span>14 <span class="ch">MAIL</span>9 <span class="ch fax">FAX</span>3 <span class="ch">REF</span>6</div>
+        <div class="queue" role="list" aria-label="Inbox">
+          <div class="row wrap" role="listitem"><span class="ch call">CALL</span><div><div class="t">Dr Govender's rooms · Pulmonology</div><div class="s">Same-day CTPA, patient in rooms</div></div><span class="chip crit"><i></i>Urgent</span><div class="aux"><span class="sla crit"><i style="width:92%"></i></span><span class="small mono">SLA 10 min · 1 left</span></div></div>
+          <div class="row wrap" role="listitem"><span class="ch wa">WA</span><div><div class="t">Mthembu, Zanele · 47 F</div><div class="s">MRI cancelled, scanner fault</div></div><span class="chip crit"><i></i>Urgent</span><div class="aux"><span class="sla warn"><i style="width:60%"></i></span><span class="small mono">6 min left</span></div></div>
+          <div class="row wrap sel" role="listitem" aria-current="true"><span class="ch wa">WA</span><div><div class="t">Zulu, Thandeka · 38 F</div><div class="s">Referral photo · MRI knee L</div></div><span class="chip att"><i></i>Escalated</span><div class="aux"><span class="chip ai"><i></i>hand: MRI needs auth</span><span class="sla"><i style="width:35%"></i></span></div></div>
+          <div class="row wrap" role="listitem"><span class="ch wa">WA</span><div><div class="t">Unmatched · +27 73 ··· 9018</div><div class="s">ID digit ambiguous, 1 or 7</div></div><span class="chip att"><i></i>Escalated</span><div class="aux"><span class="chip ai"><i></i>hand: 2 candidates</span><span class="sla"><i style="width:40%"></i></span></div></div>
+          <div class="row wrap" role="listitem"><span class="ch">MAIL</span><div><div class="t">Le Roux, Pieter · 66 M</div><div class="s">Quote not guaranteed</div></div><span class="chip att"><i></i>Escalated</span><div class="aux"><span class="chip ai"><i></i>auth-hand: portal error</span><span class="sla"><i style="width:22%"></i></span></div></div>
+          <div class="row" role="listitem"><span class="ch">REF</span><div><div class="t">Dr Sibanda · Ortho</div><div class="s">3 orders, 1 outside province</div></div><span class="chip"><i></i>New</span></div>
+          <div class="row" role="listitem"><span class="ch fax">FAX</span><div><div class="t">Nelspruit Medical · fax</div><div class="s">2 pages extracted, review</div></div><span class="chip ai"><i></i>referral-hand 0.88</span></div>
+          <div class="row" role="listitem"><span class="ch call">CALL</span><div><div class="t">Callback · Mokgadi, Refilwe</div><div class="s">Requested 08:50 · Sepedi</div></div><span class="chip"><i></i>New</span></div>
+          <div class="row" role="listitem"><span class="ch wa">WA</span><div><div class="t">Petersen, Chantal · 31 F</div><div class="s">Asked for a person</div></div><span class="chip"><i></i>New</span></div>
+          <div class="row" role="listitem"><span class="ch">MAIL</span><div><div class="t">Abrahams, Yusuf · 55 M</div><div class="s">Attachment: 2 referrals, 1 duplicate</div></div><span class="chip"><i></i>New</span></div>
+          <div class="row" role="listitem"><span class="ch wa">WA</span><div><div class="t">Hand · 08:00 US Room 3</div><div class="s">Backfilled from waitlist</div></div><span class="chip done"><i></i>Done</span></div>
+        </div>
+      </div>
+      <!-- Conversation + proposed booking -->
+      <div>
+        <div class="card">
+          <div class="spread">
+            <div class="row-flex"><h2>Thandeka Zulu</h2><span class="muted">38 F · ID ····2276 · isiZulu</span></div>
+            <div class="row-flex"><a href="#" class="small">4 messages · open thread</a><span class="chip active"><i></i>Claimed by you 09:31 · Hand paused</span></div>
+          </div>
+          <div class="thread" style="margin-top:10px">
+            <div class="wa" aria-label="WhatsApp thread, latest messages">
+              <div class="m"><div class="who">patient · 08:41</div><div class="body"><span>Hi, my doctor gave me this for my knee. Can I book after 4pm? I can't take leave. Umhlanga or Ballito is fine.</span><div class="refphoto"><b>REFERRAL · Dr S. Pillay</b><div class="ln hw"></div><div class="ln hw s"></div><div class="ln"></div><div class="ln s"></div>photo · 1.2 MB</div></div></div>
+              <div class="m me hand"><div class="who">booking-hand 2026.09.1 · 08:44</div>Thank you Thandeka. I see an MRI of the left knee from Dr Pillay. Your scheme must authorise MRI first; we have asked. A person will confirm your evening slot shortly.<div class="t">08:44 · escalated: authorisation pending</div></div>
+            </div>
+            <div class="ai">
+              <div class="prov"><span><b>booking-hand 2026.09.1</b></span><span>referral-hand 1.4.2</span><span>slot-engine 3.0</span><span>leash <b>3 holds · 15 min</b></span></div>
+              <div class="spread" style="margin-bottom:4px"><h4 style="margin:0">Proposed booking</h4><div class="acts" style="margin:0"><button class="btn sm primary">Approve and send</button><button class="btn sm">Edit</button><button class="btn sm">Take over thread</button><button class="btn sm ghost">Show why</button></div></div>
+              <div class="fields">
+                <div class="f"><span>Procedure</span><b>MRI knee <span class="chip ai"><i></i>0.96</span></b></div>
+                <div class="f"><span>Laterality</span><b>Left <span class="chip ai"><i></i>0.94</span></b></div>
+                <div class="f"><span>Contrast</span><b>None <span class="chip ai"><i></i>0.97</span></b></div>
+                <div class="f"><span>ICD-10 (suggested)</span><b><span class="mono">M23.22</span> <span class="chip att"><i></i>0.71</span></b></div>
+                <div class="f"><span>Referrer</span><b>Dr S. Pillay <span class="chip ai"><i></i>0.99</span></b></div>
+                <div class="f"><span>Patient match</span><b>1 of 1 <span class="chip ai"><i></i>0.98</span></b></div>
+                <div class="f"><span>Scheme B (demo)</span><b><span class="chip att"><i></i>MRI needs auth</span></b></div>
+                <div class="f"><span>Authorisation</span><b>Requested 08:43 · 24 h</b></div>
+                <div class="f"><span>Safety pre-screen</span><b>Answered · clear</b></div>
+                <div class="f"><span>Constraints</span><b>after 16:00 · taxi</b></div>
+              </div>
+              <div class="spread" style="margin-top:6px"><h4 style="margin:0">Slot offers</h4><span class="small muted">Earliest anywhere: Umhlanga MRI 1, Wed 17 Sep 07:20 (outside constraints)</span></div>
+              <div class="offers" style="margin-top:6px">
+                <div class="offer rec"><span class="site">Umhlanga · MRI 2</span><span class="when">Wed 17 Sep · 17:20</span><span>12 km · 34 min by taxi · 1.5T</span><span class="row-flex"><span class="chip done"><i></i>Recommended · held</span></span></div>
+                <div class="offer"><span class="site">Ballito · MRI 1</span><span class="when">Thu 18 Sep · 16:40</span><span>28 km · 55 min by taxi · 1.5T</span><span class="row-flex"><span class="chip"><i></i>Held to 09:49</span></span></div>
+                <div class="offer"><span class="site">Durban North · MRI 1</span><span class="when">Fri 19 Sep · 18:00</span><span>6 km · nearest · none earlier for 9 days</span><span class="row-flex"><span class="chip"><i></i>Held to 09:49</span></span></div>
+              </div>
+              <div class="note" style="margin-top:6px">Ranked by licence, roster and coil, then distance, time of day, transport and fill target. Sent as "confirmed subject to authorisation".</div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="kpis" aria-label="Shift KPIs">
+      <div class="tile"><span class="l">Conversion</span><span class="v">78 %</span><span class="d up">target 75 %</span><svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#0A7268" stroke-width="1.5" points="0,14 14,12 28,13 42,10 56,11 70,8 84,7 100,5"/></svg></div>
+      <div class="tile"><span class="l">AHT</span><span class="v">4:12</span><span class="d">target 5:00 · Hand 0:38</span><svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#2A5FC0" stroke-width="1.5" points="0,6 14,8 28,7 42,10 56,12 70,11 84,14 100,13"/></svg></div>
+      <div class="tile"><span class="l">Fill rate</span><span class="v">91 %</span><span class="d">MRI evenings 74 %</span><svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#0A7268" stroke-width="1.5" points="0,12 14,11 28,9 42,10 56,8 70,6 84,6 100,4"/></svg></div>
+      <div class="tile"><span class="l">Hand unaided</span><span class="v">63</span><span class="d">escalated 11 · 4 asked for person</span></div>
+      <div class="tile"><span class="l">SLA breaches</span><span class="v">0</span><span class="d up">first reply 1:50 median</span></div>
+      <div class="tile"><span class="l">Waitlist backfills</span><span class="v">7</span><span class="d">lead time 4 min median</span></div>
+    </section>
+  </main>
+  <aside class="inspector" aria-label="Inspector: slot calendar">
+    <div class="spread"><h3>Umhlanga · MRI</h3><span class="chip"><i></i>Slot holds: 2 live</span></div>
+    <nav class="tabs" aria-label="Day"><a href="#">Tue 16</a><a href="#" class="on">Wed 17</a><a href="#">Thu 18</a><a href="#">Fri 19</a></nav>
+    <div class="small muted">16:00 to 18:40 · licensed to 20:00 · Dr Naidoo reads until 19:00</div>
+    <div class="cal" role="grid" aria-label="MRI slots Wednesday 17 September">
+      <div class="h"></div><div class="h">MRI 1 · 3T</div><div class="h">MRI 2 · 1.5T</div>
+      <div class="t">16:00</div><div class="c"><div class="ev">Dube, L · brain</div></div><div class="c"><div class="ev">Naicker, V · L-spine</div></div>
+      <div class="t">16:20</div><div class="c"><div class="ev">Dube, L · cont.</div></div><div class="c"><div class="ev warn">Smit, K · auth pending</div></div>
+      <div class="t">16:40</div><div class="c"><div class="ev hold">Hold · Mthembu Z</div></div><div class="c"></div>
+      <div class="t">17:00</div><div class="c"><div class="ev">Ngwenya, B · shoulder</div></div><div class="c"><div class="ev">Rossouw, D · knee R</div></div>
+      <div class="t">17:20</div><div class="c"><div class="ev">Ngwenya, B · cont.</div></div><div class="c"><div class="ev rec">Offer 1 · Zulu, T</div></div>
+      <div class="t">17:40</div><div class="c"><div class="ev off">Blocked · QA weekly</div></div><div class="c"></div>
+      <div class="t">18:00</div><div class="c"><div class="ev">Hlophe, M · C-spine</div></div><div class="c"><div class="ev hold">Hold · waitlist</div></div>
+      <div class="t">18:20</div><div class="c"><div class="ev crit">No NUR: no contrast</div></div><div class="c"><div class="ev">Chetty, R · pelvis</div></div>
+    </div>
+    <div class="leg"><span><i style="background:var(--info-bg);border-left:3px solid var(--info)"></i>Booked</span><span><i style="background:var(--warn-bg);border-left:3px solid var(--warn)"></i>Subject to auth</span><span><i style="background:var(--surface-3);border-left:3px dashed var(--ash-400)"></i>Hold (15 min)</span><span><i style="background:var(--ok-bg);border-left:3px solid var(--ok)"></i>Offer</span><span><i style="background:repeating-linear-gradient(135deg,var(--ash-100) 0 3px,var(--surface-2) 3px 6px);border:1px solid var(--ash-300)"></i>Blocked</span></div>
+    <div class="card">
+      <div class="hd"><h4>Evening MRI slots</h4><span class="more">this week · 30 km</span></div>
+      <div class="kv">
+        <span>Umhlanga</span><b>4 · MRI 2 mostly · Thu evening full</b>
+        <span>Ballito</span><b>9 · MRI 1 · 1.5T</b>
+        <span>Durban North</span><b>0 until Fri 19 Sep 18:00</b>
+        <span>Pinetown</span><b>6 · outside patient radius</b>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><h4>Holds by this thread</h4><span class="pill warn">3 of 3</span></div>
+      <div class="note">Leash reached: the Hand cannot hold a fourth slot for this patient. Holds release at 09:49 unless one is approved.</div>
+    </div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="governance">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Settings — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.ph{flex-wrap:nowrap}.ph .title{min-width:0}
+.app.with-inspector{grid-template-columns:var(--rail) 1fr 300px}
+.inspector{padding:14px}
+.card .hd h3{white-space:nowrap}
+.kv b{font-weight:500}
+.set{display:grid;grid-template-columns:172px 1fr;gap:14px;align-items:start}
+.set>*{min-width:0}
+.snav{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);padding:6px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0}
+.snav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;color:var(--text);font-size:13px}
+.snav a .pill{margin-left:auto}
+.snav a.on{background:var(--surface-3);color:var(--primary);font-weight:500;box-shadow:inset 3px 0 0 var(--primary)}
+.snav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2);padding:8px 10px 2px}
+.mainset{display:flex;flex-direction:column;gap:14px}
+.hands{table-layout:fixed;--row:44px;font-size:12px}
+.hands th,.hands td{white-space:normal;line-height:1.35;padding:6px 8px;height:auto;vertical-align:top}
+.hands th{white-space:nowrap;height:34px;vertical-align:middle;font-size:10.5px}
+.hands td.hn{font-weight:500;font-size:12.5px}
+.hands td.hn .small{display:block;font-weight:400;color:var(--text-2);font-family:var(--mono);font-size:11px}
+.hands tr.pend td{background:var(--info-bg)}
+.lv{display:inline-block;font:500 11px var(--mono);padding:1px 6px;border-radius:2px;border:1px solid var(--line-strong);background:var(--surface)}
+.lv.a3{border-color:var(--ok);color:var(--ok)}.lv.a1{border-color:var(--info);color:var(--info)}
+.amt{display:inline-flex;align-items:center;height:20px;padding:0 5px;border:1px solid var(--line-strong);border-radius:2px;background:var(--surface);font:500 11.5px var(--mono);color:var(--text);margin:1px 2px 1px 0;white-space:nowrap}
+.amt.chg{border-color:var(--info);background:var(--info-bg)}
+.leash{display:flex;flex-direction:column;gap:3px}
+.leash span.t{color:var(--text-2)}
+.tg{width:30px;height:16px;border-radius:9px;background:var(--ash-300);position:relative;display:inline-block;border:1px solid var(--line-strong);vertical-align:middle;flex:none}
+.tg::after{content:"";position:absolute;top:1px;left:1px;width:12px;height:12px;border-radius:50%;background:#fff}
+.tg.on{background:var(--ok);border-color:var(--ok)}.tg.on::after{left:15px}
+.tg.half{background:var(--info);border-color:var(--info)}.tg.half::after{left:8px}
+.st{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:12px}
+.st .s{font-size:11px;color:var(--text-2);white-space:normal}
+.fold{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2)}
+.fold .fh{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer}
+.fold .fh .chev{width:18px;height:18px;color:var(--text-2)}
+.fold .fh .more{margin-left:auto;color:var(--text-2);font-size:12px}
+.fold .fb{border-top:1px solid var(--line);padding:12px 16px 16px}
+.fee{--row:40px}.fee td,.fee th{font-size:13px}
+.ver{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ver li{display:grid;grid-template-columns:14px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.ver li:last-child{border-bottom:none}
+.ver li .dot{width:10px;height:10px;border-radius:50%;background:var(--ash-400);margin-top:5px}.ver li .dot.ok{background:var(--ok)}.ver li .dot.info{background:var(--info)}
+.ver li .v{font-family:var(--mono);font-size:11px;color:var(--text-2);display:flex;gap:8px;flex-wrap:wrap}
+.ver li .v b{color:var(--text);font-weight:500}
+.ver li .diff{font-size:12px;margin-top:2px}
+.ver li .diff .amt{height:20px;font-size:11px}
+.mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11px;text-align:center;margin-top:6px}
+.mcal .dn{color:var(--text-2);font-size:10px;text-transform:uppercase;padding:2px 0}
+.mcal .d{padding:4px 0;border-radius:3px;color:var(--text)}
+.mcal .d.o{color:var(--ash-400)}
+.mcal .d.sel{background:var(--primary);color:var(--primary-label);font-weight:600}
+.mcal .d.lock{color:var(--ash-400);text-decoration:line-through}
+.radio{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.radio i{width:16px;height:16px;border-radius:50%;border:1px solid var(--line-strong);display:inline-block;background:var(--surface);flex:none;margin-top:2px}
+.radio i.on{border:5px solid var(--primary)}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg></a>
+    <a href="#" title="Organisation" aria-label="Organisation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M8 8V5h8v3M3 13h18"/></svg></a>
+    <a href="#" title="Users" aria-label="Users and roles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    <a href="#" title="Support" aria-label="Support console"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg></a>
+    <a href="#" title="Audit" aria-label="Audit stream"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" class="active" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Thandi Ngcobo">TN</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Administration</span><span class="sep">/</span><span>Practice A (demo)</span><span class="sep">/</span><span class="mono">Wed 16 Sep · 14:22</span></div>
+    <div class="search">Search settings, users, schedules, Hands… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip active"><i></i>2 changes pending</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 1 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>1</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title">
+        <h1>Organisation and configuration</h1>
+        <span class="muted">Practice A (demo) · Sandton, Randburg · practice manager: Thandi Ngcobo · effective-dated and versioned</span>
+      </div>
+      <div class="actions">
+        <button class="btn">Export configuration</button>
+        <button class="btn primary">Submit changes for approval</button>
+      </div>
+    </div>
+
+    <div class="set">
+      <nav class="snav" aria-label="Settings sections">
+        <span class="grp">Practice</span>
+        <a href="#">Organisation</a>
+        <a href="#">Sites and rooms<span class="pill">2 · 9</span></a>
+        <a href="#">Users and roles<span class="pill">41</span></a>
+        <span class="grp">Revenue</span>
+        <a href="#">Fee schedules<span class="pill info">2</span></a>
+        <a href="#">Funder contracts</a>
+        <a href="#">Scheme rule packs</a>
+        <span class="grp">Clinical</span>
+        <a href="#">Report templates</a>
+        <a href="#">Reportable-result statements</a>
+        <span class="grp">Platform</span>
+        <a href="#" class="on">Hands and leashes<span class="pill info">1</span></a>
+        <a href="#">Integrations</a>
+        <a href="#">Feature flags</a>
+      </nav>
+
+      <div class="mainset">
+        <div class="spread">
+          <div>
+            <h2>Hands and leashes</h2>
+            <span class="note">21 Hands · mandate, level, leash, approval policy and status per Practice · enforced by the runtime, not the prompt</span>
+          </div>
+          <div class="row-flex"><span class="chip done"><i></i>v13 effective 1 Aug 2026</span><span class="chip active"><i></i>v14 draft · 1 change</span></div>
+        </div>
+        <div class="banner info">
+          <b>Change control</b>
+          <span>Leash and automation-level changes take effect on an effective date after CMP approval with a typed Confirm; the runtime refuses an unapproved version. Reductions and switch-offs by AIO, PRM or CMP apply immediately.</span>
+        </div>
+
+        <table class="dt hands" aria-label="Hands and leashes">
+          <colgroup><col style="width:126px"><col style="width:206px"><col style="width:50px"><col><col style="width:150px"><col style="width:96px"></colgroup>
+          <thead><tr><th>Hand</th><th>Mandate summary</th><th>Level</th><th>Leash (editable)</th><th>Approval policy</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="hn">Referral Hand<span class="small">M04 · exceptions BKG</span></td><td>Turn every inbound referral into a validated order with referrer, examination, urgency and funding type</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span><span class="amt">500</span> referrals per hour per Practice</span><span><span class="amt">1</span> clarification per referral per 24 h · no order below the M03 match threshold</span></div></td><td>A3 when mandatory fields extract above threshold and the referrer is a known practice number; else BKG task</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Referral Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Booking Hand<span class="small">M05 · exceptions BKG</span></td><td>Offer, confirm, reschedule and cancel appointments across Sites within constraints and preferences</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span><span class="amt">3</span> held slots per patient for <span class="amt">15</span> min · <span class="amt">2</span> reschedules per order</span><span><span class="amt">5 000</span> messages per day · never on an expired licence</span></div></td><td>A3 routine outpatient; A1 interventional, sedation, paediatric MRI under anaesthesia</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Booking Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Authorisation Hand<span class="small">M06 · exceptions FDK, BIL</span></td><td>Benefit check, pre-authorisation and follow-up, RAF and COIDA references, patient-portion quote</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Auto-submit up to <span class="amt">R 25 000</span> estimated value per order</span><span><span class="amt">3</span> follow-ups per request · no quote without certain pricing</span></div></td><td>A3 on electronic funder channels; A1 when a call or motivation letter is needed</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Authorisation Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Front Desk Hand<span class="small">M07 · exceptions FDK</span></td><td>Pre-arrival and arrival steps on WhatsApp, web and kiosk: identity, safety questionnaire, consent, queue</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span><span class="amt">8</span> messages per patient per visit</span><span>No free text on clinical topics · consent never marked given by the Hand</span></div></td><td>A3; blocking safety answers to RAD or NUR; identity mismatch to FDK</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Front Desk Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Protocol Hand<span class="small">M08 · exceptions RGT</span></td><td>Assemble the protocolling packet and apply radiologist-authorised auto-protocol rules</td><td><span class="lv">A2</span></td><td><div class="leash"><span>Allow-listed examination-indication pairs only · <span class="amt">142</span> pairs signed</span><span>Never contrast with a safety flag · never paediatric CT</span></div></td><td>A2 for allow-listed routines with a daily RGT sample; A1 otherwise</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Protocol Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">QC Hand<span class="small">M08, M10 · exceptions RAD</span></td><td>Act on quality flags: repeat prompts, completion blocks on laterality and body part, dose outliers</td><td><span class="lv">A2</span></td><td><div class="leash"><span><span class="amt">1</span> held study per patient</span><span>Never deletes an image · pre-fills incidents, never submits</span></div></td><td>A2; block override needs RAD typed reason plus PRM notification</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="QC Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Priors Hand<span class="small">M09 · exceptions RGT, BIO</span></td><td>Locate, fetch and stage priors and signed reports from any Site, the Hub and connected archives</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Same identity above the M03 threshold only</span><span>External fetch only under a signed data-sharing agreement · restricted studies need CMP release</span></div></td><td>A3; identity conflict to RGT and FDK</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Priors Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Critical Results Hand<span class="small">M13 · exceptions RGT</span></td><td>After a radiologist confirms a critical finding, reach the referrer through the ladder and confirm acknowledgement</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Ladder <span class="amt">0</span> / <span class="amt">5</span> / <span class="amt">15</span> / <span class="amt">20</span> min · <span class="amt">10</span> attempts per case</span><span>Never states the finding</span></div></td><td>A3; no acknowledgement by deadline to RGT task and site banner</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Critical Results Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Drafting Hand<span class="small">M12 · exceptions RGT</span></td><td>Prepare the report workspace: template, accepted findings, comparison text, transcription, draft, pre-sign checks</td><td><span class="lv a1">A1</span></td><td><div class="leash"><span>Writes only to the unsigned workspace of the RGT's own session</span><span>No tool changes report state, creates addenda or sends anything · policy cap, not editable</span></div></td><td>A1; unsourced sentence or contradiction blocks sign-off until the RGT acts</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Drafting Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Follow-up Hand<span class="small">M12, M13 · exceptions PRM</span></td><td>Track follow-up recommendations in signed reports, remind the referrer and, with consent, the patient</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span><span class="amt">3</span> reminders per loop</span><span>Never books without a new referral · never tells the patient the reason</span></div></td><td>A3; loop open 30 days past date to PRM task</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Follow-up Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Coding Hand<span class="small">M14 · exceptions BIL</span></td><td>Produce the billable code set per completed study, validated by the billing rules engine</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Autonomous posting only under <span class="amt">R 15 000</span> per claim with a full rule-pack pass</span><span><span class="amt">2 %</span> daily sample to BIL · any ICD-10 code absent from order and report to BIL</span></div></td><td>A3 clean cases; A1 multiple-procedure, unlisted, RAF and COIDA in year one</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Coding Hand active"></span>Active</div></td></tr>
+            <tr class="pend"><td class="hn">Claims Hand<span class="small">M14 · exceptions BIL</span></td><td>Scrub, submit and track claims via switch or funder API, fix standard rejections, resubmit in time</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Claim auto-submit up to <span class="amt">R 15 000</span> · daily value <span class="amt chg">R 2 500 000</span> <span class="pill info">v14 · was R 2 000 000</span></span><span><span class="amt">1</span> automatic resubmission per rejection · reversible while unpaid</span></div></td><td>A3; A4 for the accepted clean class; A1 disputes, RAF and COIDA in year one</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Claims Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Remittance Hand<span class="small">M14 · exceptions BIL</span></td><td>Ingest remittance advices, match to claims, post payments and adjustments, reconcile to bank</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Posts only when the document reconciles to matched lines and a bank receipt within <span class="amt">R 1</span></span><span>No write-offs · unmatched lines to BIL</span></div></td><td>A3 reconciled; A1 otherwise; systematic short-payment to BIL and PRM</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Remittance Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Collections Hand<span class="small">M14 · exceptions DEB</span></td><td>Collect patient liability respectfully: statements, reminders, payment links, plans within policy</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Write-off up to <span class="amt">R 200</span> per account · plans within the Practice grid</span><span><span class="amt">1</span> reminder per 7 days per channel · none <span class="amt">20:00</span> to <span class="amt">08:00</span>, Sundays and public holidays</span></div></td><td>A3; dispute, hardship, deceased notice or legal threat to DEB</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Collections Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Close Hand<span class="small">M15 · exceptions PRM, EXE</span></td><td>Month-end per Practice: cut-off checks, exceptions, intercompany invoices, accrual proposals, draft pack</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Posts only deterministic rule-derived journals · accruals are proposals</span><span>Never approves a distribution proposal · nothing after period lock</span></div></td><td>A3 rule-derived; A1 judgemental; distributions per the shareholding model</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Close Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Roster Hand<span class="small">M17 · exceptions PRM</span></td><td>Draft and maintain rosters within demand forecasts, credential rules, leave, contracts and BCEA limits</td><td><span class="lv">A2</span></td><td><div class="leash"><span>Overtime proposals capped at <span class="amt">10 h</span> per person per week</span><span>Never publishes (PRM does) · never breaches a credential or rest rule</span></div></td><td>A2; uncoverable shift within 48 h to PRM and regional task</td><td><div class="st"><span class="tg half" role="switch" aria-checked="mixed" aria-label="Roster Hand in shadow mode"></span><div>Shadow<span class="s">day 9 of 14</span></div></div></td></tr>
+            <tr><td class="hn">Maintenance Hand<span class="small">M18 · exceptions BIO</span></td><td>Schedule PM and QA, act on equipment risk scores, open vendor tickets, re-order consumables within policy</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Purchase order up to <span class="amt">R 50 000</span> each · <span class="amt">R 250 000</span> per month per Site · catalogue items only</span><span>Downtime in low-demand slots · PRM confirms over <span class="amt">2 h</span> · never disables a modality</span></div></td><td>A3; critical risk score to BIO immediately, PRM notified</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Maintenance Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Compliance Hand<span class="small">M19 · exceptions CMP</span></td><td>Maintain the compliance calendar and evidence: licences, registrations, POPIA records, incident follow-ups, packs</td><td><span class="lv">A2</span></td><td><div class="leash"><span>Never submits to a regulator (CMP does)</span><span>Never closes an incident · never changes a policy</span></div></td><td>A2; licence within 60 days without a renewal record to CMP and PRM</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Compliance Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Onboarding Hand<span class="small">M02, M21 · exceptions SUP</span></td><td>Drive onboarding of a new or acquired Practice from entity capture to go-live readiness</td><td><span class="lv">A2</span></td><td><div class="leash"><span>Everything created is staged until a human activates it</span><span>Never provisions clinical rights · never activates a fee schedule</span></div></td><td>A2; missing licences or unreconciled shareholding to SUP and CMP</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Onboarding Hand active"></span><div>Active<span class="s">no open project</span></div></div></td></tr>
+            <tr><td class="hn">Insight Hand<span class="small">M16 · exceptions EXE</span></td><td>Answer analytics questions against the semantic layer with the metric definitions and query shown</td><td><span class="lv">A2</span></td><td><div class="leash"><span>Caller's own row-level permissions · de-identified warehouse only</span><span>Result size capped at <span class="amt">10 000</span> rows · unknown metric refused, never improvised</span></div></td><td>A2; a metric not in the semantic layer becomes a task for the M16 owner</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Insight Hand active"></span>Active</div></td></tr>
+            <tr><td class="hn">Support Hand<span class="small">M21 · exceptions SUP</span></td><td>First-line tenant support: documentation answers, diagnosis from observability, tickets, approved runbooks</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span>Allow-listed idempotent, reversible runbooks only · <span class="amt">14</span> runbooks</span><span>Never changes configuration, permissions or data · never touches clinical content</span></div></td><td>A3 runbooks; A1 otherwise; suspected security incident to SUP and CMP</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Support Hand active"></span>Active</div></td></tr>
+          </tbody>
+        </table>
+        <div class="note">Illustrative leash values are configurable reference data per Practice. Automation levels: A1 assisted, A2 supervised auto, A3 autonomous with leash. Clinical interpretation is capped at A1 by policy and cannot be raised here.</div>
+
+        <section class="fold" aria-label="Fee schedules preview">
+          <div class="fh">
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            <h3>Fee schedules</h3>
+            <span class="chip active"><i></i>2 pending effective dates</span>
+            <span class="more">6 schedules · scheme, DSP, RAF, COIDA and cash · dry-run against last quarter's claims before each effective date · preview of tariff code 30110</span>
+          </div>
+          <div class="fb">
+            <table class="dt fee">
+              <thead><tr><th>Funder</th><th>Tariff code</th><th>Description</th><th class="num">Rate excl. VAT</th><th>Effective from</th><th>Effective to</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Scheme A (demo) · standard</td><td class="mono">30110</td><td>Chest radiograph, PA</td><td class="num">R 413</td><td class="mono">2026-01-01</td><td class="mono">2026-09-30</td><td><span class="chip done"><i></i>Current</span></td></tr>
+                <tr><td>Scheme A (demo) · standard</td><td class="mono">30110</td><td>Chest radiograph, PA</td><td class="num">R 428</td><td class="mono">2026-10-01</td><td class="mono muted">open</td><td><span class="chip active"><i></i>Pending · dry-run passed</span></td></tr>
+                <tr><td>Scheme B (demo) · DSP contracted</td><td class="mono">30110</td><td>Chest radiograph, PA</td><td class="num">R 398</td><td class="mono">2026-01-01</td><td class="mono muted">open</td><td><span class="chip done"><i></i>Current</span></td></tr>
+                <tr><td>RAF tariff</td><td class="mono">30110</td><td>Chest radiograph, PA</td><td class="num">R 445</td><td class="mono">2026-04-01</td><td class="mono muted">open</td><td><span class="chip done"><i></i>Current</span></td></tr>
+                <tr><td>COIDA tariff</td><td class="mono">30110</td><td>Chest radiograph, PA</td><td class="num">R 437</td><td class="mono">2026-04-01</td><td class="mono muted">open</td><td><span class="chip done"><i></i>Current</span></td></tr>
+                <tr><td>Cash price · Practice A</td><td class="mono">30110</td><td>Chest radiograph, PA · incl. VAT R 520</td><td class="num">R 452</td><td class="mono">2026-07-01</td><td class="mono muted">open</td><td><span class="chip done"><i></i>Current</span></td></tr>
+              </tbody>
+            </table>
+            <div class="note" style="margin-top:8px">Illustrative amounts. Rates are reference data per funder agreement in M02 and version in M14; the rules engine prices every line from the schedule in force on the date of service. <a href="#">Open fee schedules</a></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <aside class="inspector" aria-label="Inspector">
+    <div class="spread"><h3>Change history</h3><span class="chip"><i></i>Hands and leashes</span></div>
+    <ul class="ver">
+      <li><span class="dot info"></span><div><div class="v"><b>v14 · draft</b><span>effective 2026-10-01</span><span>by T. Ngcobo (PRM)</span></div><div class="diff">Claims Hand · daily autonomous value <span class="amt">R 2 000 000</span> to <span class="amt chg">R 2 500 000</span></div><div class="small muted">Reason: Scheme A volume growth; scrubber first-pass acceptance 96.8 % over 90 days. Awaiting CMP approval.</div></div></li>
+      <li><span class="dot ok"></span><div><div class="v"><b>v13</b><span>effective 2026-08-01</span><span>approved N. Mahlangu (CMP)</span></div><div class="diff">Collections Hand · write-off per account <span class="amt">R 150</span> to <span class="amt">R 200</span></div></div></li>
+      <li><span class="dot ok"></span><div><div class="v"><b>v12</b><span>effective 2026-06-15</span><span>approved N. Mahlangu (CMP)</span></div><div class="diff">Roster Hand · activated in shadow for 14 days per Practice policy</div></div></li>
+      <li><span class="dot ok"></span><div><div class="v"><b>v11</b><span>effective 2026-05-01</span><span>approved N. Mahlangu (CMP)</span></div><div class="diff">Maintenance Hand · purchase order <span class="amt">R 30 000</span> to <span class="amt">R 50 000</span> · monthly cap added <span class="amt">R 250 000</span></div></div></li>
+      <li><span class="dot"></span><div><div class="v"><b>v10</b><span>effective 2026-03-01</span><span>approved N. Mahlangu (CMP)</span></div><div class="diff">Coding Hand · A1 to A3 for clean cases after 2 % sampling audit at 99.1 %</div></div></li>
+      <li><span class="dot"></span><div><div class="v"><b>v9 and earlier</b><span>9 versions</span></div><div class="diff"><a href="#">Show full history</a></div></div></li>
+    </ul>
+
+    <div class="card">
+      <h4>Effective date for v14</h4>
+      <div class="field"><span>Effective from</span><div class="in mono">2026-10-01 · 00:00 SAST</div></div>
+      <div class="mcal" role="grid" aria-label="October 2026">
+        <span class="dn">Mo</span><span class="dn">Tu</span><span class="dn">We</span><span class="dn">Th</span><span class="dn">Fr</span><span class="dn">Sa</span><span class="dn">Su</span>
+        <span class="d o">28</span><span class="d o">29</span><span class="d o">30</span><span class="d sel">1</span><span class="d">2</span><span class="d">3</span><span class="d">4</span>
+        <span class="d">5</span><span class="d">6</span><span class="d">7</span><span class="d">8</span><span class="d">9</span><span class="d">10</span><span class="d">11</span>
+        <span class="d">12</span><span class="d">13</span><span class="d">14</span><span class="d">15</span><span class="d">16</span><span class="d">17</span><span class="d">18</span>
+        <span class="d">19</span><span class="d">20</span><span class="d">21</span><span class="d">22</span><span class="d">23</span><span class="d">24</span><span class="d">25</span>
+        <span class="d">26</span><span class="d">27</span><span class="d">28</span><span class="d">29</span><span class="d">30</span><span class="d lock">31</span><span class="d o">1</span>
+      </div>
+      <div class="note" style="margin-top:6px">Month-end lock on 31 Oct: leash changes cannot take effect on a period-lock day.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <label class="radio"><i class="on"></i><span>On the effective date, after CMP approval</span></label>
+        <label class="radio"><i></i><span>Immediately after approval (CMP typed Confirm with reason)</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Approval</h4>
+      <div class="kv">
+        <span>Approver</span><b>N. Mahlangu (CMP) · required</b>
+        <span>Also notified</span><b>AIO · PRM</b>
+        <span>Runtime</span><b>v13 stays in force until v14 is approved</b>
+        <span>Reversible</span><b>One action · returns to v13 with an incident opened</b>
+      </div>
+      <div class="row-flex" style="margin-top:10px"><button class="btn primary">Submit v14 for CMP approval</button><button class="btn">Discard draft</button></div>
+    </div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

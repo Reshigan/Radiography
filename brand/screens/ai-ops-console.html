@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="clinical">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BCI Console — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.ph{flex-wrap:nowrap}.ph .title{min-width:0}
+.top5{display:grid;grid-template-columns:1.15fr 1fr 1fr 1fr 1fr;gap:12px}
+.tile .mc{width:100%;height:40px;margin-top:6px}
+.tile .mc text{font-family:var(--mono);font-size:9px;fill:var(--text-2)}
+.tile .mc .lbl{fill:var(--text);font-weight:500}
+.tile.slip{border-color:var(--ok)}
+.tile.slip .v{color:var(--ok);font-size:32px}
+.main2{display:grid;grid-template-columns:1fr 400px;gap:12px;align-items:stretch}
+.card .hd h3{white-space:nowrap}
+.kv b{font-weight:500}
+.main2>*{min-width:0}
+.alarm{border-left:4px solid var(--warn)}
+.alarm .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+.alarm .charts .ch{border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+.alarm .charts .ch .t{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em}
+.alarm .charts svg{width:100%;height:64px;display:block}
+.alarm .charts text{font-family:var(--mono);font-size:9.5px;fill:var(--text-2)}
+.alarm .charts text.b{fill:var(--text)}
+.ks{display:flex;flex-direction:column;gap:6px}
+.ks .k{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:4px 8px;border:1px solid var(--line);border-radius:4px;font-size:12px}
+.ks .k .n{font-weight:500}.ks .k .s{color:var(--text-2);font-size:11px}
+.ks h4{margin:6px 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+.tg{width:34px;height:18px;border-radius:9px;background:var(--ash-700);position:relative;display:inline-block;border:1px solid var(--line-strong)}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--ash-300)}
+.tg.on{background:var(--ok);border-color:var(--ok)}.tg.on::after{left:18px;background:var(--carbon)}
+.tg.off{background:var(--crit);border-color:var(--crit)}.tg.off::after{left:2px;background:#fff}
+.dt th,.dt td{white-space:nowrap}
+.dt td.w{white-space:normal;line-height:1.3}
+.reg{table-layout:fixed}.reg td:nth-child(3),.reg td:nth-child(5){white-space:normal;line-height:1.3}.reg td:nth-child(4){white-space:normal}
+.sh{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sh .stat{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.sh .stat .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+.sh .stat .v{font:600 20px/1.1 var(--display);color:var(--heading)}
+.sh .stat .ci{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+.prog{height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden;margin-top:4px}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--ok)}
+.sub-dt{--row:30px}
+.sub-dt td,.sub-dt th{font-size:12px;padding:0 8px}
+.sub-dt td.grp{color:var(--text-2);font-size:11px;text-transform:uppercase;letter-spacing:.04em;background:var(--surface-3)}
+.queue .row>div{min-width:0}
+.queue .row .t{white-space:normal}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#F5F1E9" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Model registry" class="active" aria-label="Model registry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg></a>
+    <a href="#" title="Monitoring" aria-label="Monitoring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17l5-6 4 3 4-7 5 5"/></svg></a>
+    <a href="#" title="Shadow evaluations" aria-label="Shadow evaluations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg></a>
+    <a href="#" title="Incidents" aria-label="Incidents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg></a>
+    <a href="#" title="Change control" aria-label="Change control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12l4 4L19 6"/></svg></a>
+    <a href="#" title="Committee" aria-label="Committee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 18c0-2 2-3.5 4.5-3.5"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Dr R. Adams">RA</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>BCI console</span><span class="sep">/</span><span>Group · 12 sites · de-identified</span><span class="sep">/</span><span class="mono">Mon 14 Sep · 06:52</span></div>
+    <div class="search">Search models, deployments, incidents, change requests… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip att"><i></i>1 drift alarm</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 2 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>2</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title">
+        <h1>Bonakala Clinical Intelligence</h1>
+        <span class="muted">Model registry, monitoring, shadow evaluations, change control · clinical safety officer for AI: Dr R. Adams · ML: T. Molefe</span>
+      </div>
+      <div class="actions">
+        <button class="btn">Vigilance file</button>
+        <button class="btn">Committee pack · Q3</button>
+        <button class="btn primary">New change request</button>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="BCI views"><a href="#" class="on">Overview</a><a href="#">Registry</a><a href="#">Monitoring</a><a href="#">Shadow evaluations</a><a href="#">Incidents</a><a href="#">Change control</a><a href="#">Committee</a></nav>
+
+    <div class="top5">
+      <div class="tile slip">
+        <span class="l">AI slips · Class 1 and 2</span>
+        <span class="v">0</span>
+        <span class="d">Days since last near-slip: <b>23</b></span>
+        <span class="d small">NS-2608-002 · hard gate on candidate conflicts deployed in release 2026.36 · mandate breaches attempted and refused: 0</span>
+      </div>
+      <div class="tile">
+        <span class="l">Coverage · eligible studies with inference</span>
+        <span class="v">97.8 %</span>
+        <span class="d">14 d · floor 95 % · Secunda outage annotated</span>
+        <svg class="mc" viewBox="0 0 200 40" aria-label="Coverage over 14 days, steady near 98 percent with a dip during the Secunda outage"><line x1="4" y1="24" x2="140" y2="24" stroke="var(--line-strong)" stroke-dasharray="2 3"/><polyline fill="none" stroke="var(--signal)" stroke-width="1.5" points="4,10 14,9 24,10 34,8 44,9 54,28 64,11 74,9 84,10 94,8 104,9 114,8 124,9 134,8"/><text x="54" y="38" text-anchor="middle">93.1 · 6 Sep</text><text class="lbl" x="140" y="11">97.8 %</text><text x="140" y="27">floor 95</text></svg>
+      </div>
+      <div class="tile">
+        <span class="l">Latency P95 · inference to worklist</span>
+        <span class="v">4.2 s</span>
+        <span class="d">14 d · target 6 s · SA inference cell</span>
+        <svg class="mc" viewBox="0 0 200 40" aria-label="P95 latency over 14 days between 3.8 and 4.6 seconds, under the 6 second target"><line x1="4" y1="6" x2="140" y2="6" stroke="var(--line-strong)" stroke-dasharray="2 3"/><polyline fill="none" stroke="var(--iris)" stroke-width="1.5" points="4,22 14,20 24,24 34,21 44,19 54,23 64,22 74,18 84,21 94,24 104,22 114,20 124,21 134,20"/><text x="140" y="9">target 6.0 s</text><text class="lbl" x="140" y="24">4.2 s</text><text x="4" y="38">1 Sep</text><text x="134" y="38" text-anchor="end">14 Sep</text></svg>
+      </div>
+      <div class="tile">
+        <span class="l">Agreement with signed reports</span>
+        <span class="v">0.92</span>
+        <span class="d">Group, all Class 1 models · floor 0.88</span>
+        <svg class="mc" viewBox="0 0 200 40" aria-label="Agreement over 14 days, group average steady at 0.92, Randburg dropping to 0.81 from Thursday"><polyline fill="none" stroke="var(--signal)" stroke-width="1.5" points="4,8 14,9 24,8 34,8 44,9 54,8 64,8 74,9 84,8 94,8 104,9 114,8 124,8 134,8"/><polyline fill="none" stroke="var(--beam)" stroke-width="1.5" points="4,9 14,10 24,9 34,9 44,10 54,9 64,9 74,10 84,9 94,9 104,26 114,27 124,28 134,27"/><text class="lbl" x="140" y="11">group 0.92</text><text x="140" y="30" fill="var(--beam)">Randburg 0.81</text><text x="4" y="38">1 Sep</text><text x="134" y="38" text-anchor="end">14 Sep</text></svg>
+      </div>
+      <div class="tile">
+        <span class="l">Override rate · candidates rejected</span>
+        <span class="v">5.1 %</span>
+        <span class="d">Group · band 3 to 8 % · Randburg 13 %</span>
+        <svg class="mc" viewBox="0 0 200 40" aria-label="Override rate over 14 days, group near 5 percent, Randburg rising to 13 percent from Thursday"><polyline fill="none" stroke="var(--signal)" stroke-width="1.5" points="4,24 14,25 24,23 34,24 44,25 54,24 64,23 74,24 84,24 94,25 104,23 114,24 124,24 134,23"/><polyline fill="none" stroke="var(--beam)" stroke-width="1.5" points="4,25 14,26 24,25 34,25 44,26 54,25 64,25 74,26 84,25 94,25 104,10 114,8 124,7 134,7"/><text class="lbl" x="140" y="27">group 5.1 %</text><text x="140" y="10" fill="var(--beam)">Randburg 13 %</text><text x="4" y="38">1 Sep</text><text x="134" y="38" text-anchor="end">14 Sep</text></svg>
+      </div>
+    </div>
+
+    <div class="main2">
+      <section class="card alarm" aria-label="Drift alarm">
+        <div class="hd"><h3>Drift alarm · BCI-CXR-TRIAGE 2.3.1 at Randburg</h3><span class="chip att"><i></i>Beam · raised 06:30</span><span class="chip"><i></i>Other sites unchanged</span></div>
+        <div class="ai">
+          <div class="prov"><span>monitor <b>bci-drift-monitor 1.4.0</b></span><span>model <b>BCI-CXR-TRIAGE@2.3.1</b></span><span>scope <b>Randburg · Room 1 · detector DR-7</b></span><span>window <b>7 d vs 30 d baseline</b></span></div>
+          <div>Positive rate for "urgent" up <b>+38 %</b> (8.2 % to 11.3 %) after the detector change on Thu 10 Sep; agreement with signed reports <b>0.81</b> vs baseline <b>0.93</b>; override rate 13 % vs 4 %. Input statistics drifted: pixel-intensity histogram and noise-texture distance above threshold. Recommended: <b>pause at site</b> (advisory-suppressed, model keeps running and logging).</div>
+          <div class="charts">
+            <div class="ch"><div class="t">Urgent positive rate · daily</div>
+              <svg viewBox="0 0 300 64" aria-label="Daily urgent positive rate at Randburg, around 8 percent then stepping to 11 percent from Thursday"><line x1="20" y1="36" x2="290" y2="36" stroke="var(--line-strong)" stroke-dasharray="2 3"/><text x="22" y="33">baseline 8.2 %</text><polyline fill="none" stroke="var(--beam)" stroke-width="1.5" points="20,37 42,35 64,38 86,36 108,37 130,35 152,36 174,37 196,18 218,16 240,17 262,15 284,16"/><line x1="196" y1="8" x2="196" y2="52" stroke="var(--crit)" stroke-dasharray="3 2"/><text x="200" y="52" fill="var(--crit)">detector replaced Thu</text><text class="b" x="288" y="12" text-anchor="end">11.3 %</text></svg></div>
+            <div class="ch"><div class="t">Agreement with signed reports · daily</div>
+              <svg viewBox="0 0 300 64" aria-label="Daily agreement at Randburg, 0.93 then dropping to 0.81 from Thursday"><line x1="20" y1="14" x2="290" y2="14" stroke="var(--line-strong)" stroke-dasharray="2 3"/><text x="22" y="11">baseline 0.93</text><polyline fill="none" stroke="var(--beam)" stroke-width="1.5" points="20,14 42,15 64,13 86,14 108,15 130,14 152,13 174,15 196,38 218,40 240,39 262,41 284,40"/><line x1="196" y1="8" x2="196" y2="52" stroke="var(--crit)" stroke-dasharray="3 2"/><line x1="20" y1="30" x2="290" y2="30" stroke="var(--crit)" stroke-dasharray="1 3" opacity=".7"/><text x="22" y="28" fill="var(--crit)">floor 0.88</text><text class="b" x="288" y="52" text-anchor="end">0.81</text></svg></div>
+          </div>
+          <div class="kv" style="font-size:12px;margin-bottom:6px">
+            <span>Linked M18 event</span><b>Thu 10 Sep 08:10 · Randburg R1 · detector replaced by vendor service visit · new detector model DR-7 · re-validation flag raised automatically (ai.revalidation.flagged.v1)</b>
+            <span>Validated inputs</span><b>Registry lists DR-5, DR-6 and CR plates · DR-7 not on the list · vendor asked whether the model was validated on DR-7</b>
+            <span>Harm check</span><b>False-negative proxy unchanged (signed critical findings vs model non-urgent): 0 in window · no recall needed</b>
+          </div>
+          <div class="acts"><button class="btn sm primary">Pause at site</button><button class="btn sm">Keep watching</button><button class="btn sm">Open change record</button><button class="btn sm ghost">Open cohort · 212 studies</button></div>
+        </div>
+        <h4 style="margin-top:12px">Response so far</h4>
+        <ul class="tl">
+          <li><span class="tm">Thu 08:10</span><span class="dot"></span><span>M18: detector replaced at Randburg R1 · re-validation flag opened for BCI-CXR-TRIAGE at this room</span></li>
+          <li><span class="tm">06:30</span><span class="dot ai"></span><span>Drift alarm raised by bci-drift-monitor 1.4.0 · routed to AIO; severity 2, CMP not paged</span></li>
+          <li><span class="tm">06:41</span><span class="dot ok"></span><span>AI incident AI-2609-007 opened: performance degradation, no patient harm identified · linked to the M18 change</span></li>
+          <li><span class="tm">06:50</span><span class="dot"></span><span>Vendor asked whether 2.3.1 was validated on DR-7 · validation set queued through the DR-7 processing profile (T. Molefe)</span></li>
+        </ul>
+      </section>
+
+      <section class="card" aria-label="Kill switches">
+        <div class="hd"><h3>Kill switches</h3><span class="more">AIO, PRM or CMP · within one minute</span></div>
+        <div class="ks">
+          <h4>Per model · all deployments</h4>
+          <div class="k"><div><div class="n">BCI-CXR-TRIAGE 2.3.1</div><div class="s">11 sites active · 1 site suppressed</div></div><span class="chip done"><i></i>Running</span><span class="tg on" role="switch" aria-checked="true" aria-label="BCI-CXR-TRIAGE running"></span></div>
+          <div class="k"><div><div class="n">BCI-CXR-FINDINGS 3.1.0</div><div class="s">9 sites active · 3 shadow</div></div><span class="chip done"><i></i>Running</span><span class="tg on" role="switch" aria-checked="true" aria-label="BCI-CXR-FINDINGS running"></span></div>
+          <div class="k"><div><div class="n">BCI-DRAFT-REPORT 2.7.1</div><div class="s">12 sites · A1 policy cap</div></div><span class="chip done"><i></i>Running</span><span class="tg on" role="switch" aria-checked="true" aria-label="BCI-DRAFT-REPORT running"></span></div>
+          <h4>Per site</h4>
+          <div class="k"><div><div class="n">Randburg · Room 1 · CXR triage</div><div class="s">Recommended by drift alarm · not yet applied</div></div><span class="chip att"><i></i>Pending</span><span class="tg on" role="switch" aria-checked="true" aria-label="Randburg room 1 triage running"></span></div>
+          <div class="k"><div><div class="n">Secunda · all Class 1 overlays</div><div class="s">Suppressed 4 Sep · quality-flag rate 22 % · positioning review</div></div><span class="chip crit"><i></i>Suppressed</span><span class="tg off" role="switch" aria-checked="false" aria-label="Secunda overlays suppressed"></span></div>
+          <h4>Per practice</h4>
+          <div class="k"><div><div class="n">Practice B (demo) · mammography overlays</div><div class="s">Human-first policy · overlays off by default</div></div><span class="chip"><i></i>Off by policy</span><span class="tg off" role="switch" aria-checked="false" aria-label="Practice B mammography overlays off"></span></div>
+          <div class="k"><div><div class="n">Practice A (demo) · all models</div><div class="s">CMP change-control record CR-2607-004</div></div><span class="chip done"><i></i>Running</span><span class="tg on" role="switch" aria-checked="true" aria-label="Practice A all models running"></span></div>
+        </div>
+        <div class="note" style="margin-top:8px">Switching off opens an AI incident and returns the model to shadow. Re-enabling needs a change-control record approved by the Practice's CMP.</div>
+      </section>
+    </div>
+
+    <section class="card" aria-label="Model registry">
+      <div class="hd"><h3>Model registry</h3><span class="pill">10 models · 31 deployments</span><span class="more">Every version is a new entry and a new change request; the old version keeps running until approved</span></div>
+      <table class="dt reg">
+        <colgroup><col style="width:150px"><col style="width:90px"><col><col style="width:280px"><col style="width:236px"><col style="width:150px"><col style="width:96px"></colgroup>
+        <thead><tr><th>Model id</th><th>Version</th><th>Task · output class</th><th>Deployment status</th><th>SAHPRA status</th><th>Last validation</th><th></th></tr></thead>
+        <tbody>
+          <tr class="sel"><td class="mono">BCI-CXR-TRIAGE</td><td class="mono">2.3.1</td><td>Chest radiograph triage priority · Class 4</td><td><span class="chip done"><i></i>Activated 11</span> <span class="chip att"><i></i>Drift 1</span></td><td>Registered SaMD · MD-2025-0413 (demo)</td><td class="mono">2026-03-12 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-CXR-FINDINGS</td><td class="mono">3.1.0</td><td>Chest findings candidates · Class 1</td><td><span class="chip done"><i></i>Activated 9</span> <span class="chip"><i></i>Shadow 3</span></td><td>Registered SaMD · MD-2025-0418 (demo)</td><td class="mono">2026-05-04 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-CTH-ICH</td><td class="mono">1.8.2</td><td>Intracranial haemorrhage triage and candidate · Class 4 / 1</td><td><span class="chip done"><i></i>Activated 12</span></td><td>Registered SaMD · MD-2024-1102 (demo)</td><td class="mono">2026-02-20 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-CTPE</td><td class="mono">1.4.0</td><td>Pulmonary embolism triage · Class 4 / 1</td><td><span class="chip done"><i></i>Activated 7</span> <span class="chip"><i></i>Shadow 2</span></td><td>Registered SaMD · MD-2025-0291 (demo)</td><td class="mono">2026-06-30 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-CTPE</td><td class="mono">1.5.0</td><td>Vendor-pushed version · new registry entry</td><td><span class="chip"><i></i>Not deployed</span></td><td>Vendor reference pending</td><td class="mono muted">not validated</td><td><a href="#">CR-2609-015</a></td></tr>
+          <tr><td class="mono">BCI-MSK-FRAC-APP</td><td class="mono">1.0.0-rc2</td><td>Appendicular fracture candidates · Class 1 · vendor</td><td><span class="chip"><i></i>Shadow 4</span></td><td>Registered SaMD · vendor ref (demo)</td><td class="mono">shadow wk 8 of 8</td><td><a href="#">Evaluation</a></td></tr>
+          <tr><td class="mono">BCI-CTL-NOD</td><td class="mono">2.0.3</td><td>Lung nodule detection and volumetry · Class 1</td><td><span class="chip done"><i></i>Activated 6</span></td><td>Registered SaMD · MD-2025-0640 (demo)</td><td class="mono">2026-04-18 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-MG-LESION</td><td class="mono">1.2.0</td><td>Mammography second-reader support · Class 1</td><td><span class="chip"><i></i>Shadow 2</span> <span class="chip"><i></i>Overlays off by policy</span></td><td>Registered SaMD · MD-2025-0711 (demo)</td><td class="mono">2026-07-22 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-DRAFT-REPORT</td><td class="mono">2.7.1</td><td>Report drafting from dictation · Class 1 · A1 cap</td><td><span class="chip done"><i></i>Activated 12</span></td><td>Platform SaMD position recorded</td><td class="mono">2026-08-02 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-QC-POSITION</td><td class="mono">4.2.0</td><td>Positioning and collimation QC · Class 4 · on-device</td><td><span class="chip done"><i></i>Activated 12</span> <span class="chip crit"><i></i>Paused 1</span></td><td>Assessed: not a medical device</td><td class="mono">2026-01-15 · pass</td><td><a href="#">Open</a></td></tr>
+          <tr><td class="mono">BCI-PRED-EQUIP</td><td class="mono">0.9.4</td><td>Predictive maintenance risk · Class 4</td><td><span class="chip done"><i></i>Activated 12</span></td><td>Not a medical device</td><td class="mono">2026-08-30 · pass</td><td><a href="#">Open</a></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="main2">
+      <section class="card" aria-label="Shadow-mode evaluation">
+        <div class="hd"><h3>Shadow evaluation · BCI-MSK-FRAC-APP 1.0.0-rc2</h3><span class="chip active"><i></i>Week 8 of 8 · closing</span><span class="chip ai"><i></i>proxies vs signed reports</span></div>
+        <div class="note" style="margin:-4px 0 10px">Protocol: 4 sites · extremity DX · adults · de-identified DICOM to the vendor container in the SA inference cell · no image leaves the country · operator agreement attached</div>
+        <div class="sh">
+          <div class="stat"><span class="l">Cases processed</span><span class="v">512 <span class="muted" style="font:400 13px var(--text-font)">of 500 required</span></span><div class="prog"><i style="width:100%"></i></div><span class="ci">stopping rules: none fired · 41 out-of-scope under-16 logged, not acted on</span></div>
+          <div class="stat"><span class="l">Operating point</span><span class="v">0.55</span><span class="ci">vendor default 0.50 · chosen for specificity at long bones</span></div>
+          <div class="stat"><span class="l">Sensitivity proxy</span><span class="v">0.91</span><span class="ci">95 % CI 0.86 to 0.95 · reference: signed report, not adjudicated truth</span></div>
+          <div class="stat"><span class="l">Specificity proxy</span><span class="v">0.94</span><span class="ci">95 % CI 0.92 to 0.96 · 38 disagreements adjudicated by RGT (A0)</span></div>
+        </div>
+        <table class="dt sub-dt" style="margin-top:10px">
+          <thead><tr><th>Subgroup</th><th class="num">n</th><th class="num">Sens</th><th class="num">Spec</th><th class="num">Agreement</th><th>Floor 0.85</th></tr></thead>
+          <tbody>
+            <tr><td class="grp" colspan="6">By site</td></tr>
+            <tr><td>Sandton</td><td class="num">148</td><td class="num">0.92</td><td class="num">0.95</td><td class="num">0.93</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>Randburg</td><td class="num">121</td><td class="num">0.90</td><td class="num">0.94</td><td class="num">0.92</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>Umhlanga</td><td class="num">137</td><td class="num">0.93</td><td class="num">0.94</td><td class="num">0.93</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>Secunda</td><td class="num">106</td><td class="num">0.86</td><td class="num">0.93</td><td class="num">0.89</td><td><span class="chip att"><i></i>Near floor</span></td></tr>
+            <tr><td class="grp" colspan="6">By detector vendor</td></tr>
+            <tr><td>Vendor X · DR-7 flat panel</td><td class="num">231</td><td class="num">0.92</td><td class="num">0.95</td><td class="num">0.93</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>Vendor Y · CR plates</td><td class="num">281</td><td class="num">0.90</td><td class="num">0.93</td><td class="num">0.91</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td class="grp" colspan="6">By age band</td></tr>
+            <tr><td>16 to 39</td><td class="num">187</td><td class="num">0.93</td><td class="num">0.95</td><td class="num">0.94</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>40 to 64</td><td class="num">219</td><td class="num">0.91</td><td class="num">0.94</td><td class="num">0.92</td><td><span class="chip done"><i></i>Above</span></td></tr>
+            <tr><td>65 and over</td><td class="num">106</td><td class="num">0.87</td><td class="num">0.92</td><td class="num">0.89</td><td><span class="chip att"><i></i>Near floor</span></td></tr>
+            <tr><td>Under 16 · out of scope, logged only</td><td class="num">41</td><td class="num">0.71</td><td class="num">0.90</td><td class="num">0.78</td><td><span class="chip crit"><i></i>Below · excluded by routing rule</span></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:8px">Body part: strong for long bones and ankle; weak for scaphoid (sens 0.74, n 29) and paediatric elbow. Proposed live scope: adults, long bones and ankle. Repeat-rate monitor added at CMP's request.</div>
+        <div class="row-flex" style="margin-top:8px"><button class="btn primary">Write recommendation</button><button class="btn">Open change request for Practice A</button><button class="btn ghost">Adjudication queue · 6 waiting</button></div>
+      </section>
+
+      <section class="card" aria-label="Change-control queue">
+        <div class="hd"><h3>Change-control queue</h3><span class="pill">5</span><span class="more">Enforced by the runtime</span></div>
+        <div class="queue">
+          <div class="row"><span class="chip att"><i></i>CMP review</span><div><div class="t">CR-2609-018 · BCI-MSK-FRAC-APP shadow to live, Practice A</div><div class="s">Staged: Sandton 30 d with weekly review, then Randburg · AIO approved · awaiting CMP typed Confirm</div></div><span class="mono small">2 d</span></div>
+          <div class="row"><span class="chip active"><i></i>Deploying</span><div><div class="t">CR-2609-017 · Reading Room hard gate on candidate conflicts</div><div class="s">From near-slip NS-2608-002 · release 2026.38 · test attached</div></div><span class="mono small">6 d</span></div>
+          <div class="row"><span class="chip"><i></i>Draft</span><div><div class="t">CR-2609-016 · BCI-CXR-TRIAGE validated-input list: exclude DR-7</div><div class="s">Applies at every site with DR-7 · vendor response awaited</div></div><span class="mono small">today</span></div>
+          <div class="row"><span class="chip"><i></i>Evaluation</span><div><div class="t">CR-2609-015 · BCI-CTPE 1.5.0 vendor version</div><div class="s">New registry entry · 1.4.0 keeps running · shadow protocol to draft</div></div><span class="mono small">4 d</span></div>
+          <div class="row"><span class="chip crit"><i></i>Declined</span><div><div class="t">CR-2609-012 · Mammography overlays on by default</div><div class="s">Committee decision Q2: human-first policy for mammography</div></div><span class="mono small">31 d</span></div>
+        </div>
+        <div class="hd" style="margin-top:14px"><h4>Open AI incidents</h4><span class="pill">2</span></div>
+        <div class="queue">
+          <div class="row"><span class="chip att"><i></i>Open</span><div><div class="t">AI-2609-007 · Performance degradation, no harm · Randburg R1</div><div class="s">Linked to M18 detector change · vigilance assessment due before closure</div></div><span class="mono small">06:41</span></div>
+          <div class="row"><span class="chip done"><i></i>Closing</span><div><div class="t">NS-2608-002 · Near-slip, Class 2 output, no harm · Hub</div><div class="s">Reportability: criteria not met · reasoning recorded · reporter thanked</div></div><span class="mono small">23 d</span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

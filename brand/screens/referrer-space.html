@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="referrer">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referrer Space — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+:root{--inspector:380px}
+.rs{display:grid;grid-template-columns:316px minmax(0,1fr);gap:16px;min-height:0;flex:1}
+.ph .title{max-width:560px}
+.inspector{gap:12px}
+.rs>div{min-width:0;display:flex;flex-direction:column;gap:10px}
+.rs>div>*{flex:none}
+.queue .row{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 8px;padding:7px 10px}
+.queue .row .t{grid-column:1/-1}
+.queue .row .chip{justify-self:end;font-size:11px;padding:0 6px}
+.queue .row .s .mono{font-size:11px}
+.form{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px 16px}
+.prefs{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:2px}
+.form .span{grid-column:1/-1}.form .half{grid-column:span 3}.form .third{grid-column:span 2}
+.seg{display:flex;gap:0;border:1px solid var(--line-strong);border-radius:2px;overflow:hidden;height:32px}
+.seg span{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-2);border-right:1px solid var(--line);white-space:nowrap;padding:0 6px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.seg span:last-child{border-right:none}.seg span.on{background:var(--surface-3);color:var(--text);font-weight:500;box-shadow:inset 0 -2px 0 var(--primary)}
+.seg span.crit.on{color:var(--crit);box-shadow:inset 0 -2px 0 var(--crit)}
+.codes{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:32px}
+.codes .chip .x{color:var(--text-2);margin-left:2px}
+.patient-in{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line-strong);border-radius:2px;background:var(--surface);padding:6px 10px;color:var(--text);font-size:13px}
+.patient-in b{font-weight:600}
+.drop{border:1px dashed var(--line-strong);border-radius:var(--radius);padding:6px 10px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--surface);margin-bottom:10px}
+.drop svg{width:22px;height:22px;color:var(--primary)}
+.drop .btn{white-space:nowrap}
+.keyim{height:100px;background:#000;border:1px solid var(--line);border-radius:var(--radius);position:relative;overflow:hidden}
+.keyim .brain{position:absolute;left:18%;top:8%;width:64%;height:84%;border-radius:50% 50% 46% 46%;background:radial-gradient(ellipse at 50% 46%,#6a6e71 0%,#464a4d 55%,#1d2022 100%)}
+.keyim .bleed{position:absolute;right:24%;top:22%;width:9%;height:44%;border-radius:40% 60% 60% 40%;background:linear-gradient(90deg,#8f9497,#c9cdd0);opacity:.9}
+.keyim .ovl{position:absolute;font:10px var(--mono);color:#cfd6d3;padding:6px 8px}
+.keyim .tl-{top:0;left:0}.keyim .br-{bottom:0;right:0;text-align:right}
+.rep{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.rep h4{text-transform:uppercase;letter-spacing:.04em;font-size:11px;color:var(--text-2);margin:0}
+.rep p{margin:0}
+.rep table{border-collapse:collapse;width:100%;font-size:12.5px}
+.rep td{padding:4px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.rep td:first-child{color:var(--text-2);width:44%}
+.rep tr:last-child td{border-bottom:none}
+.rep .crit-row td{color:var(--crit);font-weight:500}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile .v{font-size:20px}
+.tile.wide{grid-column:1/-1}
+.ack{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.ack .btn{margin-left:0;width:100%;height:40px;font-size:14px}
+.tl li{grid-template-columns:44px 12px 1fr;padding:3px 0;font-size:12px}
+@media (max-width:900px){.app.with-inspector .content{grid-column:1}.topbar{min-width:0;overflow:hidden}.topbar .search,.topbar .wl{display:none}.topbar .ctx{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block}.topbar .right{flex:none}.rs{grid-template-columns:1fr}.form .half,.form .third,.form .span{grid-column:1/-1}.prefs{grid-template-columns:1fr}.drop{grid-template-columns:auto 1fr}.drop .row-flex{grid-column:1/-1}.card .hd{flex-wrap:wrap}.ph .actions{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Refer" class="active" aria-label="Refer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg></a>
+    <a href="#" title="Patients" aria-label="Patients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    <a href="#" title="Results" aria-label="Results"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg></a>
+    <a href="#" title="Urgent" aria-label="Urgent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></a>
+    <a href="#" title="Analytics" aria-label="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Dr S. Naidoo">SN</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Referrer Space</span><span class="sep">/</span><span>Dr S. Naidoo · Chatsworth</span><span class="sep">/</span><span class="mono">Tue 16 Sep · 11:04</span></div>
+    <div class="search">Search my patients, referrals, reports… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip crit"><i></i>1 critical result</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 3 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>3</b></span>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="ph">
+      <div class="title"><h1>Refer</h1><span class="muted">A structured order, or a photo of your paper form.</span></div>
+      <div class="actions"><button class="btn">Batch</button><button class="btn">Call a radiologist</button><button class="btn primary">Send referral</button></div>
+    </div>
+
+    <div class="rs">
+      <!-- My patients -->
+      <div>
+        <div class="spread"><h3>My patients</h3><span class="pill">12 open</span></div>
+        <div class="row-flex"><span class="chip active"><i></i>All</span><span class="chip crit"><i></i>Needs my action · 2</span><span class="chip"><i></i>This week</span></div>
+        <div class="queue" aria-label="Referral status list">
+          <div class="row sel"><span class="t">Mokoena, Thabo · 54 M</span><span class="s">CT head w/o · signed <span class="mono">10:52</span></span><span class="chip crit"><i></i>Acknowledge required</span></div>
+          <div class="row"><span class="t">Khumalo, Sipho · 33 M</span><span class="s">MRI lumbar spine · drafting now</span><span class="chip"><i></i>Draft</span></div>
+          <div class="row"><span class="t">Dlamini, Nomvula · 41 F</span><span class="s">CT head · Thu 18 Sep <span class="mono">09:40</span> · Umhlanga</span><span class="chip"><i></i>Booked</span></div>
+          <div class="row"><span class="t">Van Wyk, Pieter · 62 M</span><span class="s">US abdomen · Chatsworth · <span class="mono">10:31</span></span><span class="chip active"><i></i>Arrived</span></div>
+          <div class="row"><span class="t">Mthembu, Ayanda · 38 F</span><span class="s">Mammogram · with radiologist</span><span class="chip active"><i></i>Scanned</span></div>
+          <div class="row"><span class="t">Naidoo, Priya · 29 F</span><span class="s">CXR PA · Umhlanga · <span class="mono">10:52</span></span><span class="chip done"><i></i>Report signed</span></div>
+          <div class="row"><span class="t">Petersen, Lena · 72 F</span><span class="s">XR chest · viewed by patient</span><span class="chip done"><i></i>Report signed</span></div>
+          <div class="row"><span class="t">Sithole, Nandi · 33 F</span><span class="s">US abdomen · Booking Hand tried twice</span><span class="chip att"><i></i>Not booked · 7 d</span></div>
+          <div class="row"><span class="t">Botha, Andries · 8 M</span><span class="s">XR wrist · fracture, cast applied</span><span class="chip done"><i></i>Acknowledged</span></div>
+          <div class="row"><span class="t">Govender, Kavitha · 47 F</span><span class="s">MRI knee R · auth pending Scheme B (demo)</span><span class="chip att"><i></i>Needs auth</span></div>
+        </div>
+        <div class="note">WhatsApp Business tells you about Booked, Reported and No-show.</div>
+      </div>
+
+      <!-- e-Referral form -->
+      <div>
+        <div class="card">
+          <div class="hd"><h3 style="margin:0">New referral</h3><span class="chip"><i></i>Draft · autosaved 11:03</span><span class="more">HPCSA MP 0456789 · BHF practice 0123456</span></div>
+          <div class="drop" role="button" aria-label="Photo of my paper referral">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <div class="small"><b>Or photograph your paper referral.</b> <span class="muted">The Referral Hand (referral-extract 2.4.1) fills every field with a confidence band for you to check. Unreadable fields stay empty and flagged.</span></div>
+            <div class="row-flex" style="flex-wrap:nowrap"><button class="btn sm">Take photo</button><button class="btn sm">Choose file</button></div>
+          </div>
+          <div class="form">
+            <label class="field span">Patient
+              <div class="patient-in"><span><b>Khumalo, Sipho</b> · 33 M · ID ····4417 · Scheme A (demo), member ····8823 · 083 ··· 2310 · WhatsApp opt-in recorded</span><a href="#" class="btn sm">Change</a></div>
+            </label>
+            <label class="field half">Procedure<div class="in">MRI lumbar spine, no contrast</div></label>
+            <label class="field half">Clinical indication<div class="in">Low back pain, 3 weeks, no red flags</div></label>
+            <div class="span ai">
+              <div class="prov"><span>Appropriateness guidance</span><span>guideline set <b>Practice referral guidelines 2026.1</b></span><span>rules-based · informs, never blocks</span><span>match <b>low back pain, no red flags</b></span></div>
+              <div>For low back pain without red flags, MRI within 6 weeks is not recommended; consider X-ray or wait. Red flags: weakness, bladder or bowel change, fever, cancer history.</div>
+              <div class="acts" style="align-items:center;flex-wrap:wrap">
+                <button class="btn sm primary">Accept: X-ray lumbar spine AP and lateral</button>
+                <button class="btn sm">Override, keep MRI</button>
+                <div class="in" style="flex:1;min-width:150px;height:26px;font-size:12px;color:var(--text-2)">Reason, required if you keep MRI</div>
+              </div>
+            </div>
+            <div class="field third">Laterality<div class="seg"><span>Left</span><span>Right</span><span>Both</span><span class="on">N/A</span></div></div>
+            <div class="field third">Contrast<div class="seg"><span class="on">None</span><span>With</span><span>Protocol</span></div></div>
+            <div class="field third">Urgency<div class="seg"><span class="on">Routine</span><span>Urgent</span><span class="crit">STAT</span></div></div>
+            <div class="field span">ICD-10
+              <div class="codes"><span class="chip"><i></i>M54.5 Low back pain <span class="x">×</span></span><span class="chip ai"><i></i>icd-suggest 1.8.0 · M54.16 · 0.41</span><button class="btn sm">Accept</button><a href="#" class="small">Add code</a></div>
+            </div>
+            <div class="field span">Delivery preferences
+              <div class="prefs">
+                <span class="check"><i class="on"></i>WhatsApp · Booked, Reported, No-show</span>
+                <span class="check"><i class="on"></i>Referrer Space</span>
+                <span class="check"><i></i>FHIR to practice system · not connected</span>
+                <span class="check"><i class="on"></i>Phone me for critical · 082 ··· 4471</span>
+              </div>
+            </div>
+          </div>
+          <div class="row-flex" style="margin-top:10px">
+            <button class="btn primary lg">Send referral and offer slots to patient</button><button class="btn lg">Save draft</button><button class="btn ghost">Print for patient</button>
+            <span class="note" style="margin-left:auto">POPIA opt-in first, then three slots and a guaranteed quote.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="inspector" aria-label="Selected patient">
+    <div class="banner ack" role="alert">
+      <div style="display:flex;gap:10px;align-items:center;width:100%"><span class="chip crit"><i></i>Critical</span><b>Mokoena, Thabo · 54 M</b></div>
+      <div class="small">Dr N. Dlamini, radiologist, needs to speak to you about this report. Acknowledging records your name, channel and time. Never auto-dismisses.</div>
+      <div class="small muted mono">messaged 10:53 · called 10:58, no answer · next: alternate contact 11:08</div>
+      <button class="btn danger">Acknowledge critical result</button>
+      <div class="small"><a href="#">Call Dr Dlamini now</a> · call-back target 5 min</div>
+    </div>
+
+    <div>
+      <div class="spread"><h3>CT head without contrast</h3><span class="chip done"><i></i>Signed 10:52</span></div>
+      <div class="small muted">ID ····6620 · ACC <span class="mono">BUMH-26-0001240-3</span> · Umhlanga · 16 Sep 10:31 · Dr N. Dlamini</div>
+    </div>
+    <div class="keyim" role="img" aria-label="Key image, CT head axial, marked by the radiologist">
+      <div class="brain"></div><div class="bleed"></div>
+      <div class="ovl tl-">MOKOENA^THABO · M · 1972<br>CT · axial · 5 mm · key image 1 of 3</div>
+      <div class="ovl br-">W 80 / L 40 · brain window</div>
+    </div>
+    <div class="rep">
+      <h4>Clinical information</h4><p>Fall at home, headache and confusion 6 h. On anticoagulant. Query bleed.</p>
+      <h4>Findings</h4>
+      <table>
+        <tr class="crit-row"><td>Acute subdural haematoma</td><td>Right frontoparietal, 11 mm maximal thickness</td></tr>
+        <tr class="crit-row"><td>Midline shift</td><td>4 mm to the left</td></tr>
+        <tr><td>Skull fracture</td><td>None</td></tr>
+      </table>
+      <h4>Impression</h4><p><b>Acute right subdural haematoma with 4 mm midline shift.</b> Urgent neurosurgical referral.</p>
+      <div class="row-flex"><button class="btn sm">Open images</button><button class="btn sm">Download PDF</button><button class="btn sm ghost">Share</button></div>
+    </div>
+
+    <div>
+      <div class="spread" style="margin-bottom:6px"><h4>My referral analytics</h4><span class="small muted">last 4 weeks</span></div>
+      <div class="tiles">
+        <div class="tile"><span class="l">TAT median</span><span class="v">4 h 12</span><span class="d up">routine · target 24 h</span></div>
+        <div class="tile"><span class="l">Critical ack median</span><span class="v">6 min</span><span class="d">3 events</span></div>
+        <div class="tile wide"><span class="l">Referrals per week</span><div class="spread"><span class="v">17</span><span class="d">63 in 4 weeks · attendance 91 %</span></div>
+          <svg viewBox="0 0 320 32" preserveAspectRatio="none" aria-label="Weekly referral volumes, four weeks: 14, 16, 16, 17"><polyline points="4,22 108,16 212,16 316,12" fill="none" stroke="#2A5FC0" stroke-width="1.5"/><circle cx="4" cy="22" r="2.5" fill="#2A5FC0"/><circle cx="108" cy="16" r="2.5" fill="#2A5FC0"/><circle cx="212" cy="16" r="2.5" fill="#2A5FC0"/><circle cx="316" cy="12" r="2.5" fill="#2A5FC0"/><text x="4" y="31" font-size="9" fill="#6B665C" font-family="IBM Plex Mono">14</text><text x="104" y="31" font-size="9" fill="#6B665C" font-family="IBM Plex Mono">16</text><text x="208" y="31" font-size="9" fill="#6B665C" font-family="IBM Plex Mono">16</text><text x="308" y="31" font-size="9" fill="#6B665C" font-family="IBM Plex Mono">17</text></svg>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

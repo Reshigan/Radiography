@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="business">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice Control Tower — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.ct{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
+.ct>*{min-width:0}
+.tile .v{font-size:22px;white-space:nowrap}
+.tile .d{line-height:1.35}
+.ph .title{flex:1 1 auto;min-width:0}
+.tile .bars{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;font-size:11px;align-items:center;margin-top:4px}
+.tile .bars i{display:block;height:5px;border-radius:3px;background:var(--line);position:relative}
+.tile .bars i b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--signal-ink)}
+.tile .bars i b.hot{background:var(--beam)}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{border:1px solid var(--line);border-left:4px solid var(--info);border-radius:0 var(--radius) var(--radius) 0;background:var(--surface-2);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.alert.crit{border-left-color:var(--crit)}.alert.att{border-left-color:var(--warn)}
+.alert .hd{margin-bottom:0}
+.alert .hd h4{font-size:14px}
+.banner>div:first-child{flex:1;min-width:240px}
+.chart .spread{flex-wrap:wrap}.chart .spread h4{white-space:nowrap}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.qs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;font-size:12px}
+.qs>div{display:flex;flex-direction:column;gap:3px}.qs .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}.qs b{font-weight:500}
+.qs .sla{display:block;height:3px;border-radius:2px;background:var(--line);position:relative}.qs .sla i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--ok)}.qs .sla.crit i{background:var(--crit)}
+.alert .hd{flex-wrap:wrap}
+.alert .hand{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:12px;color:var(--text-2)}
+.alert .hand b{color:var(--text);font-weight:500;white-space:nowrap}
+.alert .hand .clock{font-family:var(--mono);font-size:11px}
+.alert .acts{display:flex;gap:6px;flex-wrap:wrap}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);overflow:hidden}
+.strip>div{padding:10px 12px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:3px;font-size:12px}
+.strip>div:last-child{border-right:none}
+.strip .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+.strip .v{font:600 18px/1.1 var(--display);color:var(--heading)}
+.strip .sla{display:block;height:3px;border-radius:2px;background:var(--line);position:relative}
+.strip .sla i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--ok)}.strip .sla.warn i{background:var(--warn)}
+.appr{display:flex;flex-direction:column;gap:8px}
+.appr .it{border:1px solid var(--line);border-radius:var(--radius);padding:10px;display:flex;flex-direction:column;gap:4px;font-size:13px;background:var(--surface)}
+.appr .it .t{font-weight:600;display:flex;gap:8px;align-items:center}
+.appr .it .leash{font:11px var(--mono);color:var(--text-2);border-left:2px solid var(--line-strong);padding-left:8px}
+.appr .it .acts{display:flex;gap:6px;margin-top:2px}
+.legend{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--text-2);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;background:var(--signal-ink);vertical-align:middle;margin-right:3px}
+.legend i.w{background:var(--warn-bg);border:1px solid var(--warn)}.legend i.c{background:var(--crit-bg);border:1px solid var(--crit)}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}.topbar{flex-wrap:wrap;padding:8px 16px;row-gap:6px}.topbar .ctx{flex-wrap:wrap}.app.with-inspector{grid-template-columns:minmax(0,1fr)}.app.with-inspector .content,.app.with-inspector .topbar{grid-column:1}.ph .actions{flex-wrap:wrap;margin-left:0}.topbar .search{max-width:none;flex-basis:100%}.topbar .right{margin-left:0;flex-wrap:wrap}.ct,.strip,.qs{grid-template-columns:1fr}.strip>div{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Control Tower" class="active" aria-label="Control Tower"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg></a>
+    <a href="#" title="Calendar" aria-label="Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></a>
+    <a href="#" title="Roster" aria-label="Roster"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 2 5 5"/></svg></a>
+    <a href="#" title="Assets" aria-label="Assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 6l4 4-8 8-4-4z"/><path d="M4 20l2-2M16 4l4 4"/></svg></a>
+    <a href="#" title="Quality and complaints" aria-label="Quality and complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></a>
+    <a href="#" title="Finance" aria-label="Finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Lerato Mokoena, site manager">LM</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Control Tower</span><span class="sep">/</span><span>Practice B · Umhlanga</span><span class="sep">/</span><span class="mono">Wed 16 Sep · 10:05</span></div>
+    <div class="search">Search patients, rooms, staff, tickets… or ask a Hand <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip crit"><i></i>CT 2 down</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 4 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>4</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title"><h1>Today at Umhlanga</h1><span class="muted">Wed 16 Sep · open 07:30–18:00 · 8 rooms · refreshed 10:04</span></div>
+      <div class="actions"><button class="btn">Week view</button><button class="btn">Compliance view</button><button class="btn primary">Replan the day</button></div>
+    </div>
+
+    <div class="banner" role="alert">
+      <div><b>CT 2 down since 08:40 (tube arc fault).</b> 23 patients affected · vendor ticket open · replan ready · 7 patients need your decision.</div>
+      <button class="btn sm">Open replan</button>
+    </div>
+
+    <div class="grid g6">
+      <div class="tile"><span class="l">Patients today</span><span class="v">186</span><span class="d">71 seen · 14 predicted no-show</span></div>
+      <div class="tile"><span class="l">Utilisation</span>
+        <div class="bars" aria-label="Utilisation so far today by modality">
+          <span>CT</span><i><b style="width:71%"></b></i><span class="mono">71 %</span>
+          <span>MRI</span><i><b class="hot" style="width:96%"></b></i><span class="mono">96 %</span>
+          <span>XR</span><i><b style="width:62%"></b></i><span class="mono">62 %</span>
+          <span>US</span><i><b style="width:84%"></b></i><span class="mono">84 %</span>
+        </div></div>
+      <div class="tile"><span class="l">Average wait</span><span class="v">27 min</span><span class="d down">target 20 · up 9 since 08:40</span></div>
+      <div class="tile"><span class="l">Unbilled today</span><span class="v money">R 214 600</span><span class="d">38 studies awaiting coding</span></div>
+      <div class="tile"><span class="l">Cash at desk</span><span class="v money">R 61 250</span><span class="d up">94 % of quoted portions</span></div>
+      <div class="tile"><span class="l">Staff on shift</span><span class="v">18 of 19</span><span class="d">mammo agency 08:30 pending</span></div>
+    </div>
+
+    <div class="ct">
+      <div class="col">
+      <div class="chart">
+        <div class="spread"><h4>Utilisation by room and hour</h4><span class="small muted">scanned ÷ available minutes · actual to 10:05, then booked</span></div>
+        <svg viewBox="0 0 628 234" role="img" aria-label="Utilisation heatmap by room and hour, 07:00 to 18:00, with CT 2 down from 08:40 and a load-shedding window 14:00 to 16:30">
+<style>.hm text{font-family:IBM Plex Mono,monospace;font-size:10px}.hm .lab{font-family:Inter,system-ui;font-size:11px;fill:var(--text-2)}</style><g class="hm">
+<text class="lab" x="76" y="13" text-anchor="middle">07</text>
+<text class="lab" x="124" y="13" text-anchor="middle">08</text>
+<text class="lab" x="172" y="13" text-anchor="middle">09</text>
+<text class="lab" x="220" y="13" text-anchor="middle">10</text>
+<text class="lab" x="268" y="13" text-anchor="middle">11</text>
+<text class="lab" x="316" y="13" text-anchor="middle">12</text>
+<text class="lab" x="364" y="13" text-anchor="middle">13</text>
+<text class="lab" x="412" y="13" text-anchor="middle">14</text>
+<text class="lab" x="460" y="13" text-anchor="middle">15</text>
+<text class="lab" x="508" y="13" text-anchor="middle">16</text>
+<text class="lab" x="556" y="13" text-anchor="middle">17</text>
+<text class="lab" x="604" y="13" text-anchor="middle">18</text>
+<text class="lab" x="0" y="36">CT 1</text>
+<rect x="53" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="76" y="36" text-anchor="middle" fill="var(--text)">55</text>
+<rect x="101" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="124" y="36" text-anchor="middle" fill="#fff">88</text>
+<rect x="149" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="172" y="36" text-anchor="middle" fill="#fff">92</text>
+<rect x="197" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="220" y="36" text-anchor="middle" fill="#fff">96</text>
+<rect x="245" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="268" y="36" text-anchor="middle" fill="#fff">100</text>
+<rect x="293" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="316" y="36" text-anchor="middle" fill="#fff">90</text>
+<rect x="341" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="364" y="36" text-anchor="middle" fill="#fff">84</text>
+<rect x="389" y="21" width="46" height="22" rx="2" fill="var(--warn-bg)"/><text x="412" y="36" text-anchor="middle" fill="var(--warn)">moved</text>
+<rect x="437" y="21" width="46" height="22" rx="2" fill="var(--warn-bg)"/><text x="460" y="36" text-anchor="middle" fill="var(--warn)">moved</text>
+<rect x="485" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="508" y="36" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="533" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="556" y="36" text-anchor="middle" fill="#fff">78</text>
+<rect x="581" y="21" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="604" y="36" text-anchor="middle" fill="var(--text)">52</text>
+<text class="lab" x="0" y="60">CT 2</text>
+<rect x="53" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="76" y="60" text-anchor="middle" fill="#fff">60</text>
+<rect x="101" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="124" y="60" text-anchor="middle" fill="#fff">82</text>
+<rect x="149" y="45" width="46" height="22" rx="2" fill="var(--crit-bg)"/><text x="172" y="60" text-anchor="middle" fill="var(--crit)">down</text>
+<rect x="197" y="45" width="46" height="22" rx="2" fill="var(--crit-bg)"/><text x="220" y="60" text-anchor="middle" fill="var(--crit)">down</text>
+<rect x="245" y="45" width="46" height="22" rx="2" fill="var(--crit-bg)"/><text x="268" y="60" text-anchor="middle" fill="var(--crit)">down</text>
+<rect x="293" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="316" y="60" text-anchor="middle" fill="#fff">96</text>
+<rect x="341" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="364" y="60" text-anchor="middle" fill="#fff">100</text>
+<rect x="389" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="412" y="60" text-anchor="middle" fill="#fff">100</text>
+<rect x="437" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="460" y="60" text-anchor="middle" fill="#fff">100</text>
+<rect x="485" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="508" y="60" text-anchor="middle" fill="#fff">100</text>
+<rect x="533" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="556" y="60" text-anchor="middle" fill="#fff">96</text>
+<rect x="581" y="45" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="604" y="60" text-anchor="middle" fill="#fff">88</text>
+<text class="lab" x="0" y="84">MRI</text>
+<rect x="53" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="76" y="84" text-anchor="middle" fill="#fff">70</text>
+<rect x="101" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="124" y="84" text-anchor="middle" fill="#fff">92</text>
+<rect x="149" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="172" y="84" text-anchor="middle" fill="#fff">96</text>
+<rect x="197" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="220" y="84" text-anchor="middle" fill="#fff">100</text>
+<rect x="245" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.92"/><text x="268" y="84" text-anchor="middle" fill="#fff">104</text>
+<rect x="293" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.92"/><text x="316" y="84" text-anchor="middle" fill="#fff">108</text>
+<rect x="341" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="364" y="84" text-anchor="middle" fill="#fff">96</text>
+<rect x="389" y="69" width="46" height="22" rx="2" fill="var(--warn-bg)"/><text x="412" y="84" text-anchor="middle" fill="var(--warn)">moved</text>
+<rect x="437" y="69" width="46" height="22" rx="2" fill="var(--warn-bg)"/><text x="460" y="84" text-anchor="middle" fill="var(--warn)">moved</text>
+<rect x="485" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="508" y="84" text-anchor="middle" fill="var(--text)">50</text>
+<rect x="533" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="556" y="84" text-anchor="middle" fill="#fff">96</text>
+<rect x="581" y="69" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="604" y="84" text-anchor="middle" fill="#fff">92</text>
+<text class="lab" x="0" y="108">Mammo</text>
+<rect x="53" y="93" width="46" height="22" rx="2" fill="var(--warn-bg)"/><text x="76" y="108" text-anchor="middle" fill="var(--warn)">gap</text>
+<rect x="101" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="124" y="108" text-anchor="middle" fill="var(--text)">45</text>
+<rect x="149" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="172" y="108" text-anchor="middle" fill="#fff">90</text>
+<rect x="197" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="220" y="108" text-anchor="middle" fill="#fff">88</text>
+<rect x="245" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="268" y="108" text-anchor="middle" fill="#fff">80</text>
+<rect x="293" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="316" y="108" text-anchor="middle" fill="#fff">60</text>
+<rect x="341" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="364" y="108" text-anchor="middle" fill="#fff">72</text>
+<rect x="389" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="412" y="108" text-anchor="middle" fill="#fff">80</text>
+<rect x="437" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="460" y="108" text-anchor="middle" fill="#fff">76</text>
+<rect x="485" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="508" y="108" text-anchor="middle" fill="#fff">64</text>
+<rect x="533" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="556" y="108" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="581" y="93" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="604" y="108" text-anchor="middle" fill="var(--text)">0</text>
+<text class="lab" x="0" y="132">XR 1</text>
+<rect x="53" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="76" y="132" text-anchor="middle" fill="var(--text)">48</text>
+<rect x="101" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="124" y="132" text-anchor="middle" fill="#fff">72</text>
+<rect x="149" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="172" y="132" text-anchor="middle" fill="#fff">80</text>
+<rect x="197" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="220" y="132" text-anchor="middle" fill="#fff">76</text>
+<rect x="245" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="268" y="132" text-anchor="middle" fill="#fff">70</text>
+<rect x="293" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="316" y="132" text-anchor="middle" fill="#fff">62</text>
+<rect x="341" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="364" y="132" text-anchor="middle" fill="var(--text)">58</text>
+<rect x="389" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="412" y="132" text-anchor="middle" fill="#fff">66</text>
+<rect x="437" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="460" y="132" text-anchor="middle" fill="#fff">70</text>
+<rect x="485" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="508" y="132" text-anchor="middle" fill="#fff">64</text>
+<rect x="533" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="556" y="132" text-anchor="middle" fill="var(--text)">52</text>
+<rect x="581" y="117" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="604" y="132" text-anchor="middle" fill="var(--text)">30</text>
+<text class="lab" x="0" y="156">XR 2</text>
+<rect x="53" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="76" y="156" text-anchor="middle" fill="var(--text)">30</text>
+<rect x="101" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="124" y="156" text-anchor="middle" fill="var(--text)">55</text>
+<rect x="149" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="172" y="156" text-anchor="middle" fill="#fff">68</text>
+<rect x="197" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="220" y="156" text-anchor="middle" fill="#fff">72</text>
+<rect x="245" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="268" y="156" text-anchor="middle" fill="#fff">66</text>
+<rect x="293" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="316" y="156" text-anchor="middle" fill="var(--text)">50</text>
+<rect x="341" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="364" y="156" text-anchor="middle" fill="var(--text)">44</text>
+<rect x="389" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="412" y="156" text-anchor="middle" fill="var(--text)">58</text>
+<rect x="437" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="460" y="156" text-anchor="middle" fill="#fff">62</text>
+<rect x="485" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="508" y="156" text-anchor="middle" fill="var(--text)">55</text>
+<rect x="533" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="556" y="156" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="581" y="141" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="604" y="156" text-anchor="middle" fill="var(--text)">20</text>
+<text class="lab" x="0" y="180">US</text>
+<rect x="53" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="76" y="180" text-anchor="middle" fill="#fff">64</text>
+<rect x="101" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="124" y="180" text-anchor="middle" fill="#fff">80</text>
+<rect x="149" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="172" y="180" text-anchor="middle" fill="#fff">88</text>
+<rect x="197" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="220" y="180" text-anchor="middle" fill="#fff">92</text>
+<rect x="245" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="268" y="180" text-anchor="middle" fill="#fff">84</text>
+<rect x="293" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="316" y="180" text-anchor="middle" fill="#fff">76</text>
+<rect x="341" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="364" y="180" text-anchor="middle" fill="#fff">70</text>
+<rect x="389" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="412" y="180" text-anchor="middle" fill="#fff">82</text>
+<rect x="437" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.72"/><text x="460" y="180" text-anchor="middle" fill="#fff">80</text>
+<rect x="485" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="508" y="180" text-anchor="middle" fill="#fff">72</text>
+<rect x="533" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="556" y="180" text-anchor="middle" fill="#fff">60</text>
+<rect x="581" y="165" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="604" y="180" text-anchor="middle" fill="var(--text)">36</text>
+<text class="lab" x="0" y="204">DXA</text>
+<rect x="53" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="76" y="204" text-anchor="middle" fill="var(--text)">0</text>
+<rect x="101" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="124" y="204" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="149" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.5"/><text x="172" y="204" text-anchor="middle" fill="#fff">60</text>
+<rect x="197" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="220" y="204" text-anchor="middle" fill="var(--text)">50</text>
+<rect x="245" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="268" y="204" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="293" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="316" y="204" text-anchor="middle" fill="var(--text)">20</text>
+<rect x="341" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="364" y="204" text-anchor="middle" fill="var(--text)">30</text>
+<rect x="389" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="412" y="204" text-anchor="middle" fill="var(--text)">40</text>
+<rect x="437" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.32"/><text x="460" y="204" text-anchor="middle" fill="var(--text)">50</text>
+<rect x="485" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="508" y="204" text-anchor="middle" fill="var(--text)">30</text>
+<rect x="533" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="556" y="204" text-anchor="middle" fill="var(--text)">20</text>
+<rect x="581" y="189" width="46" height="22" rx="2" fill="var(--signal-ink)" fill-opacity="0.14"/><text x="604" y="204" text-anchor="middle" fill="var(--text)">0</text>
+<rect x="388" y="19" width="120.0" height="194" fill="none" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="4 3" rx="3"/>
+<text class="lab" x="390" y="228" fill="var(--warn)">Stage 4 · 14:00–16:30</text>
+<line x1="200" y1="18" x2="200" y2="214" stroke="var(--iris-ink)" stroke-width="1.5"/><text class="lab" x="203" y="228" fill="var(--iris-ink)">now 10:05</text>
+</g></svg>
+        <div class="legend"><span><i style="opacity:.14"></i>&lt; 40 %</span><span><i style="opacity:.32"></i>40–59</span><span><i style="opacity:.5"></i>60–79</span><span><i style="opacity:.72"></i>80–100</span><span><i style="opacity:.92"></i>&gt; 100 over-booked</span><span><i class="c"></i>down</span><span><i class="w"></i>moved / gap</span></div>
+      </div>
+      <div class="chart">
+        <div class="spread"><h4>Queue and wait · median minutes past slot</h4><span class="small muted">waiting now: 11 patients</span></div>
+        <svg viewBox="0 0 520 150" role="img" aria-label="Median patient wait per half hour since 07:30, target 20 minutes; wait rose to 31 minutes after CT 2 went down at 08:40">
+<style>.wc text{font-family:IBM Plex Mono,monospace;font-size:10px;fill:var(--text-2)}</style><g class="wc">
+<line x1="28" y1="126.0" x2="460" y2="126.0" stroke="var(--line)"/><text x="24" y="129.0" text-anchor="end">0</text>
+<line x1="28" y1="70.0" x2="460" y2="70.0" stroke="var(--line)"/><text x="24" y="73.0" text-anchor="end">20</text>
+<line x1="28" y1="14.0" x2="460" y2="14.0" stroke="var(--line)"/><text x="24" y="17.0" text-anchor="end">40</text>
+<line x1="28" y1="70.0" x2="460" y2="70.0" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="464" y="73.0" fill="var(--warn)">target 20</text>
+<polyline points="28.0,109.2 114.4,100.8 200.8,92.4 287.2,61.6 373.6,39.2 460.0,50.4" fill="none" stroke="var(--iris-ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="28.0" cy="109.2" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="28.0" y="142" text-anchor="middle">07:30</text>
+<circle cx="114.4" cy="100.8" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="114.4" y="142" text-anchor="middle">08:00</text>
+<circle cx="200.8" cy="92.4" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="200.8" y="142" text-anchor="middle">08:30</text>
+<circle cx="287.2" cy="61.6" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="287.2" y="142" text-anchor="middle">09:00</text>
+<circle cx="373.6" cy="39.2" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="373.6" y="142" text-anchor="middle">09:30</text>
+<circle cx="460.0" cy="50.4" r="4" fill="var(--iris-ink)" stroke="var(--surface-2)" stroke-width="2"/>
+<text x="460.0" y="142" text-anchor="middle">10:00</text>
+<text x="373.6" y="31.2" text-anchor="middle" fill="var(--text)">31 min</text>
+<text x="468.0" y="53.4" fill="var(--text)">27</text>
+<line x1="230.2" y1="14" x2="230.2" y2="126" stroke="var(--crit)" stroke-width="1" stroke-dasharray="3 3"/><text x="234.2" y="22" fill="var(--crit)">CT 2 down 08:40</text>
+</g></svg>
+        <div class="qs" aria-label="Queues now with SLA bars">
+          <div><span class="l">CT</span><b>5 waiting · longest 38 min</b><span class="sla crit"><i style="width:100%"></i></span></div>
+          <div><span class="l">MRI</span><b>3 waiting · longest 14 min</b><span class="sla"><i style="width:70%"></i></span></div>
+          <div><span class="l">US</span><b>2 waiting · longest 9 min</b><span class="sla"><i style="width:45%"></i></span></div>
+          <div><span class="l">XR</span><b>1 waiting · 4 min</b><span class="sla"><i style="width:20%"></i></span></div>
+        </div>
+      </div>
+      </div>
+
+      <div class="alerts" aria-label="Alerts">
+        <div class="alert crit">
+          <div class="hd"><span class="chip crit"><i></i>Equipment · INC-0418</span><h4>CT 2 down since 08:40 · tube arc fault</h4></div>
+          <div class="hand">
+            <b>Maintenance Hand</b><span>Vendor ticket VT-20931 opened 08:43 · SLA response 4 h · <span class="clock">1 h 25 m elapsed</span> · engineer ETA 12:00 · 30-day arc count trend attached</span>
+            <b>Capacity Hand</b><span>2 trauma studies moved to CT 1 (done 08:52) · CT 1 extended to 18:00 absorbs 14 · 7 re-offers to Gateway site or tomorrow await your approval · revenue at risk R 38 000 if not fixed today</span>
+          </div>
+          <div class="acts"><button class="btn sm primary">Review re-offers</button><button class="btn sm">Vendor ticket</button><button class="btn sm ghost">Tell BIL and shareholders</button></div>
+        </div>
+        <div class="alert att">
+          <div class="hd"><span class="chip att"><i></i>Roster</span><h4>Mammography radiographer sick · 17 patients booked</h4></div>
+          <div class="hand"><b>Roster Hand</b><span>Proposed swap: agency mammographer from approved panel, available 08:30, R 3 900 · HPCSA verified · booking held pending approval · first 3 patients offered 09:00 (2 accepted, 1 tomorrow)</span></div>
+          <div class="acts"><button class="btn sm primary">Approve swap</button><button class="btn sm">Other options</button></div>
+        </div>
+        <div class="alert att">
+          <div class="hd"><span class="chip att"><i></i>Stock</span><h4>Contrast stock · 6 days cover</h4></div>
+          <div class="hand"><b>Stock Hand</b><span>14-day usage 31 vials/day incl. today's contrast bookings · reorder drafted: 120 × 100 mL, R 18 400, delivery 2 working days</span></div>
+          <div class="acts"><button class="btn sm primary">Approve order</button><button class="btn sm">Edit quantity</button></div>
+        </div>
+        <div class="alert">
+          <div class="hd"><span class="chip active"><i></i>Power</span><h4>Load-shedding stage 4 · 14:00–16:30</h4></div>
+          <div class="hand"><b>Generator</b><span>Ready · test run 06:30 passed · diesel 3.5 days · UPS 100 % · Edge Gateway backlog 0</span><b>Capacity Hand</b><span>MRI and CT 1 lists moved out of the window · 6 patients offered changes (4 accepted)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="strip" aria-label="Complaints and incidents">
+          <div><span class="l">Open complaints</span><span class="v">1</span><span>Ultrasound wait · conduct allegation · acknowledged 08:12</span><span class="sla warn" title="Response due in 9 working days"><i style="width:12%"></i></span><span class="muted">respond by 29 Sep · HR process open</span></div>
+          <div><span class="l">Incidents today</span><span class="v">1</span><span>CT 2 equipment incident · no patient harm</span><span class="muted">uptime register updated · vendor SLA clock running</span></div>
+          <div><span class="l">Near misses · 7 days</span><span class="v">0</span><span>Wrong-patient checks passed 1 204 of 1 204</span></div>
+          <div><span class="l">Regulator</span><span class="v">Closed</span><span>SAHPRA observation: mammography door sign replaced 12 Sep</span><span class="muted">licences current · CT 2 QA due 19 Sep</span></div>
+        </div>
+  </main>
+
+  <aside class="inspector" aria-label="Approvals and reminders">
+    <div class="spread"><h3>Hands awaiting my approval</h3><span class="pill warn">4</span></div>
+    <div class="appr">
+      <div class="it">
+        <div class="t"><span class="chip ai"><i></i>Capacity Hand</span><span class="muted small">08:58</span></div>
+        <div>Move 7 CT patients to Gateway site (14 km) or tomorrow; WhatsApp drafts ready in isiZulu, English and Afrikaans.</div>
+        <div class="leash">leash: cross-site or next-day moves above 5 per day need PRM · patients still accept each move</div>
+        <div class="acts"><button class="btn sm primary">Approve</button><button class="btn sm">Edit messages</button></div>
+      </div>
+      <div class="it">
+        <div class="t"><span class="chip ai"><i></i>Roster Hand</span><span class="muted small">06:14</span></div>
+        <div>Agency mammographer 08:30–17:00, R 3 900, booking held on the approved panel.</div>
+        <div class="leash">leash: spend above R 2 000 per shift needs PRM · credential is a hard constraint</div>
+        <div class="acts"><button class="btn sm primary">Approve</button><button class="btn sm">Options</button></div>
+      </div>
+      <div class="it">
+        <div class="t"><span class="chip ai"><i></i>Stock Hand</span><span class="muted small">07:02</span></div>
+        <div>Contrast purchase order 120 × 100 mL, R 18 400 excl. VAT, delivery 2 working days.</div>
+        <div class="leash">leash: purchase orders are drafted only · PRM releases to procurement</div>
+        <div class="acts"><button class="btn sm primary">Approve</button><button class="btn sm">Edit</button></div>
+      </div>
+      <div class="it">
+        <div class="t"><span class="chip ai"><i></i>Booking Hand</span><span class="muted small">09:40</span></div>
+        <div>Message 6 MRI patients about outage-window moves (14:00–16:30).</div>
+        <div class="leash">leash: external message batches above 5 need PRM · one message per patient, their language</div>
+        <div class="acts"><button class="btn sm primary">Approve</button><button class="btn sm">Preview</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h4>Monthly review with shareholders</h4><span class="chip active"><i></i>In 9 days</span></div>
+      <div class="kv small">
+        <span>When</span><b>Thu 25 Sep · 16:00 · boardroom + video</b>
+        <span>Period</span><b>August 2026 · locked 5 Sep · no restatements</b>
+        <span>Bridge</span><b>Computed: CT 1 downtime −R 118 000 · MRI outages −R 64 000 · no-shows +R 41 000</b>
+        <span>Attendees</span><b>Dr Pillay, Dr Khumalo, Group representative</b>
+        <span>Open</span><b>2 reserved matters · second MRI what-if attached</b>
+      </div>
+      <div class="row-flex" style="margin-top:8px"><button class="btn sm">Open review page</button><button class="btn sm ghost">Add a note</button></div>
+    </div>
+
+    <div class="card">
+          <div class="hd"><h4>Overnight · Hands</h4><span class="chip ai"><i></i>Agent Runtime · audit stream</span></div>
+          <div class="kv small">
+            <span>Booking Hand</span><b>Filled 9 slots from the waitlist after 4 cancellations</b>
+            <span>Authorisation Hand</span><b>31 of 33 authorisations for today's CT and MRI · 2 failed (1 quoted and confirmed, 1 no reply)</b>
+            <span>Roster Hand</span><b>Confirmed agency sonographer for Thursday</b>
+          </div>
+        </div>
+    <div class="empty small">No licence within 90 days of expiry. No open non-conformances.</div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="clinical">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technologist Console — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.tc{display:grid;grid-template-columns:264px 1fr 330px;gap:12px;height:calc(100vh - var(--top) - 32px)}
+.tc>div{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.tc>div>*{flex:none}
+.tc>div:nth-child(2) .card{padding:10px 12px}
+.queue .row .flags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.queue .row .flags span{font:11px var(--mono);color:var(--text-2);border:1px solid var(--line);border-radius:2px;padding:0 5px}
+.queue .row .flags span.warn{color:var(--warn);border-color:var(--warn)}
+.queue .row .flags span.ok{color:var(--ok)}
+.step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.step .n,.srow .n{width:24px;height:24px;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font:600 12px var(--display);color:var(--text-2)}
+.step .n.done,.srow .n.done{background:var(--ok);border-color:var(--ok);color:var(--carbon)}
+.step .n.now{border-color:var(--primary);color:var(--primary)}
+.step h4{margin-bottom:6px}
+.step .hd{margin-bottom:6px}
+.qr{background:#fff;border-radius:2px}
+.qr svg{width:100%;height:100%;display:block}
+.qc{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.qc .item{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:5px 8px;background:var(--surface-3);border-radius:2px;font-size:12px}
+.qc .item i{width:9px;height:9px;border-radius:50%;background:var(--ok);display:inline-block;margin-top:4px}
+.qc .item i.att{background:var(--warn);border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.qc .item b{font-weight:500}
+.qc .item b::after{content:' · ';color:var(--text-2)}
+.gauge{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center}
+.gauge svg{width:140px;height:auto}
+.gauge .kv{font-size:12px;gap:4px 8px}
+.kv.small{grid-template-columns:auto 1fr;gap:3px 10px}
+.steps{display:flex;flex-direction:column}
+.srow{display:grid;grid-template-columns:24px 112px 1fr auto;gap:10px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--line);font-size:12px}
+.srow:last-child{border-bottom:none}
+.srow .st{font-weight:600;font-family:var(--display);color:var(--heading);font-size:13px}
+.srow .sd{color:var(--text);line-height:1.5;min-width:0}
+.srow .sd .checks{display:flex;flex-wrap:wrap;gap:2px 14px}
+.srow .sd .check{display:inline-flex;font-size:12px;white-space:nowrap}
+.srow .sd .check .src{display:inline;margin-left:6px}
+.srow .sd .check i{width:14px;height:14px}
+.srow .src{display:block;font:11px var(--mono);color:var(--text-2)}
+.srow .qr{width:48px;height:48px;padding:3px}
+.counter{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.counter .big{font:600 26px/1.1 var(--display);color:var(--heading)}
+.counter .bar{height:6px;border-radius:3px;background:var(--line);position:relative;margin-top:6px}
+.counter .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ok)}
+.counter .bar b{position:absolute;top:-3px;width:2px;height:12px;background:var(--warn)}
+.reasons{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px;margin-top:6px}
+.reasons span{color:var(--text-2)}
+.banner .btn{margin-left:0}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}.topbar{flex-wrap:wrap;padding:8px 16px;row-gap:6px}.topbar .ctx{flex-wrap:wrap}.topbar .search{max-width:none;flex-basis:100%}.topbar .right{margin-left:0;flex-wrap:wrap}.tc{grid-template-columns:1fr;height:auto}.tc>div{overflow:visible}.qc,.counter,.gauge{grid-template-columns:1fr}.srow{grid-template-columns:24px 1fr}.srow .sd{grid-column:2}.srow .sd .check{white-space:normal}.content{min-width:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#F5F1E9" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Room worklist" class="active" aria-label="Room worklist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a href="#" title="Patients" aria-label="Patients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    <a href="#" title="Protocols" aria-label="Protocols"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></a>
+    <a href="#" title="Dose register" aria-label="Dose register"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 18a8 8 0 0116 0"/><path d="M12 18l4-6"/><circle cx="12" cy="18" r="1.5"/></svg></a>
+    <a href="#" title="Contrast stock" aria-label="Contrast stock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6M10 3v5l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/></svg></a>
+    <a href="#" title="Incidents" aria-label="Incidents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Sizwe Mahlangu, radiographer">SM</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Technologist Console</span><span class="sep">/</span><span>Sandton</span><span class="sep">/</span><span>CT 1</span><span class="sep">/</span><span class="mono">Wed 16 Sep · 10:58</span></div>
+    <div class="search">Scan wristband or search patient, accession… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip att"><i></i>Edge Gateway · offline</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 2 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>2</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="tc">
+      <!-- Room worklist -->
+      <div>
+        <div class="spread"><h3>CT 1 · today</h3><span class="pill">12 · 5 done</span></div>
+        <div class="row-flex"><span class="chip active"><i></i>Room</span><span class="chip"><i></i>Site</span><span class="chip att"><i></i>Unmatched 1</span></div>
+        <div class="queue" aria-label="Modality worklist for CT 1">
+          <div class="row wrap"><span class="mono small">09:30</span><div><div class="t">Mokoena, Thabo · 54 M</div><div class="s">CT head w/o · Casualty</div></div><div class="aux"><span class="chip done"><i></i>Done</span><div class="flags"><span class="ok">DLP 640</span></div></div></div>
+          <div class="row wrap"><span class="mono small">09:50</span><div><div class="t">Van Wyk, Annelie · 67 F</div><div class="s">CT chest c+ · Pulmonology</div></div><div class="aux"><span class="chip done"><i></i>Done</span><div class="flags"><span class="ok">eGFR 71</span><span class="ok">Contrast 90 mL</span></div></div></div>
+          <div class="row wrap"><span class="mono small">10:10</span><div><div class="t">Govender, Kavitha · 41 F</div><div class="s">CT KUB · Urology</div></div><div class="aux"><span class="chip done"><i></i>Done</span><div class="flags"><span class="ok">Preg: no</span></div></div></div>
+          <div class="row wrap sel"><span class="mono small">10:40</span><div><div class="t">Sithole, Nandi · 34 F</div><div class="s">CT brain w/o · GP Dr Adams</div></div><div class="aux"><span class="chip active"><i></i>In room</span><div class="flags"><span class="ok">Preg: no</span><span class="ok">Wristband</span></div></div></div>
+          <div class="row wrap"><span class="mono small">11:00</span><div><div class="t">Khumalo, Bongani · 58 M</div><div class="s">CT abdo pelvis c+ · Surgery</div></div><div class="aux"><span class="chip active"><i></i>Arrived · 6 min</span><div class="flags"><span class="ok">eGFR 78</span><span class="ok">Metformin: no</span><span class="ok">Cannula · NUR</span></div></div></div>
+          <div class="row wrap"><span class="mono small">11:20</span><div><div class="t">Jacobs, Riaan · 29 M</div><div class="s">CT C-spine · Casualty</div></div><div class="aux"><span class="chip"><i></i>Booked</span><div class="flags"><span class="warn">Trauma · collar</span></div></div></div>
+          <div class="row wrap"><span class="mono small">11:40</span><div><div class="t">Naicker, Prashanti · 62 F</div><div class="s">CT chest c+ · Oncology</div></div><div class="aux"><span class="chip"><i></i>Booked</span><div class="flags"><span class="warn">eGFR: none on file</span><span>Allergy: seafood</span></div></div></div>
+          <div class="row wrap"><span class="mono small">12:00</span><div><div class="t">Dlamini, Sipho · 8 M</div><div class="s">CT brain w/o · Paeds</div></div><div class="aux"><span class="chip"><i></i>Booked</span><div class="flags"><span>Paediatric protocol</span><span>Guardian</span></div></div></div>
+          <div class="row wrap"><span class="mono small">12:20</span><div><div class="t">Botha, Elmarie · 45 F</div><div class="s">CT sinuses · ENT</div></div><div class="aux"><span class="chip"><i></i>Booked</span><div class="flags"><span class="warn">Preg: not asked</span></div></div></div>
+          <div class="row wrap"><span class="mono small">—</span><div><div class="t">Unmatched study</div><div class="s">Acquired 08:52 · no MWL entry</div></div><div class="aux"><span class="chip att"><i></i>Reconcile</span><div class="flags"><span>Bind by accession</span></div></div></div>
+        </div>
+        <button class="btn block">Refresh worklist (cached 10:19)</button>
+      </div>
+
+      <!-- Current patient -->
+      <div>
+        <div class="spread">
+          <div class="row-flex"><h3>Sithole, Nandi</h3><span class="muted">34 F · 72 kg · ID ····2088 · <span class="mono">BSAN-26-0002217-3</span> · no priors</span></div>
+          <div class="row-flex"><span class="chip active"><i></i>In room · MPPS in progress</span><span class="chip"><i></i>Slot 10:40 · in room 10:47</span></div>
+        </div>
+        <div class="facts">
+          <div><span>Indication</span><b>Headache 3 weeks, worse on waking; no trauma</b></div>
+          <div><span>Referrer</span><b>Dr S. Adams (GP)</b></div>
+          <div><span>Funding</span><b>Scheme A (demo) · auth 4471</b></div>
+        </div>
+
+        <div class="card">
+          <div class="step"><span class="n done">1</span><div>
+            <div class="hd"><h4>Protocol card</h4><span class="chip ai"><i></i>Protocol Hand · protocol-suggest 2.4.1</span></div>
+            <div class="ai">
+              <div class="prov"><span>protocol <b>CT brain without contrast</b></span><span>band <b>adult</b></span><span>DRL <b>900 mGy·cm</b></span><span>allow-list <b>BR-01</b></span><span>conf <b>0.97</b></span></div>
+              <div>CT brain without contrast · adult · 120 kVp · auto mA (ref 300) · 5 mm axial + 0.625 mm thin. Matches signed allow-list BR-01; no contrast phase suggested.</div>
+              <div class="acts"><button class="btn sm primary">Accepted 10:48</button><button class="btn sm">Change protocol</button><button class="btn sm ghost">Show why</button></div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="card" style="padding:0">
+          <div class="steps">
+            <div class="srow"><span class="n done">2</span><div class="st">Identity check</div><div class="sd"><b>Nandi Sithole</b> · DOB <b>14 March 1992</b> · confirmed aloud 10:47 · wristband scanned, matches order, bound to CT 1 <span class="src">manual match needs two identifiers and a named witness</span></div><div class="qr" role="img" aria-label="Wristband QR code, scanned"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" fill="#0E1113"><path d="M0 0h7v7H0zM1 1v5h5V1z" fill-rule="evenodd"/><rect x="2" y="2" width="3" height="3"/><path d="M18 0h7v7h-7zM19 1v5h5V1z" fill-rule="evenodd"/><rect x="20" y="2" width="3" height="3"/><path d="M0 18h7v7H0zM1 19v5h5v-5z" fill-rule="evenodd"/><rect x="2" y="20" width="3" height="3"/><path d="M8 0h1v1H8zM10 0h2v1h-2zM13 0h1v2h-1zM15 0h1v1h-1zM9 2h1v1H9zM11 2h1v2h-1zM14 2h2v1h-2zM8 4h2v1H8zM12 4h1v1h-1zM15 4h1v2h-1zM9 6h1v1H9zM11 6h1v1h-1zM13 6h1v1h-1zM0 8h1v1H0zM2 8h2v1H2zM5 8h1v1H5zM7 8h2v1H7zM10 8h1v2h-1zM12 8h2v1h-2zM15 8h1v1h-1zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM1 10h1v1H1zM4 10h1v1H4zM6 10h2v1H6zM12 10h1v1h-1zM14 10h2v1h-2zM17 10h1v2h-1zM20 10h1v1h-1zM23 10h2v1h-2zM0 12h2v1H0zM3 12h1v1H3zM5 12h1v2H5zM8 12h1v1H8zM10 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM19 12h1v1h-1zM21 12h2v1h-2zM24 12h1v1h-1zM2 14h1v1H2zM7 14h2v1H7zM11 14h1v1h-1zM14 14h1v1h-1zM16 14h2v1h-2zM20 14h1v1h-1zM22 14h1v1h-1zM0 16h1v1H0zM3 16h2v1H3zM6 16h1v1H6zM9 16h1v1H9zM12 16h2v1h-2zM15 16h1v1h-1zM18 16h1v1h-1zM21 16h1v1h-1zM23 16h2v1h-2zM8 18h1v1H8zM10 18h2v1h-2zM13 18h1v1h-1zM16 18h1v1h-1zM18 18h2v1h-2zM22 18h1v1h-1zM24 18h1v1h-1zM9 20h1v1H9zM12 20h1v1h-1zM14 20h2v1h-2zM17 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM8 22h2v1H8zM11 22h1v1h-1zM13 22h1v1h-1zM16 22h2v1h-2zM19 22h1v1h-1zM21 22h2v1h-2zM24 22h1v1h-1zM9 24h1v1H9zM12 24h1v1h-1zM15 24h1v1h-1zM18 24h2v1h-2zM22 24h1v1h-1z"/></svg></div></div>
+            <div class="srow"><span class="n done">3</span><div class="st">Safety re-confirmation</div><div class="sd"><div class="checks"><span class="check"><i class="on"></i>Pregnancy: no</span><span class="check"><i class="on"></i>Metformin: no</span><span class="check"><i class="on"></i>Allergies: none · prior reaction: no</span><span class="check"><i class="on"></i>Contrast: eGFR 84 mL/min/1.73 m²</span></div><span class="src">eGFR: lab result 14 Sep (2 days ago) · home answers 15 Sep · re-confirmed 10:47</span></div><span class="chip done"><i></i>Cleared</span></div>
+            <div class="srow"><span class="n">4</span><div class="st">Contrast calculator</div><div class="sd"><span class="mono">72 kg × 1.5 mL/kg = <b>108 mL</b></span> · 350 mgI/mL · 3.0 mL/s <span class="src">not in the accepted protocol · vial barcode not scanned</span></div><span class="chip"><i></i>Standby</span></div>
+            <div class="srow"><span class="n done">5</span><div class="st">Acquisition</div><div class="sd"><span class="mono">10:52</span> scout · DLP 4 &nbsp; <span class="mono">10:55</span> helical · DLP 608 &nbsp; <span class="mono">10:56</span> thin recon <span class="src">stored on Edge Gateway · forward to archive queued (offline) · 2 series</span></div><span class="chip active"><i></i>MPPS in progress</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="step"><span class="n now">6</span><div>
+            <div class="hd"><h4>QC results</h4><span class="chip ai"><i></i>QC Hand · qc-ct-position 1.3.0 · Edge Gateway · 2.1 s</span></div>
+            <div class="ai">
+              <div class="prov"><span>check <b>4 of 4 run</b></span><span>hold <b>none</b></span><span>laterality <b>n/a (midline)</b></span><span>body part <b>match: brain</b></span></div>
+              <div class="qc">
+                <div class="item"><i></i><div><b>Positioning ok</b>OM line within 5°, vertex to C1 covered, no tilt</div></div>
+                <div class="item"><i class="att"></i><div><b>Exposure index 310 vs target 300</b>+3.3 %, within the ±10 % band</div></div>
+                <div class="item"><i></i><div><b>Laterality marker detected</b>R marker, matches order</div></div>
+                <div class="item"><i></i><div><b>Motion none</b>helical series clean</div></div>
+              </div>
+              <div class="acts"><button class="btn primary lg">Send study</button><button class="btn lg">Repeat with reason</button><button class="btn ghost">Show why</button></div>
+            </div>
+            <div class="note" style="margin-top:6px">Send completes MPPS, records dose against patient, room and radiographer, and queues the study for the Reading Hub. A repeat needs a reason from the standard list first.</div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Dose, repeats, offline -->
+      <div>
+        <div class="banner warn" role="status">
+          <div><b>Edge Gateway offline mode</b><div class="small">Worklist cached, images store-and-forward. Link lost 10:20 · QC runs locally · UPS 100 % · generator running</div></div>
+          <button class="btn sm">Transfer backlog: 3</button>
+        </div>
+
+        <div class="card">
+          <div class="hd"><h4>Dose · this study</h4><span class="more">DoseGauge · DLP vs DRL</span></div>
+          <div class="gauge">
+            <svg viewBox="0 0 200 122" role="img" aria-label="Dose gauge: dose-length product 612 of a 900 mGy·cm diagnostic reference level, 68 percent">
+              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--line)" stroke-width="12" stroke-linecap="butt"/>
+              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--ok)" stroke-width="12" stroke-dasharray="171 251.4" stroke-linecap="butt"/>
+              <line x1="176" y1="88" x2="188" y2="86" stroke="var(--crit)" stroke-width="2"/>
+              <line x1="156.6" y1="43.4" x2="164" y2="36" stroke="var(--warn)" stroke-width="2"/>
+              <text x="100" y="86" text-anchor="middle" font-family="Manrope, system-ui" font-weight="700" font-size="30" fill="var(--heading)">612</text>
+              <text x="100" y="104" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--text-2)">mGy·cm DLP</text>
+              <text x="20" y="118" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--text-2)">0</text>
+              <text x="180" y="118" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--text-2)">DRL 900</text>
+              <text x="168" y="30" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--text-2)">75 %</text>
+            </svg>
+            <div class="kv">
+              <span>CTDIvol</span><b>42.1 mGy</b>
+              <span>DRL</span><b>adult brain · site</b>
+              <span>Effective</span><b>~1.4 mSv</b>
+              <span>Status</span><b class="chip done" style="justify-self:start"><i></i>68 % of DRL</b>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="kv small">
+            <span>Patient · today</span><b>612 mGy·cm · 1 study</b>
+            <span>Patient · 12 months</span><b>612 mGy·cm · no priors</b>
+            <span>Room CT 1 · today</span><b>4 studies · mean 71 % DRL</b>
+            <span>Exceedances today</span><b>0 · RPO reviews monthly</b>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd"><h4>Repeat / reject · CT 1 · today</h4><span class="more">case-mix adjusted</span></div>
+          <div class="counter">
+            <div><div class="l small muted">Repeat rate</div><div class="big">1 / 18</div><div class="small muted">5.6 % · target ≤ 6 %</div><div class="bar" aria-hidden="true"><i style="width:56%"></i><b style="left:60%"></b></div></div>
+            <div><div class="l small muted">Rejects</div><div class="big">0</div><div class="small muted">exposures rejected today</div>
+              <div class="reasons"><span>Positioning</span><b>1</b><span>Exposure</span><b>0</b><span>Motion</span><b>0</b><span>Artefact / equipment</span><b>0</b></div></div>
+          </div>
+          <div class="note" style="margin-top:8px">Captured from the modality (MPPS) and the reason list; the QC Hand never marks a repeat done and never deletes an image.</div>
+        </div>
+
+        <div class="card">
+          <div class="hd"><h4>Next up · 11:00</h4><span class="chip active"><i></i>Arrived · 6 min</span></div>
+          <div class="kv small">
+            <span>Patient</span><b>Khumalo, Bongani · 58 M</b>
+            <span>Study</span><b>CT abdomen pelvis with contrast · portal venous</b>
+            <span>Contrast</span><b>eGFR 78 · 92 kg · 138 mL calc · cannula by NUR 10:41</b>
+            <span>Protocol</span><b>Accepted by Dr Govender · delayed phase added (haematuria)</b>
+            <span>Power policy</span><b class="neg">Contrast on hold until generator stable 10 min</b>
+          </div>
+        </div>
+
+        <div class="empty small">Priors not cached before 10:19 are marked unavailable offline. Triage inference resumes when the link returns.</div>
+      </div>
+    </div>
+  </main>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

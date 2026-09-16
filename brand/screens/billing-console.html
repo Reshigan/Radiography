@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="business">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claims Console — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+:root{--inspector:360px}
+.content>*{flex:none}
+.banner .bt{flex:1;min-width:360px}
+.tile{min-width:0}
+.ai .acts{flex-wrap:wrap}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.tile .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile{padding:8px 12px}
+.tile.crit .v{color:var(--crit)}
+.qwrap{display:flex;flex-direction:column;gap:8px}
+.tbl{max-height:270px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius)}
+.tbl .dt{border:none}
+.dt{table-layout:fixed}
+.dt td{overflow:hidden;text-overflow:ellipsis}
+.dt td.sug{white-space:normal;line-height:1.3;padding-top:4px;padding-bottom:4px}
+.dt td.acts{white-space:nowrap}
+.dt td.acts .btn{height:24px;padding:0 6px;font-size:11px}.dt td.acts .btn.ghost{padding:0 4px}
+.dt .sla{min-width:0;width:100%}
+.dt td .age{font-family:var(--mono);font-size:11px;color:var(--text-2);display:block;margin-bottom:3px}
+.dt td.pt{line-height:1.25}.dt td.pt .fd{display:block;font-size:11px;color:var(--text-2)}
+.reason{font-size:12px;white-space:normal;line-height:1.3}.reason b{font-weight:500;display:block}.reason span{color:var(--text-2)}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bars text{font-family:var(--text-font);font-size:12px;fill:var(--text)}
+.bars text.v{font-family:var(--mono);font-size:11px;fill:var(--text-2)}
+.bars rect{fill:var(--iris-ink)}.bars rect.hi{fill:var(--flare-ink)}
+.arith{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13px;align-items:baseline}
+.arith .l{color:var(--text-2)}.arith .sub{grid-column:1/3;font-size:11px;color:var(--text-2);margin-top:-2px}
+.arith .tot{border-top:1px solid var(--line);padding-top:6px;font-weight:600;color:var(--heading)}
+.arith .ai-line{border:1px dashed var(--ai-line);padding:2px 6px;margin:0 -6px;border-radius:2px}
+.code{font-family:var(--mono);font-size:12px;background:var(--surface-3);border-radius:2px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.code b{font-weight:500;color:var(--crit)}
+@media (max-width:900px){.app,.app.with-inspector{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;height:auto;min-height:100vh}.topbar{grid-column:1;flex-wrap:wrap;height:auto;padding:8px 16px;min-width:0}.topbar .search,.topbar .wl{display:none}.topbar .ctx{flex-wrap:wrap}.topbar .right{margin-left:0;flex-wrap:wrap}.content,.app.with-inspector .content{grid-column:1;grid-row:2;min-width:0}.topbar{grid-row:1}.ph .actions{margin-left:0;flex-wrap:wrap}.grid{grid-template-columns:1fr 1fr}.banner .btn{margin-left:0}.ai .acts,.reg-acts,.pay{flex-wrap:wrap}.pay{grid-template-columns:1fr 1fr 1fr}.card{min-width:0}.queue .row .aux,.row-flex{flex-wrap:wrap}.demo-tag{display:none}.banner>div{min-width:0}}
+@media (max-width:900px){.bottom{grid-template-columns:1fr}.g5{grid-template-columns:1fr 1fr}.tbl{max-height:none}.dt{table-layout:auto;min-width:900px}}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Claims" aria-label="Claims" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></a>
+    <a href="#" title="Unbilled register" aria-label="Unbilled register"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a href="#" title="Remittances" aria-label="Remittances"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12l4 4L19 6"/></svg></a>
+    <a href="#" title="Rule packs" aria-label="Rule packs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6M9 13h6M9 17h6"/></svg></a>
+    <a href="#" title="Analytics" aria-label="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Thandi Zondo">TZ</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Revenue Cycle</span><span class="sep">/</span><span>Practice B · Umhlanga JV</span><span class="sep">/</span><span class="mono">Tue 16 Sep · 08:05</span></div>
+    <div class="search">Search claims, patients, accession, member number… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip"><i></i>Switch batch cut-off 11:00</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 5 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>5</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title"><h1 style="font-size:24px">Claims and exceptions</h1><span class="muted small">Yesterday: 412 signed · 391 coded by Hand · 377 submitted · sample 8 of 8 reviewed</span></div>
+      <div class="actions"><button class="btn">Unbilled (122)</button><button class="btn">Remittances (11)</button><button class="btn primary">Submit batch (58)</button></div>
+    </div>
+    <div class="banner" role="alert">
+      <div class="bt"><b>Rejection wave: Scheme B (demo) rule change.</b> Circular 14/2026 requires a pre-authorisation number on out-of-hospital CT tariffs. 143 claims held, R214 300 at risk, since 02 Sep 09:10, 4 Practices. <span class="chip ai"><i></i>claims-hand 2026.09.1 · paused rule R21</span></div>
+      <button class="btn sm">Rule-pack change request</button>
+    </div>
+    <div class="grid g5">
+      <div class="tile"><span class="l">Unbilled</span><span class="v">122</span><span class="d">R386 400 · oldest 27 days</span></div>
+      <div class="tile"><span class="l">Ready to submit</span><span class="v">58</span><span class="d">scrubbed clean · batch 11:00</span></div>
+      <div class="tile"><span class="l">In flight</span><span class="v">1 204</span><span class="d">R3.92 M · 3 real-time schemes</span></div>
+      <div class="tile crit"><span class="l">Rejected</span><span class="v">143</span><span class="d down">R214 300 · 96 % one scheme</span></div>
+      <div class="tile"><span class="l">First-pass acceptance</span><span class="v">93.1 %</span><span class="d down">96.4 % before 02 Sep</span></div>
+    </div>
+    <div class="qwrap">
+      <div class="spread">
+        <div class="row-flex"><h3>Exception queue</h3><span class="pill">21</span><span class="chip active"><i></i>By SLA</span><span class="chip"><i></i>Funder rule 7</span><span class="chip"><i></i>Coding 6</span><span class="chip"><i></i>Identity 3</span><span class="chip"><i></i>Other 5</span></div>
+        <div class="row-flex"><span class="small muted">Beam 24 h · Flare 48 h</span><button class="btn sm">Bulk accept sampled</button></div>
+      </div>
+      <div class="tbl"><table class="dt" aria-label="Exception queue">
+        <colgroup><col style="width:92px"><col style="width:146px"><col style="width:118px"><col style="width:134px"><col><col style="width:62px"><col style="width:178px"></colgroup>
+        <thead><tr><th>Claim</th><th>Patient · funder</th><th>Procedure</th><th>Issue</th><th>Suggestion</th><th>Age</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr class="sel" aria-current="true"><td class="mono">B-018342</td><td class="pt">Govender, Priya<span class="fd">Scheme B</span></td><td>CT abdomen c+</td><td class="reason"><b>Funder rule</b><span>auth number required</span></td><td class="sug"><span class="chip ai"><i></i>coding-hand · 0.93</span> attach retro auth <span class="mono">RA-B-3311</span>, resubmit</td><td><span class="age">41 h</span><span class="sla warn"><i style="width:85%"></i></span></td><td class="acts"><button class="btn sm primary">Accept</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018297</td><td class="pt">Mabaso, Lindiwe<span class="fd">Scheme B</span></td><td>CT brain w/o</td><td class="reason"><b>Funder rule</b><span>invalid diagnosis for procedure</span></td><td class="sug"><span class="chip ai"><i></i>coding-hand · 0.88</span> primary ICD-10 <span class="mono">R51</span> to <span class="mono">G43.9</span>, report supports</td><td><span class="age">52 h</span><span class="sla crit"><i style="width:100%"></i></span></td><td class="acts"><button class="btn sm primary">Accept</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018410</td><td class="pt">Naidoo, Prevan<span class="fd">Scheme A</span></td><td>CT abdomen c+</td><td class="reason"><b>Coding confidence</b><span>extra phase in report</span></td><td class="sug"><span class="chip ai"><i></i>coding-hand · 0.71</span> add delayed-phase line T-30322 × 1, R610</td><td><span class="age">19 h</span><span class="sla"><i style="width:40%"></i></span></td><td class="acts"><button class="btn sm primary">Accept</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018388</td><td class="pt">Cele, Sanele<span class="fd">COIDA</span></td><td>XR wrist L</td><td class="reason"><b>Funder class</b><span>employer incident details missing</span></td><td class="sug"><span class="chip ai"><i></i>claims-hand · draft</span> request to employer contact, awaiting your approval</td><td><span class="age">26 h</span><span class="sla warn"><i style="width:55%"></i></span></td><td class="acts"><button class="btn sm primary">Approve</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018401</td><td class="pt">Van Wyk, Marius<span class="fd">Scheme C</span></td><td>MRI L-spine</td><td class="reason"><b>Identity</b><span>member number mismatch</span></td><td class="sug"><span class="chip ai"><i></i>pmi-match · 0.64</span> 2 candidates, confirm with patient by WhatsApp</td><td><span class="age">14 h</span><span class="sla"><i style="width:30%"></i></span></td><td class="acts"><button class="btn sm">Send ask</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018356</td><td class="pt">Sibiya, Nokuthula<span class="fd">Scheme A</span></td><td>XR chest PA</td><td class="reason"><b>Referrer</b><span>practice number missing</span></td><td class="sug"><span class="chip ai"><i></i>referrer-dir · 0.91</span> Dr M. Naicker (GP) PCNS <span class="mono">····7730</span>, back-fill referrer</td><td><span class="age">9 h</span><span class="sla"><i style="width:20%"></i></span></td><td class="acts"><button class="btn sm primary">Accept</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018377</td><td class="pt">Ferreira, Elsabe<span class="fd">Scheme B</span></td><td>CT chest c+</td><td class="reason"><b>Funder rule</b><span>benefit exhausted at adjudication</span></td><td class="sug"><span class="chip ai"><i></i>claims-hand · hold</span> benefit check 28 Aug said available; convert R2 140 to patient liability needs your decision</td><td><span class="age">31 h</span><span class="sla warn"><i style="width:65%"></i></span></td><td class="acts"><button class="btn sm">Decide</button> <button class="btn sm">Edit</button> <button class="btn sm ghost">Escalate</button></td></tr>
+          <tr><td class="mono">B-018419</td><td class="pt">Mokoena, Tumelo<span class="fd">RAF</span></td><td>CT C-spine</td><td class="reason"><b>Funder class</b><span>attorney details awaited</span></td><td class="sug"><span class="muted">Human-led per RAF playbook · no suggestion</span></td><td><span class="age">6 h</span><span class="sla"><i style="width:12%"></i></span></td><td class="acts"><button class="btn sm">Open</button> <button class="btn sm ghost">Escalate</button></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="bottom">
+      <div class="chart">
+        <div class="spread"><h4>Rejections by reason · last 14 days</h4><span class="small muted">n = 176 · Scheme B in Flare</span></div>
+        <svg class="bars" viewBox="0 0 480 140" role="img" aria-label="Horizontal bar chart of rejections by reason: authorisation required 96, invalid diagnosis for procedure 47, member not found 12, duplicate claim 9, referrer practice number invalid 7, benefit exhausted 5">
+          <g transform="translate(0,2)">
+            <text x="0" y="12">Authorisation required</text><rect class="hi" x="200" y="2" width="240" height="14"/><text class="v" x="446" y="13">96</text>
+            <text x="0" y="35">Invalid diagnosis for procedure</text><rect class="hi" x="200" y="25" width="118" height="14"/><text class="v" x="324" y="36">47</text>
+            <text x="0" y="58">Member not found</text><rect x="200" y="48" width="30" height="14"/><text class="v" x="236" y="59">12</text>
+            <text x="0" y="81">Duplicate claim</text><rect x="200" y="71" width="23" height="14"/><text class="v" x="229" y="82">9</text>
+            <text x="0" y="104">Referrer practice number</text><rect x="200" y="94" width="18" height="14"/><text class="v" x="224" y="105">7</text>
+            <text x="0" y="127">Benefit exhausted</text><rect x="200" y="117" width="13" height="14"/><text class="v" x="219" y="128">5</text>
+          </g>
+        </svg>
+        <div class="cap">Two reasons account for 81 % and both started 02 Sep; the prior baseline was 9 rejections a day across all reasons.</div>
+      </div>
+      <div class="card">
+        <div class="hd"><h4>Stale-claim deadlines</h4><span class="more">4 months from date of service</span></div>
+        <div class="empty">No claim reaches its stale date within 30 days. Earliest in the rejection cohort: 04 Jan 2027 (date of service 04 Sep). Escalation runs at 30, 14 and 7 days before.</div>
+        <div class="kv" style="margin-top:10px">
+          <span>Retro authorisations</span><b>Authorisation Hand · 61 of 96 requested · 22 granted · leash: CT only, Scheme B, 100 this week</b>
+          <span>Resubmitted</span><b>22 · 19 accepted real-time · 3 pending</b>
+          <span>Bureau notice</span><b>Posted 07:52 to Practices A, C, D</b>
+        </div>
+      </div>
+    </div>
+  </main>
+  <aside class="inspector" aria-label="Inspector: claim CLM-B-018342">
+    <div>
+      <div class="spread"><h3 class="mono" style="font-size:15px">CLM-B-018342</h3><span class="chip crit"><i></i>Rejected</span></div>
+      <div class="muted small">Govender, Priya · 44 F · ID ····6621 · Scheme B (demo) · Option Plus · member ····3390</div>
+      <div class="muted small">CT abdomen with contrast · DOS 11 Sep 2026 · signed Dr Naidoo 12 Sep 07:40 · Umhlanga</div>
+    </div>
+    <div class="card">
+      <div class="hd"><h4>Money explained</h4><span class="more">VAT 15 % incl.</span></div>
+      <div class="arith">
+        <span class="l">T-30320 CT abdomen c+ × 1</span><span class="money">R3 420.00</span>
+        <span class="sub">Scheme B rate 2026 · out-of-hospital</span>
+        <span class="l">Modifier 0012 contrast admin.</span><span class="money">R480.00</span>
+        <span class="l">Subtotal excl. VAT</span><span class="money">R3 900.00</span>
+        <span class="l">VAT 15 %</span><span class="money">R585.00</span>
+        <span class="l tot">Claim total</span><span class="money tot">R4 485.00</span>
+        <span class="l">Scheme portion</span><span class="money">R4 175.00</span>
+        <span class="l">Patient portion · network co-pay</span><span class="money">R310.00</span>
+        <span class="sub">Collected at front desk 11 Sep 08:06, receipt sent</span>
+      </div>
+      <div class="ai small" style="margin-top:8px"><div class="prov"><span><b>coding-hand 2026.09.2</b></span><span>conf <b>0.71</b></span></div>Suggested extra line: T-30322 delayed phase × 1, R610.00 excl. VAT. Not accepted; excluded from totals above.</div>
+    </div>
+    <div class="card">
+      <div class="hd"><h4>Switch response</h4><span class="more">real-time · 15 Sep 09:12</span></div>
+      <div class="code"><span>RSP 4231 · <b>AUTH_REQ</b> · rule SB-CT-OOH-2026-09</span><span>REF 7F21-88A0 · resubmit allowed: 2 of 2 left</span></div>
+      <p class="small" style="margin:8px 0 0">In plain language: since 01 Sep, Scheme B needs a pre-authorisation number on this CT tariff when done outside hospital. The claim went out without one because rule pack 2026.08 did not include circular 14/2026.</p>
+      <div class="ai" style="margin-top:8px">
+        <div class="prov"><span><b>coding-hand 2026.09.2</b></span><span>conf <b>0.93</b></span><span>rules <b>2026.09.2-rc</b></span></div>
+        Attach retrospective authorisation <span class="mono">RA-B-3311</span> (granted 15 Sep 16:40, valid for DOS) and resubmit in the 11:00 batch. ICD-10 <span class="mono">K80.2</span> remains valid as primary.
+        <div class="acts"><button class="btn sm primary">Accept and resubmit</button><button class="btn sm">Edit lines</button><button class="btn sm ghost">Escalate to rules lead</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><h4>Audit trail</h4><span class="more">8 events</span></div>
+      <ul class="tl">
+        <li><span class="tm">11 Sep 08:06</span><span class="dot ok"></span><span>Patient portion R310 collected at Randburg desk</span></li>
+        <li><span class="tm">12 Sep 07:40</span><span class="dot ok"></span><span>Report signed · Dr Naidoo</span></li>
+        <li><span class="tm">12 Sep 07:41</span><span class="dot ai"></span><span>Coded by coding-hand 2026.09.1 · 0.97 · straight to scrubber</span></li>
+        <li><span class="tm">12 Sep 07:42</span><span class="dot ai"></span><span>Scrubbed clean under rule pack 2026.08 · submitted by claims-hand</span></li>
+        <li><span class="tm">15 Sep 09:12</span><span class="dot crit"></span><span>Rejected · RSP 4231 AUTH_REQ</span></li>
+        <li><span class="tm">15 Sep 09:40</span><span class="dot ai"></span><span>Clustered into rejection wave · claims-hand paused rule R21</span></li>
+        <li><span class="tm">15 Sep 16:40</span><span class="dot ai"></span><span>Retro authorisation RA-B-3311 granted · auth-hand, portal</span></li>
+        <li><span class="tm">16 Sep 06:10</span><span class="dot ai"></span><span>Resubmission proposed · awaiting BIL</span></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

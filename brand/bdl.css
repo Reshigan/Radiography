@@ -183,4 +183,4 @@ table.dt{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px);bac
 .demo-tag{position:fixed;right:10px;bottom:10px;font:11px var(--mono);color:var(--text-2);border:1px dashed var(--ash-400);padding:2px 6px;border-radius:2px;background:var(--surface)}
 .empty{border:1px dashed var(--line-strong);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text-2)}
 .skel{background:linear-gradient(90deg,var(--surface-3),var(--surface-2),var(--surface-3));height:14px;border-radius:2px}
-@media (max-width:900px){.app{grid-template-columns:1fr}.rail{display:none}.topbar,.content{grid-column:1}.app.with-inspector{grid-template-columns:1fr}.inspector{display:none}.g3,.g4,.g6,.g2,.split,.kan{grid-template-columns:1fr}}
+@media (max-width:900px){.app{grid-template-columns:1fr}.rail{display:none}.topbar,.content,.app.with-inspector .content,.app.with-inspector .topbar{grid-column:1}.app.with-inspector{grid-template-columns:1fr}.inspector{display:none}.g3,.g4,.g6,.g2,.split,.kan{grid-template-columns:1fr}}

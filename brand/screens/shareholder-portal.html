@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="business">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shareholder Portal — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.holding{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2)}
+.holding .pct{font:700 30px/1 var(--display);color:var(--heading)}
+.holding .cap{display:flex;gap:4px;height:10px;width:220px;border-radius:3px;overflow:hidden}
+.holding .cap i{display:block;background:var(--ash-300)}.holding .cap i.me{background:var(--marrow)}
+.tile .v{font-size:22px;white-space:nowrap}.tile .d{line-height:1.35}.tile .l{white-space:nowrap}
+.tile .row-v{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tile svg{height:36px}
+.dt td.num{white-space:nowrap}.dt tr.tot td{font-weight:600;background:var(--surface-3)}
+.dt td .why{font-size:11px;color:var(--text-2);display:block;white-space:normal;line-height:1.3}
+.dt .lk{font-size:12px}
+.dt td.lk a{margin-right:10px}
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}.two>*{min-width:0}
+.vote{border:1px solid var(--line-strong);border-left:4px solid var(--warn);border-radius:0 var(--radius) var(--radius) 0;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+.vote .amt{font:700 24px/1.1 var(--display);color:var(--heading)}
+.vote .tally{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;font-size:12px;align-items:center}
+.vote .tally i{display:block;height:6px;border-radius:3px;background:var(--line);position:relative}
+.vote .tally i b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ok)}
+.vote .tally i b.pend{background:var(--ash-300)}
+.vote .rule{font:11px var(--mono);color:var(--text-2);border-left:2px solid var(--line-strong);padding-left:8px}
+.docs{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);overflow:hidden}
+.docs a{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px;color:var(--text)}
+.docs a:last-child{border-bottom:none}.docs a .s{font-size:11px;color:var(--text-2);display:block}
+.docs a svg{width:16px;height:16px;color:var(--text-2)}
+.docs a .dl{font-size:12px;color:var(--primary)}
+.ph .title{flex:1 1 auto;min-width:0}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}.topbar{flex-wrap:wrap;padding:8px 16px;row-gap:6px}.topbar .ctx{flex-wrap:wrap}.app.with-inspector{grid-template-columns:minmax(0,1fr)}.app.with-inspector .content,.app.with-inspector .topbar{grid-column:1}.ph .actions{flex-wrap:wrap;margin-left:0}.topbar .search{max-width:none;flex-basis:100%}.topbar .right{margin-left:0;flex-wrap:wrap}.two{grid-template-columns:1fr}.holding{flex-wrap:wrap}table.dt{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="app with-inspector">
+  <nav class="rail" aria-label="Sections">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Statement" class="active" aria-label="Statement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></a>
+    <a href="#" title="Distributions" aria-label="Distributions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></a>
+    <a href="#" title="Votes" aria-label="Votes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12l4 4L19 6"/></svg></a>
+    <a href="#" title="Documents" aria-label="Documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg></a>
+    <a href="#" title="KPIs" aria-label="KPIs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Dr Anand Pillay">AP</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Shareholder portal</span><span class="sep">/</span><span>Practice B Inc. · Umhlanga</span><span class="sep">/</span><span class="mono">Wed 16 Sep · 18:32</span></div>
+    <div class="search">Search statements, documents, votes… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip"><i></i>Read-only · locked period</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 1 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>1</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title"><h1>Practice B Inc. · August 2026</h1><span class="muted">Bonakala Imaging Umhlanga · period locked 5 Sep 2026 · no restatements · same page the site manager and the Group see</span></div>
+      <div class="actions"><button class="btn">Statement PDF</button><button class="btn">Twelve months</button></div>
+    </div>
+
+    <div class="holding" aria-label="Your holding">
+      <span class="pct">49 %</span>
+      <div><b>B ordinary shares · Dr A. Pillay</b><div class="small muted">Bonakala Professional Holdings 51 % A ordinary · you 49 % B ordinary · economic and voting rights per the shareholders' agreement (v2, Feb 2025)</div></div>
+      <div class="cap" aria-hidden="true"><i style="width:51%"></i><i class="me" style="width:49%"></i></div>
+      <span class="chip att" style="margin-left:auto"><i></i>1 vote open · closes 30 Sep</span>
+    </div>
+
+    <div class="grid g5" style="grid-template-columns:repeat(5,1fr)">
+      <div class="tile"><span class="l">Revenue</span><span class="v money">R 7 900 000</span><span class="d down">budget R 8 200 000 · −3.7 %</span></div>
+      <div class="tile"><span class="l">EBITDA</span><span class="v money">R 1 980 000</span><span class="d down">25.1 % margin · budget 26.5 %</span></div>
+      <div class="tile"><span class="l">Distributable profit</span><span class="v money">R 1 412 000</span><span class="d">after tax provision and 10 % reserve</span></div>
+      <div class="tile"><span class="l">My entitlement</span><span class="v money">R 691 880</span><span class="d">49 % · before dividends tax</span></div>
+      <div class="tile"><span class="l">Next distribution</span><span class="v">10 Oct 2026</span><span class="d">approvals 2 of 3 · yours pending</span></div>
+    </div>
+
+    <div class="two">
+      <div>
+        <div class="spread" style="margin-bottom:8px"><h4>Profit and loss · August vs budget</h4><span class="small muted">R · locked read model · every variance links to its events</span></div>
+        <table class="dt" aria-label="Profit and loss summary versus budget">
+          <thead><tr><th>Line</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Variance</th><th>Explained by</th></tr></thead>
+          <tbody>
+            <tr><td>Revenue</td><td class="num">7 900 000</td><td class="num">8 200 000</td><td class="num neg">−300 000</td><td><span class="why">CT 1 downtime −118 000 · MRI outage windows −64 000 · no-show rate +41 000</span></td></tr>
+            <tr><td>Short-payments and write-offs</td><td class="num neg">(64 000)</td><td class="num">(50 000)</td><td class="num neg">−14 000</td><td><span class="why">38 000 funder rule change, practice absorbs · rule pack fixed by bureau</span><span class="chip att" style="margin-top:2px"><i></i>1 open query</span></td></tr>
+            <tr><td>Reading fees to Hub</td><td class="num neg">(1 580 000)</td><td class="num">(1 640 000)</td><td class="num">+60 000</td><td><span class="why">per Hub schedule · 4 812 studies · by radiologist on request</span></td></tr>
+            <tr><td>Management fee (8 % of collections)</td><td class="num neg">(612 000)</td><td class="num">(640 000)</td><td class="num">+28 000</td><td><span class="why">covers Platform, billing bureau, HR, procurement · first-pass 96.4 % · DSO 36 d</span></td></tr>
+            <tr><td>Rent (intercompany)</td><td class="num neg">(420 000)</td><td class="num">(420 000)</td><td class="num">0</td><td><span class="why">Bonakala Properties lease · escalation 1 Apr</span></td></tr>
+            <tr><td>Staff</td><td class="num neg">(2 130 000)</td><td class="num">(2 110 000)</td><td class="num neg">−20 000</td><td><span class="why">agency mammographer 3 900 · overtime CT 2 extension 16 100</span></td></tr>
+            <tr><td>Consumables</td><td class="num neg">(690 000)</td><td class="num">(720 000)</td><td class="num">+30 000</td><td><span class="why">contrast by barcode · fewer contrast studies during CT 1 downtime</span></td></tr>
+            <tr><td>Other operating costs</td><td class="num neg">(424 000)</td><td class="num">(450 000)</td><td class="num">+26 000</td><td><span class="why">incl. generator diesel 21 400 (load-shedding cost)</span></td></tr>
+            <tr class="tot"><td>EBITDA</td><td class="num">1 980 000</td><td class="num">2 170 000</td><td class="num neg">−190 000 · −8.8 %</td><td><span class="why">bridge computed from events, not narrated</span></td></tr>
+            <tr><td>Depreciation, tax provision, reserve</td><td class="num neg">(568 000)</td><td class="num">(590 000)</td><td class="num">+22 000</td><td><span class="why">reserve policy 10 % per shareholders' agreement</span></td></tr>
+            <tr class="tot"><td>Distributable profit</td><td class="num">1 412 000</td><td class="num">1 580 000</td><td class="num neg">−168 000</td><td><span class="why">waterfall: Holdings 720 120 · you 691 880</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="spread" style="margin-bottom:8px"><h4>KPI vs plan · twelve months</h4><span class="small muted">dashed line is plan · Group peers de-identified on request</span></div>
+        <div class="grid g2"><div class="tile"><span class="l">CT utilisation</span><div class="row-v"><span class="v">82 %</span><span class="d up">plan 80 %</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="19.0" x2="136" y2="19.0" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,30.0 16.0,26.3 28.0,20.8 40.0,22.7 52.0,17.2 64.0,13.5 76.0,19.0 88.0,11.7 100.0,8.0 112.0,9.8 124.0,20.8 136.0,15.3" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="15.3" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div><div class="tile"><span class="l">Patient wait median</span><div class="row-v"><span class="v">18 min</span><span class="d up">plan 20 min</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="22.7" x2="136" y2="22.7" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,8.0 16.0,11.7 28.0,15.3 40.0,19.0 52.0,15.3 64.0,22.7 76.0,26.3 88.0,19.0 100.0,26.3 112.0,30.0 124.0,22.7 136.0,30.0" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="30.0" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div><div class="tile"><span class="l">Report TAT median</span><div class="row-v"><span class="v">2 h 51</span><span class="d up">plan 3 h 00</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="22.7" x2="136" y2="22.7" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,8.0 16.0,11.7 28.0,15.3 40.0,19.0 52.0,22.7 64.0,22.7 76.0,26.3 88.0,26.3 100.0,22.7 112.0,26.3 124.0,30.0 136.0,28.2" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="28.2" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div><div class="tile"><span class="l">Collection rate at 30 days</span><div class="row-v"><span class="v">91 %</span><span class="d up">plan 90 %</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="15.3" x2="136" y2="15.3" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,30.0 16.0,26.3 28.0,26.3 40.0,22.7 52.0,19.0 64.0,22.7 76.0,15.3 88.0,15.3 100.0,11.7 112.0,8.0 124.0,11.7 136.0,11.7" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="11.7" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div><div class="tile"><span class="l">First-pass acceptance</span><div class="row-v"><span class="v">96.4 %</span><span class="d up">plan 95 %</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="17.1" x2="136" y2="17.1" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,30.0 16.0,26.8 28.0,23.5 40.0,22.2 52.0,18.4 64.0,17.1 76.0,15.1 88.0,13.2 100.0,16.4 112.0,10.6 124.0,9.3 136.0,8.0" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="8.0" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div><div class="tile"><span class="l">Studies per month</span><div class="row-v"><span class="v">4 812</span><span class="d down">plan 5 000</span></div><svg viewBox="0 0 140 36" aria-hidden="true"><line x1="4" y1="11.7" x2="136" y2="11.7" stroke="var(--iris-ink)" stroke-width="1" stroke-dasharray="3 2"/><polyline points="4.0,30.0 16.0,25.6 28.0,22.7 40.0,18.6 52.0,15.3 64.0,13.5 76.0,11.3 88.0,8.0 100.0,12.4 112.0,9.8 124.0,19.7 136.0,18.6" fill="none" stroke="var(--ash-400)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="136.0" cy="18.6" r="3.5" fill="var(--signal-ink)" stroke="var(--surface-2)" stroke-width="2"/></svg></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="spread" style="margin-bottom:8px"><h4>Distribution history</h4><span class="small muted">computed from the cap table, effective-dated · bank references from statement matching</span></div>
+      <table class="dt" aria-label="Distribution history">
+        <thead><tr><th>Period</th><th class="num">Distributable</th><th class="num">Your share (49 %)</th><th class="num">Net paid</th><th>Status</th><th>Bank reference</th><th>Documents</th></tr></thead>
+        <tbody>
+          <tr><td>August 2026</td><td class="num">1 412 000</td><td class="num">691 880</td><td class="num">—</td><td><span class="chip att"><i></i>Proposed · your approval pending</span></td><td class="mono">—</td><td class="lk"><a href="#">Proposal</a><a href="#">Cash-cover check</a></td></tr>
+          <tr><td>July 2026</td><td class="num">1 365 000</td><td class="num">668 850</td><td class="num">535 080</td><td><span class="chip done"><i></i>Paid 9 Aug</span></td><td class="mono">BNK-PB-260809-014</td><td class="lk"><a href="#">Statement</a><a href="#">Tax certificate</a></td></tr>
+          <tr><td>June 2026</td><td class="num">1 298 000</td><td class="num">636 020</td><td class="num">508 816</td><td><span class="chip done"><i></i>Paid 10 Jul</span></td><td class="mono">BNK-PB-260710-011</td><td class="lk"><a href="#">Statement</a><a href="#">Tax certificate</a></td></tr>
+          <tr><td>May 2026</td><td class="num">1 421 000</td><td class="num">696 290</td><td class="num">557 032</td><td><span class="chip done"><i></i>Paid 10 Jun</span></td><td class="mono">BNK-PB-260610-009</td><td class="lk"><a href="#">Statement</a><a href="#">Tax certificate</a></td></tr>
+          <tr><td>April 2026</td><td class="num">1 356 000</td><td class="num">664 440</td><td class="num">531 552</td><td><span class="chip done"><i></i>Paid 9 May</span></td><td class="mono">BNK-PB-260509-007</td><td class="lk"><a href="#">Statement</a><a href="#">Tax certificate</a></td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:6px">Net paid is after dividends tax withheld as configured by the Practice's tax adviser; the Platform records the treatment and does not give tax advice. Year-to-date summary for provisional tax: <a href="#">download</a>.</div>
+    </div>
+  </main>
+
+  <aside class="inspector" aria-label="Votes and documents">
+    <div class="vote" role="region" aria-label="Reserved-matter vote">
+      <div class="spread"><span class="chip att"><i></i>Reserved matter · RM-2026-07</span><span class="mono small">closes Tue 30 Sep · 17:00</span></div>
+      <h3>Capex: CT replacement</h3>
+      <div class="amt money">R 2 400 000</div>
+      <div class="small">Replace the CT 2 tube assembly and detector ahead of failure (tube arc trend, vendor SLA breach recorded). Vendor quote valid to 15 Oct. What-if: avoided downtime R 118 000 per event at current mix.</div>
+      <div class="tally" aria-label="Votes so far">
+        <span>Holdings · 51 %</span><i><b style="width:51%"></b></i><span class="chip done"><i></i>Approve</span>
+        <span>You · 49 %</span><i><b class="pend" style="width:49%"></b></i><span class="chip"><i></i>Pending</span>
+      </div>
+      <div class="rule">rule: 75 % of voting shares · quorum both classes · abstention by deadline counts as abstain (per agreement) · your vote decides</div>
+      <div class="row-flex"><button class="btn primary lg">Approve</button><button class="btn lg">Decline</button><button class="btn ghost">Vote with a condition</button></div>
+      <div class="note">MFA step-up before the vote is recorded. 3 attachments: vendor quotes (2), what-if model with assumptions, attorneys' note. Thread: 4 messages, last from the COO's office today 16:10.</div>
+    </div>
+
+    <div>
+      <div class="spread" style="margin-bottom:8px"><h4>Documents</h4><span class="small muted">download only</span></div>
+      <div class="docs">
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Shareholders' agreement<span class="s">v2 · amended Feb 2025 · reserved matters schedule</span></span><span class="dl">PDF</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Management services agreement<span class="s">8 % of collections · service levels reported monthly</span></span><span class="dl">PDF</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Reading services agreement · Hub<span class="s">fee schedule v4 · effective 1 Jul 2026</span></span><span class="dl">PDF</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Annual financial statements FY2025<span class="s">audited · signed 30 Jun 2026</span></span><span class="dl">PDF</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Management accounts · August 2026<span class="s">locked 5 Sep · lock ref PB-2026-08-L1</span></span><span class="dl">PDF · XLSX</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span>Securities register extract<span class="s">CIPC · as at 1 Sep 2026</span></span><span class="dl">PDF</span></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h4>Open query</h4><span class="pill warn">1</span></div>
+      <div class="small">Allocation driver for shared marketing cost (R 12 400) · raised by you 8 Sep · with MSO finance lead · response due 22 Sep.</div>
+    </div>
+  </aside>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

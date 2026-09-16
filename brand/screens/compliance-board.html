@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="governance">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compliance Board — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.tile .v{font-size:26px}
+.tile .seg{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--line);margin-top:6px}
+.tile .seg i{display:block;height:100%}
+.tile .sub{display:flex;gap:12px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+.tile .sub b{color:var(--text);font-weight:500}
+.strip svg{width:100%;height:auto;display:block}
+.strip text{font-family:var(--text-font);font-size:11.5px;fill:var(--text)}
+.strip text.d{font-family:var(--mono);font-size:10.5px;fill:var(--text-2)}
+.strip text.m{font-family:var(--mono);font-size:10.5px;fill:var(--text-2)}
+.two{display:grid;grid-template-columns:1fr 440px;gap:16px;align-items:start}
+.two>div{display:flex;flex-direction:column;gap:16px;min-width:0}
+.ph{flex-wrap:nowrap}.ph .title{min-width:0}
+.rr-dt{--row:48px;table-layout:fixed}
+.rr-dt td{font-size:13px;line-height:1.3}
+.rr-dt td.w,.rr-dt th.w{white-space:normal}
+.rr-dt td:nth-child(2){white-space:normal}
+.rr-dt .sla{margin-top:5px;max-width:200px}
+.rr-dt td .small{display:block;margin-top:2px}
+.kv b{font-weight:500}
+.steps li>span.lab{white-space:nowrap}
+.queue .row>div{min-width:0}
+.card .hd h3{white-space:nowrap}
+.hd .more.txt{margin-left:0;flex:1;text-align:right}
+.rca{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rca .kv{font-size:13px;gap:5px 12px;align-content:start}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.steps li{display:flex;gap:8px;align-items:center}
+.steps li .n{width:18px;height:18px;border-radius:50%;border:1px solid var(--line-strong);display:inline-flex;align-items:center;justify-content:center;font:600 10px var(--mono);color:var(--text-2);flex:none}
+.steps li.done .n{background:var(--ok);border-color:var(--ok);color:#fff}
+.steps li.now .n{border-color:var(--info);color:var(--info);border-width:2px}
+.steps li.done{color:var(--text-2)}
+.clock{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.clock .c{border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;display:flex;flex-direction:column;gap:3px}
+.clock .c .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+.clock .c .v{font:600 18px/1.1 var(--display);color:var(--heading)}
+.bar{height:5px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ok);border-radius:3px}
+.bar.warn i{background:var(--warn)}
+.ready{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:13px;align-items:center}
+.ready .lab{color:var(--text-2)}
+.ready .pct{font-family:var(--mono);font-size:12px}
+.ready .rb{width:90px;height:5px;border-radius:3px;background:var(--line);position:relative}
+.ready .rb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--ok)}
+.ready .rb.warn i{background:var(--warn)}
+.acts-row{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:13px;align-items:center}
+.acts-row .muted{font-size:12px}
+.tl li{padding:4px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Status board" class="active" aria-label="Status board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></a>
+    <a href="#" title="Calendar" aria-label="Regulatory calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></a>
+    <a href="#" title="Incidents" aria-label="Incidents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18v.5"/></svg></a>
+    <a href="#" title="Registers" aria-label="Registers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a href="#" title="Evidence packs" aria-label="Evidence packs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6M9 13h6M9 17h6"/></svg></a>
+    <a href="#" title="Peer review" aria-label="Peer review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12l4 4L19 6"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Nomvula Mahlangu">NM</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Compliance</span><span class="sep">/</span><span>Practice A (demo) · Sandton, Randburg</span><span class="sep">/</span><span class="mono">Wed 16 Sep · 09:14</span></div>
+    <div class="search">Search obligations, incidents, licences, requests… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip crit"><i></i>1 overdue</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell" aria-label="Notifications, 4 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>4</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="ph">
+      <div class="title">
+        <h1>Regulatory status board</h1>
+        <span class="muted">RPO and Information Officer: Nomvula Mahlangu · register reviewed 30 Jun 2026</span>
+      </div>
+      <div class="actions">
+        <button class="btn">Regulatory calendar</button>
+        <button class="btn">Accreditation readiness</button>
+        <button class="btn primary">Generate SAHPRA inspection pack</button>
+      </div>
+    </div>
+
+    <div class="grid g6">
+      <div class="tile">
+        <span class="l">Obligations</span>
+        <span class="v">152</span>
+        <div class="sub"><span><b>142</b> current</span><span><b>9</b> due 30 d</span><span class="neg"><b class="neg">1</b> overdue</span></div>
+        <div class="seg"><i style="width:93%;background:var(--ok)"></i><i style="width:6%;background:var(--warn)"></i><i style="width:1%;background:var(--crit)"></i></div>
+      </div>
+      <div class="tile">
+        <span class="l">Open incidents by regulator</span>
+        <span class="v">3</span>
+        <div class="sub"><span>SAHPRA <b>2</b></span><span>Info Regulator <b>1</b></span><span>HPCSA <b>0</b></span></div>
+      </div>
+      <div class="tile">
+        <span class="l">Reportable-result flags open</span>
+        <span class="v">4</span>
+        <div class="sub"><span>awaiting ack <b class="neg">1</b></span><span>acknowledged <b>3</b></span></div>
+      </div>
+      <div class="tile">
+        <span class="l">Licence expiries in 90 days</span>
+        <span class="v">2</span>
+        <div class="sub"><span>Randburg R2 <b>81 d</b></span><span>Sandton US1 reg. <b>88 d</b></span></div>
+      </div>
+      <div class="tile">
+        <span class="l">Data-subject requests in progress</span>
+        <span class="v">2</span>
+        <div class="sub"><span>within policy <b>2</b></span><span>past statutory <b>0</b></span></div>
+      </div>
+      <div class="tile">
+        <span class="l">Audit findings open</span>
+        <span class="v">5</span>
+        <div class="sub"><span>accreditation <b>3</b></span><span>internal <b>2</b></span><span class="neg">1 past due</span></div>
+      </div>
+    </div>
+
+    <section class="card strip" aria-label="Regulatory calendar, next 90 days">
+      <div class="hd"><h3>Regulatory calendar · next 90 days</h3><span class="chip"><i></i>Generated from effective-dated records</span><span class="more">Lead times 90 / 60 / 30 / 7 d · overdue escalates to EXE</span></div>
+      <svg viewBox="0 0 1300 128" role="img" aria-label="Timeline of regulatory obligations from 16 September to 15 December 2026">
+        <!-- axis -->
+        <line x1="40" y1="70" x2="1280" y2="70" stroke="var(--line-strong)" stroke-width="1.5"/>
+        <!-- month ticks: day 15 = 1 Oct, day 46 = 1 Nov, day 76 = 1 Dec ; 13.78 px/day -->
+        <g stroke="var(--line-strong)"><line x1="40" y1="64" x2="40" y2="76"/><line x1="247" y1="64" x2="247" y2="76"/><line x1="674" y1="64" x2="674" y2="76"/><line x1="1087" y1="64" x2="1087" y2="76"/><line x1="1280" y1="64" x2="1280" y2="76"/></g>
+        <text class="m" x="40" y="92">16 Sep · today</text>
+        <text class="m" x="247" y="92">1 Oct</text>
+        <text class="m" x="674" y="92">1 Nov</text>
+        <text class="m" x="1087" y="92">1 Dec</text>
+        <text class="m" x="1280" y="92" text-anchor="end">15 Dec</text>
+        <!-- today marker -->
+        <circle cx="40" cy="70" r="4" fill="var(--primary)"/>
+        <!-- events above the axis -->
+        <g>
+          <line x1="233" y1="70" x2="233" y2="34" stroke="var(--info)"/><circle cx="233" cy="70" r="5" fill="var(--info)"/>
+          <text x="233" y="18" text-anchor="middle">Dosimetry badge cycle change</text><text class="d" x="233" y="31" text-anchor="middle">30 Sep · both sites · A2</text>
+          <line x1="440" y1="70" x2="440" y2="34" stroke="var(--ash-500)"/><circle cx="440" cy="70" r="5" fill="var(--ash-500)"/>
+          <text x="440" y="18" text-anchor="middle">CIPC annual return</text><text class="d" x="440" y="31" text-anchor="middle">15 Oct · Practice A (Pty) Ltd</text>
+          <line x1="744" y1="70" x2="744" y2="34" stroke="var(--warn)"/><circle cx="744" cy="70" r="5" fill="var(--warn)"/>
+          <text x="744" y="18" text-anchor="middle">SAHPRA licence renewal · Randburg Room 2</text><text class="d" x="744" y="31" text-anchor="middle">submit by 6 Nov · pack 7 of 9 items · QA test outstanding</text>
+          <line x1="1145" y1="70" x2="1145" y2="34" stroke="var(--crit)"/><circle cx="1145" cy="70" r="5" fill="var(--surface-2)" stroke="var(--crit)" stroke-width="2"/>
+          <text x="1145" y="18" text-anchor="middle">Licence expiry · Randburg Room 2</text><text class="d" x="1145" y="31" text-anchor="middle">5 Dec · room blocked at expiry (M02-R-006)</text>
+        </g>
+        <!-- events below the axis -->
+        <g>
+          <line x1="316" y1="70" x2="316" y2="100" stroke="var(--warn)"/><circle cx="316" cy="70" r="5" fill="var(--warn)"/>
+          <text x="316" y="114" text-anchor="middle">Annual QA test · Randburg R2 unit</text><text class="d" x="316" y="126" text-anchor="middle">6 Oct · brought forward by BIO</text>
+          <line x1="661" y1="70" x2="661" y2="100" stroke="var(--info)"/><circle cx="661" cy="70" r="5" fill="var(--info)"/>
+          <text x="661" y="114" text-anchor="middle">POPIA Information Officer renewal</text><text class="d" x="661" y="126" text-anchor="middle">31 Oct · Information Regulator portal</text>
+          <line x1="1048" y1="70" x2="1048" y2="100" stroke="var(--ash-500)"/><circle cx="1048" cy="70" r="5" fill="var(--ash-500)"/>
+          <text x="1048" y="114" text-anchor="middle">B-BBEE verification visit</text><text class="d" x="1048" y="126" text-anchor="middle">28 Nov · evidence pack A1 · 62 % ready</text>
+        </g>
+      </svg>
+    </section>
+
+    <section class="card" aria-label="Reportable-results register">
+      <div class="hd"><h3>Reportable-results register</h3><span class="pill warn">4 open</span><span class="more txt">The Platform never notifies a regulator from a report: the referrer acknowledges, the practitioner notifies. Unclosed flags escalate weekly to PRM and CMP.</span></div>
+      <table class="dt rr-dt">
+        <colgroup><col style="width:108px"><col style="width:250px"><col style="width:118px"><col style="width:88px"><col style="width:236px"><col><col style="width:172px"></colgroup>
+        <thead><tr><th>Ref</th><th>Category</th><th>Patient</th><th>Site</th><th>Referrer acknowledgement</th><th class="w">Pack sent</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono">RR-2609-014</td>
+            <td>TB-suggestive: consider notifiable medical condition</td>
+            <td>····4471 · M 38</td>
+            <td>Randburg</td>
+            <td><span class="chip done"><i></i>Acknowledged 09:02</span><span class="sla" title="24 h window"><i style="width:14%"></i></span></td>
+            <td class="w">NMC guidance and notification channel · Dr K. Pillay · WhatsApp and Referrer Space</td>
+            <td><span class="chip active"><i></i>Follow-up open</span></td>
+          </tr>
+          <tr>
+            <td class="mono">RR-2609-013</td>
+            <td>Suspected non-accidental injury (child)</td>
+            <td>····0921 · F 3</td>
+            <td>Sandton</td>
+            <td><span class="chip done"><i></i>Call + ack 15:48, 15 Sep</span><span class="sla"><i style="width:100%"></i></span></td>
+            <td class="w">Children's Act s.110 form pre-filled · skeletal survey offered · Dr T. Mokoena, Casualty</td>
+            <td><span class="chip crit"><i></i>Safeguarding case</span><div class="small muted">Patient release withheld</div></td>
+          </tr>
+          <tr>
+            <td class="mono">RR-2609-011</td>
+            <td>Possible occupational lung disease (ILO classification)</td>
+            <td>····5530 · M 52</td>
+            <td>Randburg</td>
+            <td><span class="chip att"><i></i>Awaiting ack · 19 of 24 h</span><span class="sla warn"><i style="width:79%"></i></span></td>
+            <td class="w">ODMWA / MBOD pack · employer and occupational health practitioner · Dr L. Ndlovu</td>
+            <td><span class="chip att"><i></i>Escalates 14:10</span></td>
+          </tr>
+          <tr>
+            <td class="mono">RR-2609-009</td>
+            <td>Radiation incident: wrong-patient exposure</td>
+            <td>····7712 · M 61</td>
+            <td>Sandton</td>
+            <td><span class="chip done"><i></i>Disclosure recorded 16:20</span><span class="small muted">Internal, no referrer duty</span></td>
+            <td class="w">SAHPRA notification drafted · linked <span class="mono">INC-2609-031</span></td>
+            <td><span class="chip active"><i></i>Investigation</span></td>
+          </tr>
+          <tr>
+            <td class="mono">RR-2608-042</td>
+            <td>TB-suggestive: consider notifiable medical condition</td>
+            <td>····3388 · F 27</td>
+            <td>Sandton</td>
+            <td><span class="chip done"><i></i>Acknowledged 11:31, 3 Sep</span></td>
+            <td class="w">NMC guidance · Dr S. van Wyk</td>
+            <td><span class="chip done"><i></i>Closed 4 Sep</span></td>
+          </tr>
+          <tr>
+            <td class="mono">RR-2608-037</td>
+            <td>Suspicious for malignancy: follow-up tracking</td>
+            <td>····6104 · F 58</td>
+            <td>Randburg</td>
+            <td><span class="chip done"><i></i>Acknowledged 08:15, 28 Aug</span></td>
+            <td class="w">Follow-up loop · Follow-up Hand · oncology referral confirmed</td>
+            <td><span class="chip done"><i></i>Closed 9 Sep</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="two">
+      <div>
+        <section class="card" aria-label="Incident investigation">
+          <div class="hd">
+            <h3>Incident investigation · <span class="mono">INC-2609-031</span></h3>
+            <span class="chip crit"><i></i>Unintended exposure · wrong patient</span>
+            <span class="chip active"><i></i>Investigation open · day 5 of 30</span>
+          </div>
+          <div class="note" style="margin:-4px 0 12px">Sandton Room 1 · Thu 11 Sep 15:40 · reported from the technologist console at 15:44 · exposed patient disclosed to within the hour</div>
+          <div class="rca">
+            <div>
+              <h4>Timeline reconstructed from events</h4>
+              <div class="ai">
+                <div class="prov"><span>Incident Hand <b>sub-mandate of Compliance Hand</b></span><span>level <b>A2</b></span><span>sources <b>M05 · M08 MPPS · M07 wristband · M10 DoseSR</b></span></div>
+                <ul class="tl">
+                  <li><span class="tm">15:31</span><span class="dot"></span><span>Check-in: Dlamini, S (A) · CXR PA/LAT · queue position 6</span></li>
+                  <li><span class="tm">15:33</span><span class="dot"></span><span>Check-in: Dlamini, M (B) · CXR PA/LAT · queue position 7</span></li>
+                  <li><span class="tm">15:37</span><span class="dot"></span><span>Queue board call: "Dlamini" (surname only, site display rule v3)</span></li>
+                  <li><span class="tm">15:38</span><span class="dot crit"></span><span>Worklist selection at modality: patient B selected; wristband scan step skipped (site configuration allowed exposure without scan)</span></li>
+                  <li><span class="tm">15:39</span><span class="dot crit"></span><span>MPPS: 2 exposures (PA, LAT) · DAP 0.11 Gy·cm² · effective dose estimate 0.02 mSv (ICRP 103 conversion, estimate)</span></li>
+                  <li><span class="tm">15:40</span><span class="dot"></span><span>Wristband scan after exposure: mismatch, patient A in room · radiographer stops</span></li>
+                  <li><span class="tm">15:44</span><span class="dot ok"></span><span>Incident reported from technologist console · images quarantined on patient A's record, "acquired in error"</span></li>
+                  <li><span class="tm">16:20</span><span class="dot ok"></span><span>Disclosure to patient A by principal radiologist · dose discussion offered · recorded</span></li>
+                </ul>
+                <div class="acts"><button class="btn sm">Show source events</button><button class="btn sm ghost">Export to investigation</button></div>
+              </div>
+            </div>
+            <div>
+              <h4>Root cause analysis</h4>
+              <div class="kv">
+                <span>Classification</span><b>Unintended exposure, wrong patient · severity 2 · no harm beyond exposure</b>
+                <span>Patients</span><b>Exposed ····7712 (A) · intended ····2287 (B), imaged correctly 15:58</b>
+                <span>Images</span><b>Quarantined, not deleted · identity correction with second approver</b>
+                <span>Dose record</span><b>Added to patient A cumulative history with incident reference</b>
+                <span>Root causes</span><b>Identification step order · same-surname queue call · console permitted exposure without wristband scan (site-level configuration)</b>
+                <span>Interview</span><b>Just-culture form completed 14 Sep · radiographer P. Naidoo</b>
+              </div>
+              <h4 style="margin-top:12px">Corrective actions</h4>
+              <div class="acts-row">
+                <span>Wristband scan before exposure set to mandatory (Sandton)</span><span class="muted">SUP · due 18 Sep</span><span class="chip done"><i></i>Done</span>
+                <span>Queue board call: first name, surname, year of birth</span><span class="muted">PRM · due 25 Sep</span><span class="chip active"><i></i>In progress</span>
+                <span>De-identified learning item to Group incident feed</span><span class="muted">CMP · due 30 Sep</span><span class="chip"><i></i>Pending</span>
+              </div>
+              <hr class="hr" style="margin:12px 0">
+              <div class="spread">
+                <div>
+                  <div class="row-flex"><b>SAHPRA radiation incident report</b><span class="chip att"><i></i>Draft · awaiting CMP submission</span></div>
+                  <div class="note">Drafted by the Compliance Hand from the incident facts. Reporting threshold from licence conditions (reference data, to be confirmed). Nothing is submitted autonomously: only the RPO or CMP submits, with a typed Confirm.</div>
+                </div>
+              </div>
+              <div class="row-flex" style="margin-top:8px">
+                <button class="btn primary">Review and submit as RPO</button><button class="btn">Edit draft</button><button class="btn ghost">Reportability reasoning</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="card" aria-label="POPIA access request">
+          <div class="hd"><h3>POPIA access request</h3><span class="chip active"><i></i>In progress</span><span class="more mono">AR-2609-007</span></div>
+          <div class="kv" style="margin-bottom:10px">
+            <span>Data subject</span><b>····8834 · M 44 · self</b>
+            <span>Received</span><b>Mon 14 Sep 09:10 · email to info@ · classified as s.23 access request</b>
+            <span>Scope</span><b>All records, images and the access log, 5 years, Practice A</b>
+          </div>
+          <div class="clock">
+            <div class="c"><span class="l">Statutory clock</span><span class="v">28 d left</span><div class="bar"><i style="width:7%"></i></div><span class="small muted">30 days from receipt (reference data, confirm with legal adviser) · due 14 Oct</span></div>
+            <div class="c"><span class="l">Practice policy</span><span class="v">8 wd left</span><div class="bar warn"><i style="width:20%"></i></div><span class="small muted">10 working days · due 28 Sep</span></div>
+          </div>
+          <ol class="steps" style="margin-top:12px">
+            <li class="done"><span class="n">1</span><span class="lab">Verify identity</span><span class="chip ai" style="margin-left:auto"><i></i>Access Request Hand · 0.94 · OTP ok</span></li>
+            <li class="done"><span class="n">2</span>Verify authority (self)</li>
+            <li class="now"><span class="n">3</span><span class="lab">Scope the request</span><span class="muted small" style="margin-left:auto">date range confirmed by patient</span></li>
+            <li><span class="n">4</span><span class="lab">Collect the record</span><span class="muted small" style="margin-left:auto">reports · DICOM · consents · claims · access log</span></li>
+            <li><span class="n">5</span>Review for third-party information</li>
+            <li><span class="n">6</span>Prepare the disclosure and cover letter</li>
+            <li><span class="n">7</span><span class="lab">Deliver securely</span><span class="muted small" style="margin-left:auto">expiring Patient Space download · email attachment not available</span></li>
+            <li><span class="n">8</span>Record in the Information Officer register</li>
+          </ol>
+          <div class="row-flex" style="margin-top:12px"><button class="btn primary">Continue request</button><button class="btn">Access log preview</button></div>
+        </section>
+
+        <section class="card" aria-label="Evidence pack generator">
+          <div class="hd"><h3>Evidence pack · SAHPRA inspection</h3><span class="more">Readiness by criterion</span></div>
+          <div class="ready">
+            <span class="lab">Licences and RPO appointments</span><span class="pct">12 / 12</span><span class="rb"><i style="width:100%"></i></span>
+            <span class="lab">QA and acceptance tests</span><span class="pct">11 / 12</span><span class="rb warn"><i style="width:92%"></i></span>
+            <span class="lab">Personal dosimetry register</span><span class="pct">current</span><span class="rb"><i style="width:100%"></i></span>
+            <span class="lab">Shielding surveys</span><span class="pct">6 / 6</span><span class="rb"><i style="width:100%"></i></span>
+            <span class="lab">Radiation-safety training</span><span class="pct">38 / 41</span><span class="rb warn"><i style="width:93%"></i></span>
+            <span class="lab">Incident register and closures</span><span class="pct">3 open</span><span class="rb warn"><i style="width:80%"></i></span>
+            <span class="lab">DRL comparison and dose outliers</span><span class="pct">current</span><span class="rb"><i style="width:100%"></i></span>
+          </div>
+          <div class="note" style="margin-top:10px">Assembled by the Compliance Hand as an indexed, rendered snapshot with a lock reference. Last generated 2 Jun 2026 · <span class="mono">EP-2606-003</span>. Missing items are listed in the index, not hidden.</div>
+          <div class="row-flex" style="margin-top:10px"><button class="btn primary block">Generate SAHPRA inspection pack</button></div>
+          <div class="row-flex" style="margin-top:8px"><button class="btn sm">Information Regulator pack</button><button class="btn sm">Accreditation pack</button><button class="btn sm">Surveyor read-only portal</button></div>
+        </section>
+
+        <section class="card" aria-label="Audit findings open">
+          <div class="hd"><h3>Audit findings open</h3><span class="pill">5</span><span class="more">Owners and due dates</span></div>
+          <div class="queue">
+            <div class="row"><span class="chip crit"><i></i>Past due</span><div><div class="t">Contrast-safety checklist 91 % vs 95 % target</div><div class="s">Accreditation · Randburg · NUR lead · due 10 Sep</div></div><span class="mono small">AF-031</span></div>
+            <div class="row"><span class="chip att"><i></i>Due 7 d</span><div><div class="t">Two policies past review date</div><div class="s">Accreditation · policy owners assigned · due 23 Sep</div></div><span class="mono small">AF-029</span></div>
+            <div class="row"><span class="chip"><i></i>Open</span><div><div class="t">Power map incomplete: Sandton</div><div class="s">Internal · BIO · due 14 Oct</div></div><span class="mono small">AF-027</span></div>
+            <div class="row"><span class="chip"><i></i>Open</span><div><div class="t">Training expiring for 3 staff</div><div class="s">Accreditation · PRM · due 31 Oct</div></div><span class="mono small">AF-026</span></div>
+            <div class="row"><span class="chip"><i></i>Open</span><div><div class="t">Break-glass reviews one month behind</div><div class="s">Internal · CMP · due 30 Sep</div></div><span class="mono small">AF-024</span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

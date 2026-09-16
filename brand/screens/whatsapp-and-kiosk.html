@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="patient">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp and Kiosk — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+body{padding:12px 16px 16px}
+.page-hd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.page-hd h1{font-size:19px}.page-hd .muted{font-size:13px}
+.demo-tag{top:10px;bottom:auto}
+.two{display:grid;grid-template-columns:720px minmax(0,1fr);gap:16px;align-items:start}
+.wacols{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.panel-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.panel-hd h2{font-size:16px}.panel-hd .muted{font-size:12px}
+/* WhatsApp */
+.waframe{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#EFE9DF}
+.wahd{display:flex;align-items:center;gap:10px;padding:5px 10px;min-height:40px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:13px}
+.wahd .av{width:28px;height:28px;border-radius:50%;background:var(--marrow);display:flex;align-items:center;justify-content:center;flex:none}
+.wahd .av svg{width:20px;height:20px}
+.wahd b{display:block;font-weight:600}.wahd span{color:var(--text-2);font-size:11.5px}
+.wa{border-radius:0;font-size:12px;gap:4px;padding:8px 8px}
+.wa .m{padding:5px 8px;line-height:1.38;max-width:90%}
+.wa .m .t{font-size:9.5px;margin-top:1px}
+.wa .m .prov{font:10px var(--mono);color:#6B665C;border:1px dashed #8E887C;border-radius:2px;padding:1px 5px;display:inline-block;margin-bottom:3px}
+.wa .btns{margin:-1px 0 1px;gap:5px}.wa .btns span{padding:2px 7px;font-size:11.5px}
+.wa .sys{align-self:center;font-size:10px;color:#6B665C;background:#F5F1E9;border-radius:6px;padding:2px 8px;text-align:center}
+.wa .photo{width:140px;height:84px;border-radius:6px;background:linear-gradient(180deg,#f7f4ee,#e6e0d4);border:1px solid #CFC8BB;position:relative;overflow:hidden;margin-bottom:3px}
+.wa .photo i{position:absolute;left:12px;right:20px;height:2px;background:#8E887C;opacity:.55;border-radius:1px}
+.wa .photo b{position:absolute;left:12px;top:8px;font:600 8px var(--display);color:#14324A;letter-spacing:.06em}
+.wa .gloss{color:#6B665C;font-size:11px;font-style:normal}
+/* Kiosk */
+.kiosks{display:grid;grid-template-columns:auto auto;gap:12px;align-items:start;justify-content:start}
+.kframe{--k:.4;width:calc(1080px*var(--k));height:calc(1920px*var(--k));position:relative;flex:none;border-radius:calc(28px*var(--k));overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+.kframe .kiosk{transform:scale(var(--k));transform-origin:0 0;width:1080px;height:1920px}
+.minis{display:flex;flex-direction:column;gap:8px}
+.minis figure{margin:0;display:flex;flex-direction:column;gap:2px}
+.minis .kframe{--k:.12}
+.minis figcaption{font-size:10.5px;color:var(--text-2)}.mainfig figcaption{font-size:11.5px;color:var(--text-2)}
+.mainfig{margin:0;display:flex;flex-direction:column;gap:4px}
+.kiosk{background:var(--surface);color:var(--text);font-family:var(--text-font);font-size:30px;line-height:1.35;display:flex;flex-direction:column;padding:0 56px 44px;gap:28px;border:2px solid var(--line)}
+.kiosk .ktop{display:flex;align-items:center;gap:18px;height:112px;border-bottom:2px solid var(--line);margin:0 -56px;padding:0 56px;background:var(--surface-2);flex:none}
+.kiosk .ktop svg.mark{width:56px;height:56px}
+.kiosk .ktop .site{font:700 34px var(--display);color:var(--heading)}
+.kiosk .ktop .site span{display:block;font:400 22px var(--text-font);color:var(--text-2)}
+.kiosk .ktop .clock{margin-left:auto;font:500 30px var(--mono);color:var(--text-2)}
+.kiosk .ktop .langbtn{height:64px;padding:0 24px;border:2px solid var(--line-strong);border-radius:8px;display:flex;align-items:center;gap:12px;font-size:26px;background:var(--surface-2)}
+.kiosk .steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;flex:none}
+.kiosk .steps div{display:flex;align-items:center;gap:14px;font-size:26px;color:var(--text-2);padding:14px 0;border-top:6px solid var(--line)}
+.kiosk .steps div b{width:52px;height:52px;border-radius:50%;border:3px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font:600 24px var(--display);flex:none}
+.kiosk .steps div.done{border-top-color:var(--ok);color:var(--text)}.kiosk .steps div.done b{background:var(--ok);border-color:var(--ok);color:#fff}
+.kiosk .steps div.on{border-top-color:var(--primary);color:var(--text);font-weight:600}.kiosk .steps div.on b{border-color:var(--primary);color:var(--primary)}
+.kiosk h1{font-size:64px;line-height:1.1}
+.kiosk .sub{font-size:30px;color:var(--text-2);margin-top:8px}
+.kiosk .rows{display:flex;flex-direction:column;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);overflow:hidden;flex:none}
+.kiosk .rows div{display:grid;grid-template-columns:300px 1fr auto;gap:24px;align-items:center;min-height:92px;padding:0 32px;border-bottom:2px solid var(--line)}
+.kiosk .rows div:last-child{border-bottom:none}
+.kiosk .rows span{color:var(--text-2);font-size:26px}.kiosk .rows b{font-weight:600;font-size:32px}
+.kiosk .kbtn{min-height:64px;padding:0 32px;border:2px solid var(--line-strong);border-radius:10px;background:var(--surface-2);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:500;color:var(--text);white-space:nowrap}
+.kiosk .kbtn.primary{background:var(--primary);color:var(--primary-label);border-color:transparent;min-height:104px;font-size:38px;font-weight:600}
+.kiosk .kbtn.big{min-height:88px;font-size:32px}
+.kiosk .kbtn.on{border-color:var(--primary);box-shadow:inset 0 0 0 3px var(--primary);color:var(--ok);font-weight:600;background:var(--ok-bg)}
+.kiosk .kbtn.att{border-color:var(--warn);color:var(--warn);background:var(--warn-bg);font-weight:600}
+.kiosk .quote{display:grid;grid-template-columns:1fr auto;gap:8px 24px;border:2px solid var(--line);border-radius:12px;padding:22px 32px;background:var(--surface-2);font-size:28px;flex:none}
+.kiosk .quote .tot{font:700 40px var(--display);color:var(--heading)}
+.kiosk .quote .lbl{color:var(--text-2)}
+.kiosk .ok-chip{display:inline-flex;align-items:center;gap:10px;font-size:24px;color:var(--ok);font-weight:600}
+.kiosk .ok-chip i{width:16px;height:16px;border-radius:50%;background:var(--ok)}
+.kiosk .langs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;flex:none}
+.kiosk .langs .kbtn{padding:0 12px;font-size:26px}
+.kiosk .khelp{margin-top:auto;display:flex;align-items:center;gap:24px;border-top:2px solid var(--line);padding-top:28px;flex:none}
+.kiosk .khelp .kbtn{min-height:80px;font-size:30px;gap:14px}
+.kiosk .khelp .kbtn svg{width:36px;height:36px}
+.kiosk .khelp p{margin:0;font-size:22px;color:var(--text-2);line-height:1.35}
+.kiosk .scan{border:4px dashed var(--line-strong);border-radius:16px;height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text-2);font-size:28px;text-align:center;background:var(--surface-2);flex:none}
+.kiosk .scan svg{width:120px;height:120px;color:var(--primary)}
+.kiosk .or{text-align:center;font-size:26px;color:var(--text-2);display:flex;align-items:center;gap:24px}
+.kiosk .or::before,.kiosk .or::after{content:"";flex:1;border-top:2px solid var(--line)}
+.kiosk .idin{height:96px;border:2px solid var(--line-strong);border-radius:10px;background:var(--surface-2);display:flex;align-items:center;padding:0 32px;font:500 40px var(--mono);letter-spacing:.18em;color:var(--text)}
+.kiosk .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kiosk .pad .kbtn{min-height:104px;font:500 40px var(--display)}
+.kiosk .q{display:flex;flex-direction:column;gap:14px;flex:none}
+.kiosk .q .ql{font-size:34px;font-weight:600;color:var(--heading)}
+.kiosk .q .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kiosk .q .opts .kbtn{min-height:96px;font-size:32px}
+.kiosk .finish{display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px;margin-top:80px}
+.kiosk .finish .tick{width:220px;height:220px;border-radius:50%;background:var(--ok-bg);display:flex;align-items:center;justify-content:center}
+.kiosk .finish .tick svg{width:130px;height:130px}
+.kiosk .finish h1{font-size:76px}
+.kiosk .finish .wait{font:700 120px/1 var(--display);color:var(--heading)}
+.kiosk .finish .wait small{display:block;font:500 30px var(--text-font);color:var(--text-2);margin-top:8px}
+.kiosk .finish p{margin:0;font-size:34px;max-width:820px}
+@media (max-width:1100px){.two{grid-template-columns:1fr}.kiosks{grid-template-columns:1fr}.minis{flex-direction:row;flex-wrap:wrap}}
+@media (max-width:640px){.wacols{grid-template-columns:1fr}.mainfig .kframe{--k:.3}.minis .kframe{--k:.1}}
+</style>
+</head>
+<body>
+<header class="page-hd">
+  <h1>WhatsApp and Kiosk</h1>
+  <span class="muted">Two surfaces for the same patient, Nomvula Dlamini · Patient lens · WhatsApp Business channel and site check-in kiosk</span>
+</header>
+<main class="two">
+
+  <!-- WhatsApp -->
+  <section aria-label="WhatsApp booking conversation">
+    <div class="panel-hd"><h2>WhatsApp · Booking Hand</h2><span class="muted">one thread in two columns · messages ≤ 3 lines, ≤ 3 buttons</span></div>
+    <div class="wacols">
+    <div class="waframe">
+      <div class="wahd"><span class="av"><svg viewBox="0 0 512 512" aria-hidden="true"><path fill="#F5F1E9" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg></span><div><b>Bonakala</b><span>Business account · verified</span></div><span style="margin-left:auto" class="mono small">Tue 16 Sep</span></div>
+      <div class="wa">
+        <div class="sys">Bonakala is an automated assistant. Type "person" at any time to reach one.</div>
+        <div class="m me">Hi<div class="t">17:10 ✓✓</div></div>
+        <div class="m">Sawubona Nomvula, I am the Bonakala booking assistant. May we message you on this number about your scans? Reply STOP at any time.<div class="t">17:10</div></div>
+        <div class="btns"><span>Yes, book a scan</span><span>My appointments</span><span>Talk to a person</span></div>
+        <div class="m me">Yes, book a scan<div class="t">17:10 ✓✓</div></div>
+        <div class="m">Consent recorded 17:10. Send a photo of your referral note, or type the words on it.<div class="t">17:10</div></div>
+        <div class="m me"><div class="photo" role="img" aria-label="Photo of a paper referral note"><b>DR R PILLAY · PR 0123456</b><i style="top:28px"></i><i style="top:40px;right:60px"></i><i style="top:52px;right:34px"></i><i style="top:64px;right:80px"></i></div>Referral from Dr Pillay<div class="t">17:11 ✓✓</div></div>
+        <div class="m"><span class="prov">Referral Hand · referral-extract 2.4.1 · 0.96</span><br>I read: CT of the head, no contrast, from Dr Pillay (practice 0123456). Is that right?<div class="t">17:11</div></div>
+        <div class="btns"><span>Yes</span><span>No, fix it</span></div>
+        <div class="m me">Yebo, kunjalo <span class="gloss">· Yes, that is right</span><div class="t">17:11 ✓✓</div></div>
+        <div class="m">Kuhle, ngiyabonga. <span class="gloss">· Good, thank you.</span> Two quick questions before I look for a time.<div class="t">17:11</div></div>
+      </div>
+    </div>
+    <div class="waframe">
+      <div class="wahd"><span class="muted small">continued · same thread</span><span style="margin-left:auto" class="mono small">17:11 →</span></div>
+      <div class="wa">
+        <div class="m">1 of 2: Could you be pregnant?<div class="t">17:11</div></div>
+        <div class="btns"><span>No</span><span>Yes</span><span>Not sure</span></div>
+        <div class="m me">No<div class="t">17:12 ✓✓</div></div>
+        <div class="m">2 of 2: Any allergies to medicines or iodine?<div class="t">17:12</div></div>
+        <div class="btns"><span>No</span><span>Yes</span></div>
+        <div class="m me">No<div class="t">17:12 ✓✓</div></div>
+        <div class="m">Scheme A (demo) pays R2 870. You pay R310, guaranteed for this appointment. Earliest near you:<div class="t">17:12</div></div>
+        <div class="btns"><span>Thu 09:40 Umhlanga</span><span>Thu 14:10 Gateway</span><span>Wed 16:20 Ballito</span></div>
+        <div class="m me">Thu 09:40 Umhlanga<div class="t">17:13 ✓✓</div></div>
+        <div class="m">Booked: CT head, Thu 18 Sep 09:40, Umhlanga (3.2 km). Bring ID, scheme card and the referral. No food for 4 hours before.<div class="t">17:13</div></div>
+        <div class="m">Pay R310 now or at the desk, nothing more later. Prepare and consent take 2 minutes: bonakala.co.za/p/7Q2K<div class="t">17:13</div></div>
+        <div class="btns"><span>Pay R310 now</span><span>Pay at the desk</span><span>Add to calendar</span></div>
+        <div class="m me">Will you send my results here?<div class="t">17:14 ✓✓</div></div>
+        <div class="m">No. The radiologist's signed report goes to Dr Pillay and to your Patient Space. I never give results or findings on WhatsApp.<div class="t">17:14</div></div>
+        <div class="sys">SMS twin sent for every message · reminder Thu 06:30</div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Kiosk -->
+  <section aria-label="Kiosk check-in">
+    <div class="panel-hd"><h2>Kiosk check-in</h2><span class="muted">1080 × 1920 portrait · 64 px targets · 3 steps · 11 languages · clears after 60 s</span></div>
+    <div class="kiosks">
+      <figure class="mainfig">
+        <div class="kframe">
+          <div class="kiosk" aria-label="Kiosk, step 2 of 3, confirm your details">
+            <div class="ktop"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg><div class="site">Bonakala Umhlanga<span>Self check-in</span></div><span class="clock">09:12</span><span class="langbtn">English</span></div>
+            <div class="steps"><div class="done"><b>✓</b>Scan ID</div><div class="on"><b>2</b>Confirm details</div><div><b>3</b>Safety questions</div></div>
+            <div><h1>Confirm your details</h1><div class="sub">Tap Change if anything is wrong. Only you can see this screen.</div></div>
+            <div class="rows">
+              <div><span>Name</span><b>Nomvula Dlamini</b><span class="kbtn">Change</span></div>
+              <div><span>ID number</span><b>····4417</b><span class="kbtn">Change</span></div>
+              <div><span>Mobile</span><b>083 ··· 2310</b><span class="kbtn">Change</span></div>
+              <div><span>Appointment</span><b>CT head · 09:40 · CT room 1</b><span class="kbtn">Change</span></div>
+              <div><span>Medical scheme</span><b>Scheme A (demo) · member ····8823</b><span class="kbtn">Change</span></div>
+            </div>
+            <div class="quote">
+              <span class="lbl">Scheme A (demo) pays</span><span>R2 870</span>
+              <span class="lbl">You pay today, nothing more later</span><span class="tot">R310</span>
+              <span class="ok-chip" style="grid-column:1/-1"><i></i>Benefit checked and quote guaranteed · pay at the desk or with the QR code</span>
+            </div>
+            <span class="kbtn primary">These details are correct</span>
+            <span class="kbtn big">Something is wrong, call a person</span>
+            <div>
+              <div style="font-size:28px;font-weight:600;color:var(--heading);margin-bottom:14px">Choose your language <span style="font-weight:400;color:var(--text-2)">· Khetha ulimi lwakho</span></div>
+              <div class="langs"><span class="kbtn on">English</span><span class="kbtn">isiZulu</span><span class="kbtn">isiXhosa</span><span class="kbtn">Afrikaans</span><span class="kbtn">Sepedi</span><span class="kbtn">Setswana</span><span class="kbtn">Sesotho</span><span class="kbtn">Xitsonga</span><span class="kbtn">siSwati</span><span class="kbtn">Tshivenda</span><span class="kbtn">isiNdebele</span><span class="kbtn" style="border-style:dashed;color:var(--text-2)">SASL video</span></div>
+            </div>
+            <div class="khelp"><span class="kbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Ask for help</span><p>A person from the front desk will come to you.<br>Your details clear from this screen after 60 seconds.</p></div>
+          </div>
+        </div>
+        <figcaption>Step 2 of 3 · confirm details and scheme · shown at 0.40 scale</figcaption>
+      </figure>
+
+      <div class="minis">
+        <figure>
+          <div class="kframe">
+            <div class="kiosk" aria-label="Kiosk, step 1 of 3, scan ID or enter your number">
+              <div class="ktop"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg><div class="site">Bonakala Umhlanga<span>Self check-in</span></div><span class="clock">09:11</span><span class="langbtn">English</span></div>
+              <div class="steps"><div class="on"><b>1</b>Scan ID</div><div><b>2</b>Confirm details</div><div><b>3</b>Safety questions</div></div>
+              <div><h1>Scan your ID or enter your number</h1><div class="sub">Hold your green ID book, smart ID card or passport under the scanner.</div></div>
+              <div class="scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M13 9h5M13 13h5M5.5 17h6"/></svg>Scanner ready · hold the card still for 2 seconds</div>
+              <div class="or">or type your ID or mobile number</div>
+              <div class="idin">8304 ···· ···· ·</div>
+              <div class="pad"><span class="kbtn">1</span><span class="kbtn">2</span><span class="kbtn">3</span><span class="kbtn">4</span><span class="kbtn">5</span><span class="kbtn">6</span><span class="kbtn">7</span><span class="kbtn">8</span><span class="kbtn">9</span><span class="kbtn">Clear</span><span class="kbtn">0</span><span class="kbtn">Delete</span></div>
+              <span class="kbtn primary">Continue</span>
+              <div class="khelp"><span class="kbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Ask for help</span><p>No ID with you? A person at the front desk can check you in.</p></div>
+            </div>
+          </div>
+          <figcaption>1 · Scan ID or enter number</figcaption>
+        </figure>
+        <figure>
+          <div class="kframe">
+            <div class="kiosk" aria-label="Kiosk, step 3 of 3, safety questions">
+              <div class="ktop"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg><div class="site">Bonakala Umhlanga<span>Self check-in</span></div><span class="clock">09:13</span><span class="langbtn">English</span></div>
+              <div class="steps"><div class="done"><b>✓</b>Scan ID</div><div class="done"><b>✓</b>Confirm details</div><div class="on"><b>3</b>Safety questions</div></div>
+              <div><h1>Three safety questions</h1><div class="sub">You answered these on your phone. Please confirm today.</div></div>
+              <div class="q"><div class="ql">Could you be pregnant?</div><div class="opts"><span class="kbtn">Yes</span><span class="kbtn on">No</span><span class="kbtn">Not sure</span></div></div>
+              <div class="q"><div class="ql">Any allergies to medicines or iodine?</div><div class="opts"><span class="kbtn">Yes</span><span class="kbtn on">No</span><span class="kbtn">Not sure</span></div></div>
+              <div class="q"><div class="ql">Any kidney problems?</div><div class="opts"><span class="kbtn">Yes</span><span class="kbtn">No</span><span class="kbtn att">Not sure</span></div></div>
+              <div class="sub">"Not sure" is fine. The radiographer will check with you before the scan.</div>
+              <span class="kbtn primary">Finish check-in</span>
+              <div class="khelp"><span class="kbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Ask for help</span><p>Prefer to answer in private? A radiographer will ask you in the room instead.</p></div>
+            </div>
+          </div>
+          <figcaption>3 · Safety questions</figcaption>
+        </figure>
+        <figure>
+          <div class="kframe">
+            <div class="kiosk" aria-label="Kiosk, checked in">
+              <div class="ktop"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#14324A" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg><div class="site">Bonakala Umhlanga<span>Self check-in</span></div><span class="clock">09:14</span><span class="langbtn">English</span></div>
+              <div class="steps"><div class="done"><b>✓</b>Scan ID</div><div class="done"><b>✓</b>Confirm details</div><div class="done"><b>✓</b>Safety questions</div></div>
+              <div class="finish">
+                <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#0A7268" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg></div>
+                <h1>You are checked in, Nomvula</h1>
+                <p>Take a seat in the CT waiting area. We will call your name.</p>
+                <div class="wait">12 min<small>estimated wait · CT room 1 · updated 09:14</small></div>
+                <p>Your R310 can be paid at the desk before or after the scan. A message with the same details is on your phone.</p>
+              </div>
+              <div class="khelp"><span class="kbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Ask for help</span><p>Need water, a wheelchair or a private room? Tap and someone will come.</p></div>
+            </div>
+          </div>
+          <figcaption>Done · checked in, wait 12 min</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+</main>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

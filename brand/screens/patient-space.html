@@ -6,17 +6,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../bdl.css">
 <style>
-body{padding:14px 16px 24px}
-.page-hd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 6px}
-.page-hd h1{font-size:20px}.page-hd .muted{font-size:13px}
+body{padding:12px 16px 16px}
+.page-hd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 4px}
+.page-hd h1{font-size:19px}.page-hd .muted{font-size:13px}
 .phones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:0;align-items:start}
-.phones>figure{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
-.phones figcaption{font-size:12px;color:var(--text-2);text-align:center}
-.phone{width:100%;max-width:346px;height:812px;min-height:0;margin:0 auto;font-size:14px;--u:6px;--row:48px}
+.phones>figure{margin:0;display:flex;flex-direction:column;gap:4px;min-width:0}
+.demo-tag{top:10px;bottom:auto}
+.phones figcaption{font-size:11.5px;color:var(--text-2);text-align:center}
+.phone{width:100%;max-width:346px;height:826px;min-height:0;margin:0 auto;font-size:14px;--u:6px;--row:48px}
 .phone .ph-hd{padding:8px 16px 6px}
 .phone .ph-hd h2{font-size:19px}
-.phone .body{padding:0 14px 12px;gap:10px;overflow:hidden}
-.phone .card{padding:12px}
+.phone .body{padding:0 14px 10px;gap:8px;overflow:hidden}
+.phone .card{padding:11px 12px}
 .phone .card h3{font-size:15px;margin-bottom:6px}
 .phone .nav a{padding:9px 0 10px;font-size:10.5px}
 .phone .nav a svg{display:block;margin:0 auto 2px;width:18px;height:18px}
@@ -25,13 +26,13 @@ body{padding:14px 16px 24px}
 .phone .btn{border-radius:6px}
 .avatar-sm{width:34px;height:34px;border-radius:50%;background:var(--marrow);color:#fff;font:600 12px var(--display);display:flex;align-items:center;justify-content:center;flex:none}
 .qa{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.qa a{border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:10px 10px;display:flex;flex-direction:column;gap:4px;color:var(--text);min-height:64px}
-.qa a svg{width:20px;height:20px;color:var(--primary)}
+.qa a{border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:8px 10px;display:grid;grid-template-columns:20px 1fr;gap:2px 8px;align-items:center;color:var(--text);min-height:56px}
+.qa a svg{width:20px;height:20px;color:var(--primary);grid-row:1/3}
 .qa a b{font-weight:600;font-size:14px}.qa a span{font-size:11.5px;color:var(--text-2)}
 .lang{display:flex;gap:6px;flex-wrap:wrap}
 .lang span{border:1px solid var(--line-strong);border-radius:14px;padding:3px 10px;font-size:12px;background:var(--surface-2)}
 .lang span.on{background:var(--primary);color:var(--primary-label);border-color:transparent}
-.bring{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.bring{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:12.5px}
 .bring li{display:flex;gap:8px;align-items:center}.bring li i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ok);display:inline-block;flex:none;position:relative}
 .bring li i::after{content:"";position:absolute;left:5px;top:2px;width:3px;height:7px;border:solid var(--ok);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
 .live{display:flex;align-items:center;gap:8px;background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:8px 10px;font-size:13px;font-weight:500}
@@ -48,23 +49,23 @@ body{padding:14px 16px 24px}
 .price .money{font-size:13px}.price .big{font:600 22px/1.1 var(--display);color:var(--heading)}
 .price .lbl{color:var(--text-2)}
 .price .tot{border-top:1px solid var(--line);padding-top:6px;font-weight:600;color:var(--heading)}
-.q{display:flex;flex-direction:column;gap:5px}
+.q{display:flex;flex-direction:column;gap:3px}
 .q .ql{font-size:13px;font-weight:500}
 .rc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.rc span{height:40px;border:1px solid var(--line-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--surface-2)}
+.rc span{height:34px;border:1px solid var(--line-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--surface-2)}
 .rc span.on{border-color:var(--primary);background:var(--ok-bg);color:var(--ok);font-weight:600;box-shadow:inset 0 0 0 1px var(--primary)}
 .rc span.att{border-color:var(--warn);color:var(--warn);background:var(--warn-bg);font-weight:600}
-.sig{height:64px;border:1px dashed var(--line-strong);border-radius:6px;background:var(--surface);position:relative}
+.sig{height:44px;border:1px dashed var(--line-strong);border-radius:6px;background:var(--surface);position:relative}
 .sig svg{position:absolute;inset:0;width:100%;height:100%}
 .sig small{position:absolute;right:8px;bottom:4px;font:10px var(--mono);color:var(--text-2)}
 .paym{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.paym span{height:44px;border:1px solid var(--line-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;background:var(--surface-2)}
+.paym span{height:38px;border:1px solid var(--line-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;background:var(--surface-2)}
 .paym span.on{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary);color:var(--ok)}
 .tog{display:flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;font-size:12.5px}
 .tog span{flex:1;text-align:center;padding:8px 6px;color:var(--text-2)}
 .tog span.on{background:var(--primary);color:var(--primary-label);font-weight:600}
-.keyimg{display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center}
-.keyimg .im{width:88px;height:88px;border-radius:6px;background:radial-gradient(ellipse at 50% 50%,#3a3e41 0%,#1d2022 55%,#000 85%);border:1px solid var(--line);position:relative;overflow:hidden}
+.keyimg{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:center}
+.keyimg .im{width:76px;height:76px;border-radius:6px;background:radial-gradient(ellipse at 50% 50%,#3a3e41 0%,#1d2022 55%,#000 85%);border:1px solid var(--line);position:relative;overflow:hidden}
 .keyimg .im::after{content:"";position:absolute;left:22%;top:16%;width:56%;height:66%;border-radius:50% 50% 45% 45%;background:radial-gradient(ellipse at 50% 45%,#6b6f72 0%,#3a3e41 60%,transparent 75%);opacity:.8}
 .keyimg .im span{position:absolute;bottom:3px;left:5px;font:10px var(--mono);color:#aaa}
 .plain{font-size:14px;line-height:1.5}
@@ -93,11 +94,11 @@ body{padding:14px 16px 24px}
         <div class="card">
           <div class="spread"><h3>Next appointment</h3><span class="chip"><i></i>Booked</span></div>
           <div style="font:600 17px/1.2 var(--display);color:var(--heading)">CT head</div>
-          <div class="muted" style="margin:2px 0 8px">Thu 18 Sep · <span class="mono">09:40</span> · Umhlanga, 12 Lighthouse Rd</div>
+          <div class="muted" style="margin:2px 0 8px">Thu 18 Sep · <span class="mono">09:40</span> · Umhlanga</div>
           <div class="live"><i></i>Running 10 min late · updated 09:12</div>
           <div style="font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 4px">What to bring</div>
           <ul class="bring"><li><i></i>Your ID or passport</li><li><i></i>Scheme card · Scheme A (demo)</li><li><i></i>Dr Pillay's referral (photo is fine)</li><li><i></i>No food for 4 hours before</li></ul>
-          <div class="row-flex" style="margin-top:10px"><button class="btn">Directions · 3.2 km</button><button class="btn ghost">Add to calendar</button></div>
+          <div class="row-flex" style="margin-top:8px"><button class="btn sm">Directions · 3.2 km</button><button class="btn sm ghost">Add to calendar</button></div>
         </div>
         <div class="qa" aria-label="Quick actions">
           <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>Book</b><span>New scan from a referral</span></a>
@@ -107,9 +108,10 @@ body{padding:14px 16px 24px}
         </div>
         <div class="card">
           <div class="spread" style="margin-bottom:6px"><h3 style="margin:0">Language</h3><span class="small muted">Ulimi</span></div>
-          <div class="lang"><span class="on">English</span><span>isiZulu</span><span>isiXhosa</span><span>Afrikaans</span><span>Sesotho</span><span>More</span></div>
-          <div class="zu" style="margin-top:8px"><b>Khetha ulimi lwakho.</b> Choose your language. Messages and reminders follow it.</div>
+          <div class="lang"><span class="on">English</span><span>isiZulu</span><span>isiXhosa</span><span>Afrikaans</span><span>+7</span></div>
+          <div class="zu" style="margin-top:6px"><b>Khetha ulimi lwakho.</b> Choose your language.</div>
         </div>
+        <div class="card"><div class="spread"><div><div style="font-weight:600">Need help?</div><div class="small muted">WhatsApp us, or a person will call you back</div></div><a href="#" class="btn sm" style="flex:none">WhatsApp</a></div></div>
       </div>
       <nav class="nav" aria-label="Sections">
         <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>Home</a>
@@ -119,7 +121,7 @@ body{padding:14px 16px 24px}
         <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>Results</a>
       </nav>
     </section>
-    <figcaption>a · Home: next appointment, live status, quick actions, language</figcaption>
+    <figcaption>a · Home: next appointment, live status, quick actions</figcaption>
   </figure>
 
   <!-- (b) Book -->
@@ -162,7 +164,7 @@ body{padding:14px 16px 24px}
         <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>Results</a>
       </nav>
     </section>
-    <figcaption>b · Book: procedure read from the referral photo, earliest slots, price certainty</figcaption>
+    <figcaption>b · Book: referral photo read, earliest slots, price certainty</figcaption>
   </figure>
 
   <!-- (c) Prepare and Pay -->
@@ -171,30 +173,29 @@ body{padding:14px 16px 24px}
       <div class="status"><span>17:16</span><span class="cell"><span>3G</span><svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="6" width="3" height="4" fill="currentColor"/><rect x="4.5" y="4" width="3" height="6" fill="currentColor"/><rect x="9" y="2" width="3" height="8" fill="currentColor" opacity=".3"/><rect x="13" y="0" width="3" height="10" fill="currentColor" opacity=".3"/></svg><svg width="20" height="10" viewBox="0 0 20 10" aria-hidden="true"><rect x=".5" y=".5" width="16" height="9" rx="2" fill="none" stroke="currentColor"/><rect x="2" y="2" width="9" height="6" fill="currentColor"/><rect x="17.5" y="3" width="2" height="4" fill="currentColor"/></svg></span></div>
       <div class="ph-hd"><div><h2>Prepare and pay</h2><div class="small muted">CT head · Thu 18 Sep 09:40 · Umhlanga</div></div></div>
       <div class="body">
-        <div class="card" style="display:flex;flex-direction:column;gap:8px">
+        <div class="card" style="display:flex;flex-direction:column;gap:6px">
           <h3 style="margin:0">Safety questions</h3>
           <div class="q"><div class="ql">Could you be pregnant?</div><div class="rc"><span>Yes</span><span class="on">No</span><span>Not sure</span></div></div>
           <div class="q"><div class="ql">Any allergies to medicines or iodine?</div><div class="rc"><span>Yes</span><span class="on">No</span><span>Not sure</span></div></div>
           <div class="q"><div class="ql">Any kidney problems?</div><div class="rc"><span>Yes</span><span>No</span><span class="att">Not sure</span></div></div>
           <div class="q"><div class="ql">Any metal implants or a pacemaker?</div><div class="rc"><span>Yes</span><span class="on">No</span><span>Not sure</span></div></div>
-          <div class="note">"Not sure" is fine. A radiographer will check with you before the scan.</div>
+          <div class="note">"Not sure" is fine, a radiographer checks first.</div>
         </div>
         <div class="card">
           <div class="spread" style="margin-bottom:4px"><h3 style="margin:0">Consent</h3><a href="#" class="small">Read in isiZulu</a></div>
-          <div class="small" style="margin-bottom:6px">I understand what a CT scan of the head is and I agree to have it. My report goes to Dr Pillay and to my Patient Space.</div>
+          <div class="small" style="margin-bottom:6px">I understand the CT scan and agree to have it.</div>
           <div class="sig" aria-label="Signature area"><svg viewBox="0 0 300 64" aria-hidden="true"><path d="M18 44 C 30 20, 44 20, 52 40 S 70 56, 84 34 S 104 18, 118 40 S 140 52, 156 30 S 178 22, 190 42 S 214 50, 232 30 S 258 24, 276 40" fill="none" stroke="#14324A" stroke-width="1.6" stroke-linecap="round"/></svg><small>signed 17:16 · this phone</small></div>
         </div>
         <div class="card">
           <div class="spread" style="margin-bottom:4px"><h3 style="margin:0">Pay now</h3><span class="chip done"><i></i>No surprises</span></div>
-          <div class="collect" style="font-size:13px">
+          <div class="collect" style="font-size:12.5px;gap:3px 12px">
             <span class="lbl">Scheme A (demo) pays</span><span class="money">R2 870</span>
-            <span class="lbl">Co-payment on CT (scheme rule)</span><span class="money">R310</span>
-            <span class="lbl">Balance from earlier visits</span><span class="money">R0</span>
+            <span class="lbl">Co-pay · no earlier balance</span><span class="money">R310</span>
             <span class="lbl tot" style="font-size:14px">To pay today</span><span class="money tot" style="font-size:20px">R310</span>
           </div>
-          <div class="paym" style="margin-top:8px"><span class="on">Card</span><span>PayShap</span><span>EFT</span></div>
-          <button class="btn primary lg block" style="margin-top:8px">Pay R310 now</button>
-          <div class="note" style="margin-top:6px">This is the full amount for this scan and report. You will not get another bill for it. Or pay at the desk.</div>
+          <div class="paym" style="margin-top:6px"><span class="on">Card</span><span>PayShap</span><span>EFT</span></div>
+          <button class="btn primary lg block" style="margin-top:6px;height:40px">Pay R310 now</button>
+          <div class="note" style="margin-top:5px">Full amount, no later bill. Or pay at the desk.</div>
         </div>
       </div>
       <nav class="nav" aria-label="Sections">
@@ -205,7 +206,7 @@ body{padding:14px 16px 24px}
         <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>Results</a>
       </nav>
     </section>
-    <figcaption>c · Prepare and pay: safety questions, consent with signature, the Collect card</figcaption>
+    <figcaption>c · Prepare and pay: safety, consent, Collect card</figcaption>
   </figure>
 
   <!-- (d) Results -->
@@ -217,27 +218,27 @@ body{padding:14px 16px 24px}
         <div class="card">
           <div class="spread"><h3 style="margin:0">CT head · 18 Sep 2026</h3><span class="chip done"><i></i>Signed</span></div>
           <div class="small muted" style="margin:2px 0 8px">Reported by Dr N. Dlamini, radiologist · 11:52 · sent to Dr Pillay</div>
-          <div class="tog" role="tablist"><span class="on" role="tab" aria-selected="true">Plain language · reviewed template</span><span role="tab">Full report</span></div>
+          <div class="tog" role="tablist"><span class="on" role="tab" aria-selected="true">Plain language</span><span role="tab">Full report</span></div>
           <p class="plain" style="margin:10px 0 0">Your scan of the head shows no bleeding and no injury to the brain. Nothing needs urgent treatment. Dr Pillay will talk to you about what comes next.</p>
-          <div class="note" style="margin-top:6px">Plain-language text is a radiologist-reviewed template for this report, not an AI summary.</div>
+          <div class="note" style="margin-top:6px">Plain language · reviewed template, approved by the radiologist. Not an AI summary.</div>
         </div>
         <div class="card">
           <div class="keyimg">
             <div class="im" role="img" aria-label="Key image thumbnail, CT head axial"><span>1 of 2</span></div>
             <div>
               <div style="font-weight:600">Key images</div>
-              <div class="small muted" style="margin-bottom:8px">Chosen by the radiologist. All images are yours to keep. No CD needed.</div>
+              <div class="small muted" style="margin-bottom:6px">Chosen by the radiologist. Yours to keep. No CD.</div>
               <a href="#" class="btn sm">View all images</a>
             </div>
           </div>
         </div>
         <div class="card">
-          <div class="spread"><div><div style="font-weight:600">Share with my doctor</div><div class="small muted">Dr Pillay already has it. Add another doctor with a link that expires in 30 days.</div></div><a href="#" class="btn sm" style="flex:none">Share</a></div>
+          <div class="spread"><div><div style="font-weight:600">Share with my doctor</div><div class="small muted">Dr Pillay has it. Send another doctor a link that expires in 30 days.</div></div><a href="#" class="btn sm" style="flex:none">Share</a></div>
         </div>
         <div class="card">
           <div class="remind">
             <div class="cal"><b>MAR</b><span>2027</span></div>
-            <div><div style="font-weight:600">Repeat CT in 6 months · we will remind you</div><div class="small muted">Recommended in the report. A reminder comes by WhatsApp in February. You can book it here any time.</div><div class="row-flex" style="margin-top:8px"><button class="btn sm">Remind me</button><button class="btn sm ghost">Book now</button></div></div>
+            <div><div style="font-weight:600">Repeat CT in 6 months · we will remind you</div><div class="small muted">Recommended in the report. Reminder by WhatsApp in February.</div><div class="row-flex" style="margin-top:8px"><button class="btn sm">Remind me</button><button class="btn sm ghost">Book now</button></div></div>
           </div>
         </div>
       </div>
@@ -249,7 +250,7 @@ body{padding:14px 16px 24px}
         <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>Results</a>
       </nav>
     </section>
-    <figcaption>d · Results: signed report with plain-language layer, key image, share, follow-up reminder</figcaption>
+    <figcaption>d · Results: plain language, key image, follow-up</figcaption>
   </figure>
 
 </main>
