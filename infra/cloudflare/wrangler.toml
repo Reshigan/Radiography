@@ -53,6 +53,9 @@ crons = ["*/5 * * * *"]
 [env.demo]
 name = "bonakala-demo"
 vars = { DEMO_MODE = "true", ANTHROPIC_MODEL = "claude-opus-5", TIMEZONE = "Africa/Johannesburg" }
+routes = [
+  { pattern = "platform.vantax.co.za", custom_domain = true },
+]
 [[env.demo.d1_databases]]
 binding = "DB"
 database_name = "bonakala-demo"
