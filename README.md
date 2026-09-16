@@ -20,7 +20,7 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 | `docs/20-build-kickoff-claude-code.md` | Exactly how to open a Claude Code session and build this |
 | `CLAUDE.md` | The rules the build session follows |
 | `brand/styleguide.html` | Open in a browser: the design language, lenses and Window/Level control |
-| `brand/screens/index.html` | Open in a browser: high-fidelity mockups of the principal screens for every persona |
+| `brand/screens/index.html` | Open in a browser: high-fidelity mockups of the principal screens for every persona (PNG previews in `brand/screens/previews/`) |
 
 ## Specification map
 | # | Document |
