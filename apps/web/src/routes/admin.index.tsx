@@ -112,19 +112,21 @@ function HandsPage() {
 
       <Card title="Registry" extra="clinical interpretation is capped at A1 by policy; no Hand holds a tool that can publish clinical content">
         {hands.isLoading ? <Skeleton rows={8} /> : !rows.length ? <EmptyState>No Hands registered.</EmptyState> : (
-          <DataTable
-            rows={rows}
-            rowKey={(h) => h.id}
-            onRowClick={(h) => setEdit(h)}
-            columns={[
-              { key: 'hand', header: 'Hand', width: 170, render: (h) => <><b>{h.name}</b><div className="small muted">{h.module} · exceptions {h.approvalPersona}</div></> },
-              { key: 'mandate', header: 'Mandate summary', render: (h) => <span className="small">{h.mandate.slice(0, 150)}{h.mandate.length > 150 ? '…' : ''}</span> },
-              { key: 'level', header: 'Level', width: 60, render: (h) => <Chip kind={h.level === 'A3' ? 'att' : 'neutral'}>{h.level}</Chip> },
-              { key: 'leash', header: 'Leash (editable)', render: (h) => Object.keys(h.leash).length ? <div className="small mono">{Object.entries(h.leash).map(([k, v]) => <div key={k}>{k}: {typeof v === 'number' && k.toLowerCase().includes('cents') ? `R ${(Number(v) / 100).toLocaleString('en-ZA')}` : String(v)}</div>)}</div> : <span className="muted small">no numeric limits</span> },
-              { key: 'policy', header: 'Approval policy', width: 200, render: (h) => <span className="small">{h.approvalPolicy.slice(0, 110)}</span> },
-              { key: 'status', header: 'Status', width: 100, render: (h) => <StatusChip status={h.status} /> },
-            ]}
-          />
+          <div style={{ overflowX: 'auto' }}>
+            <DataTable
+              rows={rows}
+              rowKey={(h) => h.id}
+              onRowClick={(h) => setEdit(h)}
+              columns={[
+                { key: 'hand', header: 'Hand', width: 150, render: (h) => <><b>{h.name}</b><div className="small muted">{h.module} · exceptions {h.approvalPersona}</div></> },
+                { key: 'mandate', header: 'Mandate', width: 300, render: (h) => <span className="small">{h.mandate.length > 96 ? `${h.mandate.slice(0, 95)}…` : h.mandate}</span> },
+                { key: 'level', header: 'Level', width: 56, render: (h) => <Chip kind={h.level === 'A3' ? 'att' : 'neutral'}>{h.level}</Chip> },
+                { key: 'leash', header: 'Leash (editable)', width: 230, render: (h) => Object.keys(h.leash).length ? <div className="small mono">{Object.entries(h.leash).slice(0, 3).map(([k, v]) => <div key={k}>{k}: {typeof v === 'number' && k.toLowerCase().includes('cents') ? `R ${(Number(v) / 100).toLocaleString('en-ZA')}` : String(v)}</div>)}</div> : <span className="muted small">no numeric limits</span> },
+                { key: 'policy', header: 'Approval policy', width: 240, render: (h) => <span className="small">{h.approvalPolicy.length > 90 ? `${h.approvalPolicy.slice(0, 89)}…` : h.approvalPolicy}</span> },
+                { key: 'status', header: 'Status', width: 92, render: (h) => <StatusChip status={h.status} /> },
+              ]}
+            />
+          </div>
         )}
         <p className="note">Illustrative leash values are configurable reference data per practice. Automation levels: A1 assisted, A2 supervised auto, A3 autonomous with leash. Clinical interpretation never rises above A1.</p>
       </Card>

@@ -53,7 +53,7 @@ function StaffPage() {
     <div className="page">
       <PageHeader
         title="Staff"
-        subtitle={roster.data ? `Week of ${roster.data.weekStart} · ${roster.data.summary.shifts} shifts · ${roster.data.summary.gapHours} gap hours (${roster.data.summary.gapPct} %)` : 'Roster, gaps, credentials and CPD'}
+        subtitle={roster.data ? `Week of ${roster.data.weekStart} · ${roster.data.summary.shifts} shifts this week · ${roster.data.summary.gapHours} gap hours (${roster.data.summary.gapPct} %); the tiles cover the next four weeks` : 'Roster, gaps, credentials and CPD'}
         actions={
           <>
             <Button size="sm" onClick={() => setWeek(addWeeks(week, -1))}>Previous week</Button>

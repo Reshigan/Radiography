@@ -125,14 +125,14 @@ function Page() {
                 selectedKey={selected?.id}
                 onRowClick={(x) => { setSelected(x); setEditing(false); setAuthRef(''); setIcd10(''); }}
                 columns={[
-                  { key: 'ref', header: 'Claim', width: 96, render: (x) => <span className="mono small">{x.ref}</span> },
-                  { key: 'patient', header: 'Patient · funder', width: 136, render: (x) => <div style={{ width: 126, overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.25 }}>{x.patient}<span className="small muted" style={{ display: 'block' }}>{x.funder}</span></div> },
-                  { key: 'proc', header: 'Procedure', width: 118, render: (x) => <span title={x.procedure} style={{ display: 'block', width: 108, overflow: 'hidden', textOverflow: 'ellipsis' }}>{x.procedure}</span> },
-                  { key: 'issue', header: 'Issue', width: 130, render: (x) => <div style={{ width: 120, fontSize: 12, lineHeight: 1.3, whiteSpace: 'normal' }}><b style={{ fontWeight: 500, display: 'block' }}>{x.family}</b><span className="muted">{x.reason}</span></div> },
-                  { key: 'sug', header: 'Suggestion', width: 196, render: (x) => <div style={{ width: 186, whiteSpace: 'normal', lineHeight: 1.3, fontSize: 12, padding: '4px 0' }}>{x.provenance?.modelId && <Chip kind="ai">{x.provenance.modelId} · {x.provenance.confidence?.toFixed(2)}</Chip>} {x.suggestion}</div> },
-                  { key: 'age', header: 'Age', width: 56, render: (x) => <><span className="mono small" style={{ display: 'block' }}>{x.ageHours < 72 ? `${x.ageHours} h` : `${Math.round(x.ageHours / 24)} d`}</span><span className={`sla ${x.ageHours >= 48 ? 'crit' : x.ageHours >= 24 ? 'warn' : ''}`}><i style={{ width: `${Math.min(100, (x.ageHours / 48) * 100)}%` }} /></span></> },
+                  { key: 'ref', header: 'Claim', width: 84, render: (x) => <span className="mono small">{x.ref}</span> },
+                  { key: 'patient', header: 'Patient · funder', width: 126, render: (x) => <div style={{ width: 116, overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.25 }}>{x.patient}<span className="small muted" style={{ display: 'block' }}>{x.funder}</span></div> },
+                  { key: 'proc', header: 'Procedure', width: 108, render: (x) => <span title={x.procedure} style={{ display: 'block', width: 98, overflow: 'hidden', textOverflow: 'ellipsis' }}>{x.procedure}</span> },
+                  { key: 'issue', header: 'Issue', width: 120, render: (x) => <div style={{ width: 110, fontSize: 12, lineHeight: 1.3, whiteSpace: 'normal' }}><b style={{ fontWeight: 500, display: 'block' }}>{x.family}</b><span className="muted">{x.reason}</span></div> },
+                  { key: 'sug', header: 'Suggestion', width: 170, render: (x) => <div style={{ width: 160, whiteSpace: 'normal', lineHeight: 1.3, fontSize: 12, padding: '4px 0' }}>{x.provenance?.modelId && <Chip kind="ai">{x.provenance.modelId} · {x.provenance.confidence?.toFixed(2)}</Chip>} {x.suggestion}</div> },
+                  { key: 'age', header: 'Age', width: 50, render: (x) => <><span className="mono small" style={{ display: 'block' }}>{x.ageHours < 72 ? `${x.ageHours} h` : `${Math.round(x.ageHours / 24)} d`}</span><span className={`sla ${x.ageHours >= 48 ? 'crit' : x.ageHours >= 24 ? 'warn' : ''}`}><i style={{ width: `${Math.min(100, (x.ageHours / 48) * 100)}%` }} /></span></> },
                   {
-                    key: 'act', header: 'Actions', width: 162, render: (x) => (
+                    key: 'act', header: 'Actions', width: 150, render: (x) => (
                       <span style={{ whiteSpace: 'nowrap' }} onClick={(e) => e.stopPropagation()}>
                         <Button size="sm" variant="primary" disabled={accept.isPending} onClick={() => accept.mutate({ row: x })}>Accept</Button>{' '}
                         <Button size="sm" onClick={() => { setSelected(x); setEditing(true); }}>Edit</Button>{' '}

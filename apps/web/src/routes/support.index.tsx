@@ -22,16 +22,21 @@ function SupportPage() {
   const openTickets = (tickets.data?.tickets ?? []).filter((t) => t.status !== 'closed' && t.status !== 'resolved');
   const p1p2 = openTickets.filter((t) => t.severity === 'p1' || t.severity === 'p2');
   const onboarding = (acqs.data?.acquisitions ?? []).filter((a) => a.stage === 'onboarding' || a.stage === 'due_diligence');
+  const offline = fleet.data?.summary.offline ?? 0;
 
   return (
     <div className="page">
-      <PageHeader title="Platform support" subtitle={`${practices.length} tenants · ${openTickets.length} open cases · ${fleet.data?.summary.offline ?? 0} gateways offline`} actions={<a className="btn" href="/admin">Administration</a>} />
+      <PageHeader
+        title="Platform support"
+        subtitle={`${practices.length} tenants · ${openTickets.length} open case${openTickets.length === 1 ? '' : 's'} · ${offline} gateway${offline === 1 ? '' : 's'} offline`}
+        actions={<a className="btn" href="/admin">Administration</a>}
+      />
 
       {p1p2.length > 0 && <Banner kind="crit">{p1p2.map((t) => `${t.ref} ${t.title}`).join(' · ')}</Banner>}
       {tickets.isError && <Banner kind="crit">Support cases could not be loaded. Refresh, or retry with reference support-tickets.</Banner>}
 
       <div className="grid g4">
-        <Card title="Gateways online"><div style={{ font: '600 24px/1.1 var(--display)' }}>{fleet.data?.summary.online ?? '—'}</div><div className="small muted">{fleet.data?.summary.onUps ?? 0} on UPS · {fleet.data?.summary.offline ?? 0} offline</div></Card>
+        <Card title="Gateways online"><div style={{ font: '600 24px/1.1 var(--display)' }}>{fleet.data?.summary.online ?? '—'}</div><div className="small muted">{fleet.data?.summary.onUps ?? 0} on UPS · {offline} offline</div></Card>
         <Card title="Transfer backlog"><div style={{ font: '600 24px/1.1 var(--display)' }}>{fleet.data?.summary.backlog ?? '—'}</div><div className="small muted">studies waiting to forward</div></Card>
         <Card title="Integration errors"><div style={{ font: '600 24px/1.1 var(--display)' }}>{feeds.data?.summary.errors24h ?? '—'}</div><div className="small muted">in the last 24 hours</div></Card>
         <Card title="Open cases"><div style={{ font: '600 24px/1.1 var(--display)' }}>{openTickets.length}</div><div className="small muted">{p1p2.length} at P1 or P2</div></Card>

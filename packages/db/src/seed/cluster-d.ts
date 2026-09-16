@@ -339,6 +339,8 @@ export async function seedClusterD(db: Db, ctx: SeedContext): Promise<Record<str
         downtimeEndedAt: w.done ? new Date(new Date(openedAt).getTime() + 5 * 3600000).toISOString() : null,
         rootCause: w.done ? 'Wear within expected envelope; consumable replaced' : null, reportedBy: 'maintenance_hand',
         timeline, createdAt: openedAt,
+        // Completion time drives preventive-maintenance punctuality and mean time to repair.
+        updatedAt: w.done ? new Date(new Date(openedAt).getTime() + 5 * 3600000).toISOString() : openedAt,
       });
       woCount++;
       if (poId && w.poCents) {
