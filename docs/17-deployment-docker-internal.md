@@ -6,14 +6,18 @@ This document specifies how the Bonakala Platform is deployed for real clinical 
 patient data, real modalities, real claims switches, real funders, real money. It covers the central
 cluster, the per-site Edge Gateway, networking, storage, backup and disaster recovery, hardening,
 upgrades, monitoring, capacity tiers, LLM connectivity, licensing obligations, operating roles and the
-per-site go-live checklist. The demo deployment (16) is the same codebase with simulated adapters; the
-differences are called out in 16 §11.
+per-site go-live checklist. The Cloudflare cloud deployment (16) is the default for Practices that
+accept its data-residency posture; this internal profile is the option for a Practice or group that
+must run on its own infrastructure, and it is also the fallback that the cloud DR plan restores into.
+The two share every application image and differ only in adapters (07 §1).
 
 Design constraints that shape everything below:
 
 * **Load-shedding and link failure are normal.** Imaging must continue at every site with no power grid
   and no internet (07 §5). The Edge Gateway is not optional.
-* **Data residency.** Identified data is stored in South Africa (07 §10, POPIA s.72 for transfers).
+* **Data residency.** Identified data is stored in South African data centres under the Practice's
+  direct control (07 §10); no POPIA s.72 cross-border transfer arises except through the LLM egress
+  gateway (§12), which de-identifies first.
 * **Practices are tenants and separate responsible parties under POPIA.** Row-level security in
   Postgres is the primary isolation mechanism; the MSO operates as *operator* under recorded
   agreements (03 §3.2, M02-R-004).
