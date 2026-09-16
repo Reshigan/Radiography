@@ -4,7 +4,7 @@ import { schema } from '@bonakala/db';
 import { newId, notFound, conflict } from '@bonakala/domain';
 import { DEMO_MODELS, getDemoModel } from '@bonakala/domain/bci';
 import { defineModule, router, allow, body, query, param, audit, emit, on } from '../../kernel/index.js';
-import { ensureRegistry, inferStudy, modelMode } from './service.js';
+import { ensureRegistry, inferStudy } from './service.js';
 
 const r = router();
 const GOV = ['AIO', 'CMP', 'PRM', 'EXE', 'SUP', 'BIO'] as const;
@@ -240,7 +240,6 @@ export default defineModule({
       const p = evt.payload as { studyId: string };
       await inferStudy(services, p.studyId);
     });
-    void modelMode;
   },
   async tick(services) {
     const alarms = await runDriftCheck(services);
