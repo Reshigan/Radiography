@@ -232,7 +232,7 @@ r.post('/incidents/:id/submit-report', allow('CMP'), async (c) => {
   const now = new Date().toISOString();
   const user = c.get('user')!;
   await services.db.update(schema.incidents).set({
-    reportDraft: { ...row.reportDraft, status: 'submitted', submittedBy: user.id, submittedAt: now, reference: reference ?? null },
+    reportDraft: { ...row.reportDraft, status: 'submitted' as const, submittedBy: user.id, submittedAt: now, reference: reference ?? undefined },
     status: row.status === 'open' ? 'investigating' : row.status,
     timeline: [...row.timeline, { at: now, text: `Report submitted to ${row.regulator} by ${user.name} (${channel})${reference ? ` · reference ${reference}` : ''}`, kind: 'ok' as const, source: 'submission' }], updatedAt: now,
   }).where(eq(schema.incidents.id, id));
