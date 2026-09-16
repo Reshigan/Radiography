@@ -173,6 +173,7 @@ export function AppFrame(p: FrameProps) {
   return (
     <div className={`app ${p.inspector ? 'with-inspector' : ''}`}>
       <nav className="rail" aria-label="Modules">
+        <div className="rail-glass" aria-hidden="true" />
         <span className="mark" style={{ color: 'var(--heading)' }}><Mark size={28} /></span>
         {p.rail.map((it) => (
           <a key={it.id} className={`item ${it.active ? 'active' : ''}`} href={it.href} title={it.label} onClick={(e) => { e.preventDefault(); p.navigate(it.href); }}>
