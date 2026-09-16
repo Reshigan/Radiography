@@ -1,0 +1,166 @@
+# =============================================================================
+# Bonakala Edge Gateway - per-site appliance (docs/17 sections 3.3 and 5)
+# -----------------------------------------------------------------------------
+# REFERENCE SKELETON to be completed during the build.
+#
+# Runs on Ubuntu LTS on a UPS-backed appliance with two NICs:
+#   modality VLAN (DICOM from CT/DX/MG/US/MR) and clinical/uplink (site tunnel).
+# The appliance keeps imaging running with no central connectivity and no grid
+# power: MWL + MPPS + C-STORE locally, 30-day cache, store-and-forward, local
+# CPU QC inference. Updates are signed images applied by the watchdog.
+#
+# Configuration comes from /etc/bonakala/gateway.env written at enrolment
+# (site code + one-time token) - see 17 section 5. Nothing here is typed by hand.
+# =============================================================================
+
+name: bonakala-edge
+
+x-logging: &default-logging
+  driver: json-file
+  options: { max-size: "20m", max-file: "5" }
+
+networks:
+  modality:                      # bound to the modality VLAN interface
+    driver: bridge
+  local:
+    internal: true
+
+volumes:
+  orthanc_edge_db:
+  orthanc_edge_worklists:
+  gateway_state:                 # queues, worklist mirror, demographics cache (encrypted disk)
+  qc_models:
+  wireguard:
+
+services:
+  orthanc-edge:
+    # GPLv3, separate container, REST only. Modalities C-STORE here; MWL/MPPS SCP here.
+    image: jodogne/orthanc-plugins:1.12.4
+    restart: unless-stopped
+    ports:
+      - "${DICOM_BIND_IP:-0.0.0.0}:${DICOM_PORT:-104}:4242"   # DICOM on the modality VLAN only
+    environment:
+      ORTHANC__NAME: ${SITE_AET}
+      ORTHANC__DICOM_AET: ${SITE_AET}
+      ORTHANC__DICOM_PORT: "4242"
+      ORTHANC__REGISTERED_USERS: '{"gateway": "${ORTHANC_EDGE_PASSWORD}"}'
+      ORTHANC__DICOM_ALWAYS_ALLOW_STORE: "true"        # modalities on the VLAN; list refined by enrolment
+      ORTHANC__WORKLISTS__ENABLE: "true"
+      ORTHANC__WORKLISTS__DATABASE: /var/lib/orthanc/worklists
+      ORTHANC__DICOM_WEB__ENABLE: "true"
+      ORTHANC__MAXIMUM_STORAGE_SIZE: "${EDGE_CACHE_MB:-800000}"   # ~800 GB cache, recycles oldest
+      ORTHANC__MAXIMUM_STORAGE_MODE: Recycle
+      ORTHANC__STABLE_AGE: "30"
+      TZ: Africa/Johannesburg
+    volumes:
+      - orthanc_edge_db:/var/lib/orthanc/db
+      - orthanc_edge_worklists:/var/lib/orthanc/worklists
+    networks: [modality, local]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u gateway:${ORTHANC_EDGE_PASSWORD} http://localhost:8042/system"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  gateway:
+    # Node service (apps/edge-gateway): worklist mirror (writes .wl files for Orthanc MWL),
+    # MPPS + study-stable event bridge, offline technologist API, transfer manager
+    # (resumable STOW-RS to orthanc-central, STAT first), HL7 MLLP listener (hospital
+    # JV sites), telemetry, enrolment and configuration sync.
+    image: ${REGISTRY}/bonakala/edge-gateway:${EDGE_VERSION}
+    restart: unless-stopped
+    env_file: /etc/bonakala/gateway.env
+    environment:
+      SITE_ID: ${SITE_ID}
+      CENTRAL_API_URL: ${CENTRAL_API_URL}            # reached over the WireGuard tunnel
+      CENTRAL_DICOMWEB_URL: ${CENTRAL_DICOMWEB_URL}
+      ORTHANC_URL: http://orthanc-edge:8042
+      ORTHANC_USER: gateway
+      ORTHANC_PASSWORD: ${ORTHANC_EDGE_PASSWORD}
+      WORKLIST_DIR: /var/lib/orthanc/worklists
+      QC_INFERENCE_URL: http://qc-inference:8000
+      MLLP_ENABLED: ${MLLP_ENABLED:-false}
+      MLLP_PORT: "2575"
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${CENTRAL_OTLP_URL}
+      TZ: Africa/Johannesburg
+    ports:
+      - "8443:8443"                                  # offline technologist API + local status page (clinical VLAN)
+      - "${MLLP_BIND_IP:-127.0.0.1}:2575:2575"        # HL7 v2 MLLP (hospital sites only)
+    volumes:
+      - gateway_state:/var/lib/bonakala
+      - orthanc_edge_worklists:/var/lib/orthanc/worklists
+      - /etc/bonakala/identity:/etc/bonakala/identity:ro   # mTLS client cert issued at enrolment
+    networks: [local, modality]
+    depends_on:
+      orthanc-edge: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "--no-check-certificate", "https://localhost:8443/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  qc-inference:
+    # ONNX Runtime positioning/exposure QC models on CPU (GPU optional via profile).
+    # Outputs bci.result.v1 with model id/version/confidence; labelled per docs/12.
+    image: ${REGISTRY}/bonakala/qc-inference:${EDGE_VERSION}
+    restart: unless-stopped
+    environment:
+      ONNX_PROVIDERS: ${QC_ONNX_PROVIDERS:-CPUExecutionProvider}
+      MODEL_BUNDLE: /models/qc-bundle
+      MAX_LATENCY_MS: "5000"
+      TZ: Africa/Johannesburg
+    volumes:
+      - qc_models:/models
+    networks: [local]
+    deploy:
+      resources:
+        limits: { cpus: "4", memory: 6g }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+
+  wireguard:
+    # Site-to-central tunnel. Keys generated at enrolment; peers pushed by central.
+    image: lscr.io/linuxserver/wireguard:latest
+    restart: unless-stopped
+    cap_add: [NET_ADMIN]
+    sysctls: { net.ipv4.conf.all.src_valid_mark: 1 }
+    volumes:
+      - wireguard:/config
+      - /etc/bonakala/wireguard:/config/wg_confs:ro
+    networks: [local]
+    logging: *default-logging
+
+  watchdog:
+    # Health checks, UPS (NUT) monitoring, disk pressure, signed-update application
+    # with automatic rollback, link tests, clean shutdown on low battery.
+    image: ${REGISTRY}/bonakala/edge-watchdog:${EDGE_VERSION}
+    restart: unless-stopped
+    environment:
+      SITE_ID: ${SITE_ID}
+      UPDATE_CHANNEL: ${UPDATE_CHANNEL:-stable}     # stable | canary | pinned
+      MAINTENANCE_WINDOW: ${MAINTENANCE_WINDOW:-02:00-04:00}   # SAST
+      RELEASE_REGISTRY: ${REGISTRY}
+      COSIGN_PUBLIC_KEY_PATH: /etc/bonakala/cosign.pub
+      NUT_SERVER: ${NUT_SERVER:-host.docker.internal:3493}
+      LOW_BATTERY_SHUTDOWN_PCT: "15"
+      DISK_PRESSURE_PCT: "85"
+      GATEWAY_HEALTH_URL: https://gateway:8443/healthz
+      TZ: Africa/Johannesburg
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock       # required to apply updates; watchdog is minimal and signed
+      - /etc/bonakala:/etc/bonakala:ro
+      - gateway_state:/var/lib/bonakala
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    networks: [local]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9100/healthz"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging

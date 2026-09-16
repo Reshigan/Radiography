@@ -1,0 +1,90 @@
+{
+  "_comment": "Bonakala - minimal Orthanc configuration (central archive). REFERENCE SKELETON to be completed during the build. Orthanc is GPLv3 and runs as a separate container reached over REST/DICOMweb only; see docs/17 section 13. Storage and index settings for PostgreSQL and S3 are supplied via ORTHANC__* environment variables in docker-compose.yml.",
+
+  "Name": "BONAKALA-CENTRAL",
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  "StorageCompression": false,
+  "MaximumStorageSize": 0,
+  "MaximumPatientCount": 0,
+
+  "HttpPort": 8042,
+  "HttpDescribeErrors": true,
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": true,
+  "SslEnabled": false,
+  "_comment_tls": "TLS is terminated by caddy/traefik in front of Orthanc; DICOM TLS from gateways is configured under DicomTlsEnabled once certificates are provisioned.",
+
+  "DicomServerEnabled": true,
+  "DicomAet": "BONAKALA",
+  "DicomPort": 4242,
+  "DicomCheckCalledAet": true,
+  "DicomCheckModalityHost": true,
+  "DicomAlwaysAllowEcho": true,
+  "DicomAlwaysAllowStore": false,
+  "DicomAlwaysAllowFind": false,
+  "DicomAlwaysAllowMove": false,
+  "DicomAlwaysAllowGet": false,
+  "DicomTlsEnabled": false,
+  "DefaultEncoding": "Utf8",
+  "DeidentifyLogs": true,
+
+  "DicomModalities": {
+    "_comment": "Edge Gateways and referrer PACS are registered here by the enrolment flow (M02/M21). Example entries only.",
+    "EDGE-SANDTON": { "AET": "BNK-SANDTON", "Host": "10.200.1.10", "Port": 4242, "AllowStore": true, "AllowFind": false, "AllowMove": false, "AllowEcho": true },
+    "EDGE-UMHLANGA": { "AET": "BNK-UMHLANGA", "Host": "10.200.2.10", "Port": 4242, "AllowStore": true, "AllowFind": false, "AllowMove": false, "AllowEcho": true }
+  },
+
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web/",
+    "EnableWado": true,
+    "WadoRoot": "/wado",
+    "Ssl": false,
+    "StowMaxInstances": 100,
+    "StowMaxSize": 512,
+    "QidoCaseSensitive": false,
+    "MetadataWorklistFeatures": true
+  },
+
+  "Worklists": {
+    "_comment": "Modality Worklist SCP. On the central archive this is normally disabled (the Edge Gateway serves MWL); it is enabled here so the same file works for a single-site pilot without a gateway. The gateway service writes .wl files into the Database folder from the Platform worklist.",
+    "Enable": true,
+    "Database": "/var/lib/orthanc/worklists",
+    "FilterIssuerAet": false,
+    "LimitAnswers": 0
+  },
+
+  "Plugins": [
+    "/usr/share/orthanc/plugins"
+  ],
+
+  "PostgreSQL": {
+    "_comment": "Host, database and credentials are injected via ORTHANC__POSTGRESQL__* environment variables.",
+    "EnableIndex": true,
+    "EnableStorage": false,
+    "Lock": false,
+    "IndexConnectionsCount": 10
+  },
+
+  "AwsS3Storage": {
+    "_comment": "Object storage for pixel data (MinIO/SeaweedFS S3 API). Credentials and endpoint via ORTHANC__AWS_S3_STORAGE__* environment variables.",
+    "Region": "af-south-1",
+    "VirtualAddressing": false,
+    "StorageStructure": "flat",
+    "MigrationFromFileSystemEnabled": false
+  },
+
+  "StableAge": 60,
+  "LimitFindResults": 0,
+  "LimitFindInstances": 0,
+  "LogExportedResources": true,
+  "OverwriteInstances": false,
+  "StoreMD5ForAttachments": true,
+  "ConcurrentJobs": 4,
+  "JobsHistorySize": 100,
+  "SaveJobs": true,
+
+  "Lua": [],
+  "_comment_events": "Study-stable and instance-received events are consumed by the Platform via the Orthanc REST changes API (polled by api/orthanc-bridge) and published as M09 domain events; no Lua hooks are required."
+}

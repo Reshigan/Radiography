@@ -1,0 +1,343 @@
+# =============================================================================
+# Bonakala Platform - Cloudflare demo - API Worker (apps/api)
+# -----------------------------------------------------------------------------
+# REFERENCE SKELETON. Binding ids, routes and database ids are placeholders to be
+# completed during the build. See docs/16-deployment-cloudflare-demo.md.
+#
+# One wrangler.toml per Worker app. This file is the canonical example for
+# apps/api; apps/agents, apps/whatsapp and apps/sim follow the same pattern
+# with fewer bindings.
+#
+# Secrets are NEVER in this file. Set per environment with:
+#   wrangler secret put <NAME> --env <preview|staging|demo>
+# Required secrets:
+#   ANTHROPIC_API_KEY      Claude API key (or gateway token if the gateway holds it)
+#   LLM_GATEWAY_URL        AI Gateway endpoint for Claude API calls
+#   WHATSAPP_TOKEN         WhatsApp Cloud API access token (test number only)
+#   WHATSAPP_VERIFY_TOKEN  Webhook verification token
+#   ACCESS_AUD             Cloudflare Access application audience tag
+#   SESSION_SIGNING_KEY    HMAC key for session cookies
+#   SIM_WEBHOOK_SECRET     Shared secret for simulator callbacks
+#   TURNSTILE_SECRET       Turnstile server-side secret
+#
+# Times in [triggers] are UTC. SAST = UTC+2, no DST.
+# =============================================================================
+
+name = "bonakala-api-preview"           # overridden per environment below
+main = "../../apps/api/src/worker.ts"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true                      # preview uses workers.dev subdomains
+account_id = "<CLOUDFLARE_ACCOUNT_ID>"  # or via CLOUDFLARE_ACCOUNT_ID env var
+
+[observability]
+enabled = true                          # Workers Logs
+
+[placement]
+mode = "off"                            # D1 is regional; keep the Worker close to it
+
+# --- Plain (non-secret) configuration ---------------------------------------
+[vars]
+BONAKALA_ENV = "preview"
+BONAKALA_LABEL = "DEMO"                 # rendered on every surface; never remove
+TIMEZONE = "Africa/Johannesburg"
+DEFAULT_TENANT_GROUP = "group-a"
+HAND_DAILY_BUDGET_ZAR = "150"           # illustrative leash on LLM spend per tenant
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+
+# --- D1: one database per demo tenant group (SQLite mirror of Drizzle schema) -
+[[d1_databases]]
+binding = "DB_GROUP_A"
+database_name = "bonakala-preview-group-a"
+database_id = "<D1_ID_PREVIEW_GROUP_A>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+# --- R2: imaging (synthetic DICOM + rendered frames) and documents (PDFs) ----
+[[r2_buckets]]
+binding = "IMAGING"
+bucket_name = "bonakala-preview-imaging"
+
+[[r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-preview-documents"
+
+# --- KV: sessions, feature flags, reference-data cache -----------------------
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_SESSIONS>"
+
+[[kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_FLAGS>"
+
+[[kv_namespaces]]
+binding = "REFDATA"                     # tariff codes, scheme rule packs, ICD-10 subset
+id = "<KV_ID_REFDATA>"
+
+# --- Queues: producers (this Worker publishes) -------------------------------
+[[queues.producers]]
+binding = "EVENTS"                      # outbox -> domain events (*.v1)
+queue = "bonakala-preview-events"
+
+[[queues.producers]]
+binding = "INFERENCE"                   # BCI jobs (demo models / Workers AI)
+queue = "bonakala-preview-inference"
+
+[[queues.producers]]
+binding = "CLAIMS"                      # claims to the simulated switch
+queue = "bonakala-preview-claims"
+
+[[queues.producers]]
+binding = "NOTIFICATIONS"               # WhatsApp / SMS / email (simulated)
+queue = "bonakala-preview-notifications"
+
+[[queues.producers]]
+binding = "AGENTS"                      # Hand tasks (consumed by apps/agents)
+queue = "bonakala-preview-agents"
+
+# --- Queues: consumers (this Worker consumes projections/events) -------------
+[[queues.consumers]]
+queue = "bonakala-preview-events"
+max_batch_size = 50
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-preview-events-dlq"
+
+# --- Durable Objects: strongly consistent per-object coordination ------------
+[durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",      class_name = "SlotHold" },       # 10-minute booking holds with alarms
+  { name = "WORKLIST_LOCK",  class_name = "WorklistLock" },   # radiologist "claim" semantics
+  { name = "TENANT_COUNTER", class_name = "TenantCounter" },  # per-tenant sequences, reset flag
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SlotHold", "WorklistLock", "TenantCounter"]
+
+# --- Workers AI: demo inference (QC classification, OCR of referral photos) --
+[ai]
+binding = "AI"
+
+# --- Vectorize: semantic search over report/order text, similar priors -------
+[[vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-preview-search"
+
+# --- Analytics Engine: product and demo analytics (no personal data) ---------
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_preview_analytics"
+
+# --- Service binding: simulator Worker (switch, funders, PSP, bank, modalities)
+[[services]]
+binding = "SIM"
+service = "bonakala-sim-preview"
+
+# --- Hyperdrive (optional): Postgres alternative for a partner sandbox -------
+# [[hyperdrive]]
+# binding = "HYDRA"
+# id = "<HYPERDRIVE_ID>"
+
+# --- Cron Triggers (UTC). 5-min: reminders + hold sweep; hourly: claims run,
+#     dunning; 00:00 UTC (02:00 SAST): retention + analytics roll-up;
+#     01:00 UTC on the 1st (03:00 SAST): month-end close proposal.
+[triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
+
+# =============================================================================
+# STAGING - merged main; reset nightly from the "medium" fixture
+# =============================================================================
+[env.staging]
+name = "bonakala-api-staging"
+workers_dev = false
+routes = [{ pattern = "api.staging.demo.bonakala.example/*", zone_name = "bonakala.example" }]
+
+[env.staging.vars]
+BONAKALA_ENV = "staging"
+BONAKALA_LABEL = "DEMO"
+TIMEZONE = "Africa/Johannesburg"
+DEFAULT_TENANT_GROUP = "group-a"
+HAND_DAILY_BUDGET_ZAR = "150"
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+
+[[env.staging.d1_databases]]
+binding = "DB_GROUP_A"
+database_name = "bonakala-staging-group-a"
+database_id = "<D1_ID_STAGING_GROUP_A>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.staging.r2_buckets]]
+binding = "IMAGING"
+bucket_name = "bonakala-staging-imaging"
+
+[[env.staging.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-staging-documents"
+
+[[env.staging.kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_STAGING_SESSIONS>"
+
+[[env.staging.kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_STAGING_FLAGS>"
+
+[[env.staging.kv_namespaces]]
+binding = "REFDATA"
+id = "<KV_ID_STAGING_REFDATA>"
+
+[[env.staging.queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-staging-events"
+
+[[env.staging.queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-staging-inference"
+
+[[env.staging.queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-staging-claims"
+
+[[env.staging.queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-staging-notifications"
+
+[[env.staging.queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-staging-agents"
+
+[[env.staging.queues.consumers]]
+queue = "bonakala-staging-events"
+max_batch_size = 50
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-staging-events-dlq"
+
+[env.staging.durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",      class_name = "SlotHold" },
+  { name = "WORKLIST_LOCK",  class_name = "WorklistLock" },
+  { name = "TENANT_COUNTER", class_name = "TenantCounter" },
+]
+
+[env.staging.ai]
+binding = "AI"
+
+[[env.staging.vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-staging-search"
+
+[[env.staging.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_staging_analytics"
+
+[[env.staging.services]]
+binding = "SIM"
+service = "bonakala-sim-staging"
+
+[env.staging.triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
+
+# =============================================================================
+# DEMO - public demo and partner sandboxes; several tenant groups
+# =============================================================================
+[env.demo]
+name = "bonakala-api-demo"
+workers_dev = false
+routes = [
+  { pattern = "api.demo.bonakala.example/*", zone_name = "bonakala.example" },
+]
+
+[env.demo.vars]
+BONAKALA_ENV = "demo"
+BONAKALA_LABEL = "DEMO"
+TIMEZONE = "Africa/Johannesburg"
+DEFAULT_TENANT_GROUP = "group-a"
+HAND_DAILY_BUDGET_ZAR = "150"
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+
+# Tenant groups: up to 20 demo tenants per D1 database (see tenants.json)
+[[env.demo.d1_databases]]
+binding = "DB_GROUP_A"                  # demo-main + guided-tour tenants
+database_name = "bonakala-demo-group-a"
+database_id = "<D1_ID_DEMO_GROUP_A>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.demo.d1_databases]]
+binding = "DB_GROUP_B"                  # partner sandboxes
+database_name = "bonakala-demo-group-b"
+database_id = "<D1_ID_DEMO_GROUP_B>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.demo.r2_buckets]]
+binding = "IMAGING"
+bucket_name = "bonakala-demo-imaging"
+
+[[env.demo.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-demo-documents"
+
+[[env.demo.kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_DEMO_SESSIONS>"
+
+[[env.demo.kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_DEMO_FLAGS>"
+
+[[env.demo.kv_namespaces]]
+binding = "REFDATA"
+id = "<KV_ID_DEMO_REFDATA>"
+
+[[env.demo.queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-demo-events"
+
+[[env.demo.queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-demo-inference"
+
+[[env.demo.queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-demo-claims"
+
+[[env.demo.queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-demo-notifications"
+
+[[env.demo.queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-demo-agents"
+
+[[env.demo.queues.consumers]]
+queue = "bonakala-demo-events"
+max_batch_size = 100
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-demo-events-dlq"
+
+[env.demo.durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",      class_name = "SlotHold" },
+  { name = "WORKLIST_LOCK",  class_name = "WorklistLock" },
+  { name = "TENANT_COUNTER", class_name = "TenantCounter" },
+]
+
+[env.demo.ai]
+binding = "AI"
+
+[[env.demo.vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-demo-search"
+
+[[env.demo.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_demo_analytics"
+
+[[env.demo.services]]
+binding = "SIM"
+service = "bonakala-sim-demo"
+
+[env.demo.triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
