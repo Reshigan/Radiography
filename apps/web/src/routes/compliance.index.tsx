@@ -158,7 +158,7 @@ export function CalendarStrip({ items }: { items: CalendarItem[] }) {
   const x = (d: number) => left + (Math.max(-back, Math.min(days, d)) + back) * pxPerDay;
 
   // Pick items that can be labelled without colliding: nearest first, keeping a minimum gap per lane.
-  const MIN_GAP = 132;
+  const MIN_GAP = 215;
   const candidates = items
     .filter((i) => (i.daysToDue ?? 999) <= days && (i.daysToDue ?? -999) >= -back)
     .sort((a, b) => (a.state === 'overdue' ? -1 : 0) - (b.state === 'overdue' ? -1 : 0) || (a.daysToDue ?? 0) - (b.daysToDue ?? 0));
@@ -198,7 +198,7 @@ export function CalendarStrip({ items }: { items: CalendarItem[] }) {
           return (
             <g key={`${it.obligationId}:${it.dueDate}`}>
               <line x1={cx} y1={above ? labelY + 6 : labelY - 14} x2={cx} y2={axisY} stroke={tone} strokeWidth="1" />
-              <text x={tx} y={labelY} textAnchor={anchor} fill="var(--text)">{it.instrument.length > 30 ? `${it.instrument.slice(0, 29)}…` : it.instrument}</text>
+              <text x={tx} y={labelY} textAnchor={anchor} fill="var(--text)">{it.instrument.length > 26 ? `${it.instrument.slice(0, 25)}…` : it.instrument}</text>
               <text x={tx} y={labelY + 11} textAnchor={anchor} fill="var(--text-2)" style={{ fontFamily: 'var(--mono)' }}>{it.dueDate} · {it.owner} · {it.automation}</text>
             </g>
           );
