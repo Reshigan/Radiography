@@ -18,16 +18,19 @@
   --glass-shadow:0 6px 18px -10px rgba(20,50,74,.10),0 1px 0 rgba(20,50,74,.04),inset 0 1px 0 rgba(255,255,255,.4);
   --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(10,114,104,.06),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(20,50,74,.045),transparent 55%),var(--bone);
 }
-[data-lens="clinical"]{
+/* Dark palette is a theme, not a persona: the clinical lens defaults to it, but any lens can
+   carry it (toggle, top-right of the app shell) and the clinical lens can be read in light too. */
+:root[data-theme="dark"]{
   --surface:var(--carbon);--surface-solid:var(--graphite);--surface-solid-3:#1F2428;--surface-2:rgba(23,27,30,.74);--surface-3:rgba(31,36,40,.66);--text:var(--bone);--text-2:var(--ash-400);--heading:var(--bone);
   --primary:var(--signal);--primary-label:var(--carbon);--line:var(--ash-800);--line-strong:var(--ash-700);
   --info:var(--iris);--warn:var(--beam);--crit:var(--flare);--ok:var(--signal);
   --warn-bg:#3A2A0C;--crit-bg:#3E1518;--ok-bg:#0F3330;--info-bg:#15274A;--ai-line:var(--ash-500);
-  --u:4px;--row:36px;--fs:13px;
   --glass-line:rgba(255,255,255,.08);
   --glass-shadow:0 6px 18px -10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
   --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(18,181,165,.08),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(91,143,232,.05),transparent 55%),var(--carbon);
 }
+/* Lens-only: information density. Palette comes from data-theme above. */
+[data-lens="clinical"]{--u:4px;--row:36px;--fs:13px}
 [data-lens="patient"]{--u:8px;--row:56px;--fs:16px;--radius:20px}
 [data-lens="referrer"],[data-lens="governance"]{--u:6px;--row:44px;--fs:15px}
 *{box-sizing:border-box}html,body{height:100%}
@@ -46,7 +49,23 @@ h1{font-size:28px}h2{font-size:20px}h3{font-size:16px}h4{font-size:14px;font-wei
 .rail a.active{background:var(--surface-3);color:var(--primary)}
 .rail a svg{width:20px;height:20px}
 .rail .spacer{flex:1}
-.rail .avatar{width:32px;height:32px;border-radius:50%;background:var(--marrow);color:#fff;font:600 12px var(--display);display:flex;align-items:center;justify-content:center}
+.rail .avatar{width:32px;height:32px;border-radius:50%;background:var(--marrow);color:#fff;font:600 12px var(--display);display:flex;align-items:center;justify-content:center;border:0;padding:0;cursor:pointer}
+.rail .avatar:hover{filter:brightness(1.12)}
+.rail .avatar:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+/* Portaled to document.body (see ProfileMenu) — position:fixed with coordinates set inline, so this
+   rule only carries appearance, not placement. z-index just needs to clear the top-layer chrome. */
+.profile-menu{position:fixed;min-width:220px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:0 12px 30px rgba(20,50,74,.18);padding:10px;display:flex;flex-direction:column;gap:10px;z-index:40}
+.profile-menu-hd{display:flex;flex-direction:column;gap:1px;padding:2px 4px 8px;border-bottom:1px solid var(--line)}
+.profile-menu-hd b{font-size:13px;color:var(--heading)}
+.profile-menu-section{display:flex;flex-direction:column;gap:6px;padding:0 4px}
+.theme-switch{display:flex;border:1px solid var(--line-strong);border-radius:var(--radius-sm);overflow:hidden}
+.theme-switch button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;height:28px;border:0;background:var(--surface-solid);color:var(--text-2);font:500 12px var(--text-font);cursor:pointer}
+.theme-switch button + button{border-left:1px solid var(--line-strong)}
+.theme-switch button.on{background:var(--primary);color:var(--primary-label)}
+.theme-switch button svg{width:14px;height:14px}
+.profile-menu-signout{display:flex;align-items:center;gap:8px;height:32px;padding:0 4px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--crit);font:500 13px var(--text-font);cursor:pointer;border-radius:0 0 var(--radius-sm) var(--radius-sm)}
+.profile-menu-signout:hover{background:var(--crit-bg)}
+.profile-menu-signout svg{width:16px;height:16px}
 .topbar{grid-column:2/-1;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--glass-line);background:var(--surface-2);backdrop-filter:blur(var(--blur)) saturate(var(--sat));-webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));position:sticky;top:0;z-index:4}
 .topbar .ctx{display:flex;align-items:center;gap:8px;font-weight:500}
 .topbar .ctx .sep{color:var(--ash-400)}
@@ -189,4 +208,3 @@ table.dt{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px);bac
 .note{font-size:12px;color:var(--text-2)}
 .demo-tag{position:fixed;right:10px;bottom:10px;font:11px var(--mono);color:var(--text-2);border:1px dashed var(--ash-400);padding:2px 6px;border-radius:var(--radius-sm);background:var(--surface-2);backdrop-filter:blur(var(--blur)) saturate(var(--sat));-webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat))}
 .empty{border:1px dashed var(--line-strong);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text-2)}
-.skel{background:linear-gradient(90deg,var(--surface-3),var(--surface-2),var(--surface-3));height:14px;border-radius:2px}

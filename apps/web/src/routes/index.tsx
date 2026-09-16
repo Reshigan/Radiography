@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Mark, Button, Icon } from '@bonakala/bdl';
+import { Mark, Button, Icon, ThemeSwitch, useTheme } from '@bonakala/bdl';
 import { PERSONA_LABEL, PERSONA_LENS, PERSONA_HOME, type Persona, type Lens } from '@bonakala/domain';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -41,6 +41,7 @@ function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const demo = useQuery({ queryKey: ['demo-accounts'], queryFn: () => api.get<{ password: string; accounts: DemoAccount[] }>('/auth/demo-accounts').catch(() => null) });
+  const theme = useTheme('governance');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-lens', 'governance');
@@ -71,7 +72,10 @@ function SignIn() {
   return (
     <div className="signin-wide">
       <div className="signin-hero dev">
-        <div className="brand" style={{ color: 'var(--heading)' }}><Mark size={32} /> bonakala</div>
+        <div className="row-flex" style={{ justifyContent: 'space-between' }}>
+          <div className="brand" style={{ color: 'var(--heading)' }}><Mark size={32} /> bonakala</div>
+          <ThemeSwitch theme={theme} compact />
+        </div>
         <p className="muted" style={{ maxWidth: 320 }}>Everything, made visible. Sign in to the Bonakala Platform.</p>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
           <label className="field"><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="username" required /></label>

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { useNavigate, useRouterState, Outlet } from '@tanstack/react-router';
 import { AppFrame, Icon, type RailItem } from '@bonakala/bdl';
-import { PERSONA_LENS, PERSONA_HOME, formatSast, type Persona } from '@bonakala/domain';
+import { PERSONA_LENS, PERSONA_HOME, PERSONA_LABEL, formatSast, type Persona } from '@bonakala/domain';
 import { useAuth, initials } from './auth';
 
 export interface RailSpec { id: string; label: string; icon: keyof typeof Icon; path: string }
@@ -101,6 +101,8 @@ export function PersonaFrame({ persona, inspector, statusLine, right, children }
       </>}
       userInitials={initials(user.name)}
       userName={user.name}
+      userRole={PERSONA_LABEL[persona]}
+      userEmail={user.email}
       right={<>{me.demo && <span className="chip"><i />DEMO · synthetic data</span>}{right}</>}
       inspector={inspector}
       statusLine={statusLine}

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Lens } from '@bonakala/domain';
 
 export interface RailItem {
@@ -39,7 +40,105 @@ export const Icon = {
   money: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9" /><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 010 3h-3a1.5 1.5 0 000 3h4" /></svg>,
   wrench: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 4a5 5 0 016 6l-9 9-3-3 9-9M4 20l5-5" /></svg>,
   users: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 19c0-2 2-4 5-4" /></svg>,
+  sun: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>,
+  moon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.5 14.8A8.5 8.5 0 119.2 3.5a7 7 0 0011.3 11.3z" /></svg>,
+  logout: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" /></svg>,
 };
+
+const THEME_KEY = 'bdl.theme';
+type ThemeOverride = 'light' | 'dark' | '';
+type ResolvedTheme = 'light' | 'dark';
+
+/** Dark/light is a per-viewer preference, decoupled from the persona lens (which drives density and
+ *  the palette's *default*, e.g. the clinical reading room defaults dark). An explicit choice here
+ *  persists (localStorage) and wins over every lens until reset. Survives a missing/blocked storage
+ *  API by falling back to in-memory state only (private browsing, storage quota, disabled cookies). */
+export function useTheme(lens: Lens) {
+  const [override, setOverride] = useState<ThemeOverride>(() => {
+    try {
+      const v = localStorage.getItem(THEME_KEY);
+      return v === 'light' || v === 'dark' ? v : '';
+    } catch { return ''; }
+  });
+  const lensDefault: ResolvedTheme = lens === 'clinical' ? 'dark' : 'light';
+  const resolved: ResolvedTheme = override || lensDefault;
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', resolved);
+  }, [resolved]);
+  function setTheme(v: ThemeOverride) {
+    setOverride(v);
+    try { if (v) localStorage.setItem(THEME_KEY, v); else localStorage.removeItem(THEME_KEY); } catch { /* ignore: storage unavailable, preference just won't persist */ }
+  }
+  return { resolved, override, lensDefault, setTheme, toggle: () => setTheme(resolved === 'dark' ? 'light' : 'dark'), reset: () => setTheme('') };
+}
+export type ThemeState = ReturnType<typeof useTheme>;
+
+export function ThemeSwitch({ theme, compact }: { theme: ThemeState; compact?: boolean }) {
+  return (
+    <div className="theme-switch" role="group" aria-label="Appearance">
+      <button type="button" title="Light" aria-label="Light" aria-pressed={theme.resolved === 'light'} className={theme.resolved === 'light' ? 'on' : ''} onClick={() => theme.setTheme('light')}>{Icon.sun}{!compact && ' Light'}</button>
+      <button type="button" title="Dark" aria-label="Dark" aria-pressed={theme.resolved === 'dark'} className={theme.resolved === 'dark' ? 'on' : ''} onClick={() => theme.setTheme('dark')}>{Icon.moon}{!compact && ' Dark'}</button>
+    </div>
+  );
+}
+
+/** Rendered via portal, deliberately: the rail and cards carry `backdrop-filter` for the glass
+ *  look, and `backdrop-filter` creates a new stacking context — any z-index inside it is trapped
+ *  there and can never paint above unrelated siblings like the main content column. Escaping to
+ *  document.body with fixed positioning computed from the trigger's rect is the only reliable fix. */
+function ProfileMenu({ name, initials, role, email, theme, onSignOut }: { name: string; initials: string; role?: string; email?: string; theme: ThemeState; onSignOut?: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ bottom: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  function openMenu() {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) setCoords({ bottom: window.innerHeight - r.bottom, left: r.right + 8 });
+    setOpen(true);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (btnRef.current?.contains(t)) return; // the button's own onClick owns the toggle
+      if (menuRef.current && !menuRef.current.contains(t)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onViewportChange = () => setOpen(false); // resize/reflow invalidates the computed anchor; closing beats a misplaced popover
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onViewportChange);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onViewportChange);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button ref={btnRef} type="button" className="avatar" title={`${name} · account`} aria-haspopup="menu" aria-expanded={open} onClick={() => (open ? setOpen(false) : openMenu())}>{initials}</button>
+      {open && coords && createPortal(
+        <div ref={menuRef} className="profile-menu" role="menu" style={{ bottom: coords.bottom, left: coords.left }}>
+          <div className="profile-menu-hd">
+            <b>{name}</b>
+            {role && <span className="muted small">{role}</span>}
+            {email && <span className="muted small">{email}</span>}
+          </div>
+          <div className="profile-menu-section">
+            <span className="small muted">Appearance</span>
+            <ThemeSwitch theme={theme} />
+            {theme.override && <button type="button" className="link small" onClick={theme.reset}>Use this role's default ({theme.lensDefault})</button>}
+          </div>
+          <button type="button" className="profile-menu-signout" role="menuitem" onClick={() => { setOpen(false); onSignOut?.(); }}>{Icon.logout} Sign out</button>
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+}
 
 export interface FrameProps {
   lens: Lens;
@@ -47,6 +146,8 @@ export interface FrameProps {
   context: ReactNode; // breadcrumb
   userInitials: string;
   userName: string;
+  userRole?: string;
+  userEmail?: string;
   right?: ReactNode;
   inspector?: ReactNode;
   statusLine?: ReactNode;
@@ -62,6 +163,7 @@ export function AppFrame(p: FrameProps) {
   const [level, setLevel] = useState<string>(() => {
     try { return localStorage.getItem('bdl.level') ?? ''; } catch { return ''; }
   });
+  const theme = useTheme(p.lens);
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-lens', p.lens);
@@ -79,8 +181,7 @@ export function AppFrame(p: FrameProps) {
           </a>
         ))}
         <span className="spacer" />
-        <a className="item" href="#" title="Sign out" onClick={(e) => { e.preventDefault(); p.onSignOut?.(); }}>{Icon.settings}<span className="tip">Sign out</span></a>
-        <span className="avatar" title={p.userName}>{p.userInitials}</span>
+        <ProfileMenu name={p.userName} initials={p.userInitials} role={p.userRole} email={p.userEmail} theme={theme} onSignOut={p.onSignOut} />
       </nav>
       <header className="topbar">
         <div className="ctx">{p.context}</div>
@@ -118,14 +219,25 @@ export function PageHeader({ title, subtitle, actions }: { title: ReactNode; sub
   );
 }
 
+/** Portaled to document.body: a caller rendering `<Sheet>` inside a glass `.card` (or any other
+ *  backdrop-filter surface) would otherwise get a modal clipped to that ancestor's box instead of
+ *  covering the viewport — backdrop-filter establishes a containing block for fixed descendants,
+ *  same trap as ProfileMenu's, so every full-screen overlay in this file portals past it. */
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="sheet" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="panel" onClick={(e) => e.stopPropagation()}>
         <div className="spread"><h3>{title}</h3><button className="link" onClick={onClose} aria-label="Close">Close</button></div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
-import { defineHand, newId, notFound, invalid, conflict, todaySast, Refused } from '@bonakala/domain';
+import { defineHand, newId, notFound, invalid, conflict, todaySast, maskId, Refused } from '@bonakala/domain';
 import { defineModule, router, allow, body, query, param, audit, emit, requirePractice, registerHand, runHand, on } from '../../kernel/index.js';
 import type { Services } from '../../kernel/ports.js';
 import { REPORTABLE_CATEGORIES, categoryFor } from './categories.js';
@@ -309,15 +309,30 @@ r.get('/requests', allow(...READERS), async (c) => {
     note: 'Statutory period 30 days (illustrative; POPIA and PAIA timelines are configurable reference data). Policy clock is the Practice’s internal target.',
   });
 });
-r.post('/requests', allow('CMP', 'PRM', 'FDK', 'SUP'), async (c) => {
+r.post('/requests', allow('CMP', 'PRM', 'FDK', 'SUP', 'PAT'), async (c) => {
   const services = c.get('services');
+  const user = c.get('user')!;
   const practiceId = requirePractice(c);
-  const data = await body(c, z.object({ type: z.enum(['access', 'correction', 'deletion', 'objection', 'paia']), requesterMasked: z.string().min(3), patientId: z.string().optional(), channel: z.string().default('patient_space'), statutoryDays: z.number().int().default(30), policyDays: z.number().int().default(14) }));
+  const data = await body(c, z.object({ type: z.enum(['access', 'correction', 'deletion', 'objection', 'paia']), requesterMasked: z.string().min(3).optional(), patientId: z.string().optional(), channel: z.string().default('patient_space'), statutoryDays: z.number().int().default(30), policyDays: z.number().int().default(14) }));
+  // A patient can only ever request their own data: identity and subject are derived from the
+  // session, never taken from the request body, so a PAT user cannot name another patientId or
+  // impersonate a different requester string.
+  let patientId = data.patientId ?? null;
+  let requesterMasked = data.requesterMasked;
+  if (user.persona === 'PAT') {
+    if (!user.patientId) return c.json({ error: 'no_patient' }, 404);
+    const [p] = await services.db.select().from(schema.patients).where(eq(schema.patients.id, user.patientId)).limit(1);
+    if (!p) throw notFound('Patient');
+    patientId = p.id;
+    requesterMasked = `${p.firstName[0] ?? ''}. ${p.lastName} · ${maskId(p.idNumber)}`;
+  } else if (!requesterMasked) {
+    throw invalid('requesterMasked is required');
+  }
   const now = new Date();
   const id = newId('dsr');
   const ref = await nextRef(services, 'DSR', practiceId);
   await services.db.insert(schema.dataSubjectRequests).values({
-    id, practiceId, ref, type: data.type, requesterMasked: data.requesterMasked, patientId: data.patientId ?? null, channel: data.channel,
+    id, practiceId, ref, type: data.type, requesterMasked: requesterMasked!, patientId, channel: data.channel,
     receivedAt: now.toISOString(), statutoryDays: data.statutoryDays, statutoryDueAt: new Date(now.getTime() + data.statutoryDays * 86400000).toISOString(),
     policyDays: data.policyDays, policyDueAt: new Date(now.getTime() + data.policyDays * 86400000).toISOString(),
     status: 'received', checklist: DSR_CHECKLIST.map((item) => ({ item, done: false })),
