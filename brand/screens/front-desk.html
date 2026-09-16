@@ -18,10 +18,15 @@
 .live .rm .bar{height:3px;border-radius:2px;background:var(--line);position:relative;margin-top:3px}
 .live .rm .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--ok)}
 .live .rm .bar.warn i{background:var(--warn)}
-.queue .row{grid-template-columns:44px 1fr auto}
+.queue .row{grid-template-columns:44px minmax(0,1fr) auto}
+.queue .row>div{min-width:0}
+.tile .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live .rm .w{font-family:var(--text-font)}
+.reg-hd{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.reg-hd .acts{margin-left:auto;display:flex;gap:8px}
 .queue .row .tm{font-family:var(--mono);font-size:12px;color:var(--text-2)}
 .queue .row .aux{grid-column:2/4;display:flex;gap:6px;flex-wrap:wrap}
-.queue .row.wrap{grid-template-columns:44px 1fr auto}
+.queue .row.wrap{grid-template-columns:44px minmax(0,1fr) auto}
 .pill.flag{font-weight:500}
 .reg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .reg .card{padding:12px}
@@ -73,7 +78,7 @@
       <button class="btn sm">Site telemetry</button>
     </div>
     <div class="grid g4">
-      <div class="tile"><span class="l">Booked today</span><span class="v">38</span><span class="d">29 pre-checked-in on the Patient Space</span></div>
+      <div class="tile"><span class="l">Booked today</span><span class="v">38</span><span class="d">29 pre-checked-in at home</span></div>
       <div class="tile"><span class="l">Arrived so far</span><span class="v">6</span><span class="d">median check-in 48 s</span></div>
       <div class="tile"><span class="l">Needs attention</span><span class="v">4</span><span class="d down">2 will block claims if unresolved</span></div>
       <div class="tile"><span class="l">Expected desk collections</span><span class="v money">R6 840</span><span class="d up">R390 collected · 100 % of cash due</span></div>
@@ -84,8 +89,8 @@
       <div class="rm"><b>Room 3 · US</b><span class="w warn">2 waiting · 11 min</span><span class="bar warn"><i style="width:70%"></i></span></div>
       <div class="rm"><b>CT 1</b><span class="w">1 waiting · 3 min</span><span class="bar"><i style="width:20%"></i></span></div>
       <div class="rm"><b>MMG</b><span class="w warn">1 waiting · 12 min</span><span class="bar warn"><i style="width:75%"></i></span></div>
-      <div class="rm"><b>MRI</b><span class="w">next 09:00 · prep 08:40</span><span class="bar"><i style="width:0"></i></span></div>
-      <div class="rm"><b>Kiosk</b><span class="w">2 checking in · isiXhosa, English</span><span class="bar"><i style="width:40%"></i></span></div>
+      <div class="rm"><b>MRI</b><span class="w">next 09:00</span><span class="bar"><i style="width:0"></i></span></div>
+      <div class="rm"><b>Kiosk</b><span class="w">2 checking in</span><span class="bar"><i style="width:40%"></i></span></div>
     </section>
     <div class="fd">
       <!-- Arrivals queue -->
@@ -109,13 +114,11 @@
       <!-- Registration panel -->
       <div>
         <div class="card">
-          <div class="spread" style="margin-bottom:8px">
-            <div>
-              <div class="row-flex"><h2>Mandla Khumalo</h2><span class="chip active"><i></i>Arrived 08:09</span><span class="chip att"><i></i>Interpreter: isiZulu</span></div>
-              <div class="muted small">58 M · ID ····5083 · MRN <span class="mono">BRA-000 418 227</span> · CT abdomen with contrast · CT 1 08:15 · Referrer Dr T. Moodley (GP)</div>
-            </div>
-            <div class="row-flex"><button class="btn">Print ticket</button><button class="btn">Queue status to WhatsApp</button><button class="btn primary" disabled title="Blocked by safety questionnaire and contrast consent">Ready for CT 1</button></div>
+          <div class="reg-hd">
+            <h2>Mandla Khumalo</h2><span class="chip active"><i></i>Arrived 08:09</span><span class="chip att"><i></i>Interpreter: isiZulu</span>
+            <div class="acts"><button class="btn">Print ticket</button><button class="btn">Queue status to WhatsApp</button><button class="btn primary" disabled title="Blocked by safety questionnaire and contrast consent">Ready for CT 1</button></div>
           </div>
+          <div class="muted small" style="margin-bottom:8px">58 M · ID ····5083 · MRN <span class="mono">BRA-000418227</span> · CT abdomen with contrast · CT 1 08:15 · Referrer Dr T. Moodley (GP)</div>
           <div class="block small"><b>Cannot send to room yet:</b> previous contrast reaction needs nurse review, contrast consent unsigned, and R310 to collect. Patient prefers isiZulu; Busisiwe is on the desk for interpretation.</div>
         </div>
         <div class="reg">
@@ -179,7 +182,7 @@
     <div class="card">
       <div class="hd"><h4>Collect</h4><span class="chip att"><i></i>R310 due now</span></div>
       <div class="collect">
-        <span class="lbl">CT abdomen with contrast · tariff T-30320 (demo) × 1</span><span class="money">R4 180.00</span>
+        <span class="lbl">CT abdomen with contrast<br><span class="small mono">T-30320 (demo) × 1</span></span><span class="money">R4 180.00</span>
         <span class="lbl">Scheme A (demo) pays</span><span class="money">− R3 870.00</span>
         <span class="lbl">Patient portion</span><span class="money">R310.00</span>
         <span class="rsn">Reason: network co-payment. This Practice is not in the Scheme A designated network for CT on Option Core, so the option pays 92.6 % of the scheme rate.</span>
@@ -192,9 +195,9 @@
       <div class="note" style="margin-top:8px">PayShap and QR carry no card fee for the patient. Terminal on UPS and LTE failover. Receipt by SMS within seconds.</div>
     </div>
     <div class="card">
-      <div class="hd"><h4>Front Desk Hand</h4><span class="chip ai"><i></i>front-desk-hand 2026.09.1</span></div>
+      <div class="hd"><h4>Front Desk Hand</h4><span class="more">pre-arrival run</span></div>
       <div class="ai">
-        <div class="prov"><span>run <b>06:00 to 08:12</b></span><span>leash <b>8 msgs per visit · 5 used</b></span><span>conf <b>0.96</b></span></div>
+        <div class="prov"><span><b>front-desk-hand 2026.09.1</b></span><span>run <b>06:00 to 08:12</b></span><span>leash <b>8 msgs per visit · 5 used</b></span><span>conf <b>0.96</b></span></div>
         <ul class="tl">
           <li><span class="tm">06:00</span><span class="dot ai"></span><span>Metformin hold instruction sent (isiZulu). Read 06:41.</span></li>
           <li><span class="tm">06:02</span><span class="dot ai"></span><span>Benefit check completed: co-payment R310, network penalty on Option Core.</span></li>
