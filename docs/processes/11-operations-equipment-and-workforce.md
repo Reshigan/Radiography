@@ -127,12 +127,10 @@ immediately creates an open shift. Medical certificates are stored as evidence w
 
 Attendance evidence, in order of preference: (1) staff app check-in with site geofence and the Edge
 Gateway's local network as corroboration, (2) kiosk PIN or QR at the site, (3) optional biometric
-terminal (fingerprint or face) integrated as an adapter. Biometric data is special personal
-information under POPIA; a site MAY enable biometrics only with a documented purpose, a worker
-consent record and template storage on the terminal or encrypted in the Platform (see 15).
-Corroboration from M08 (MPPS "in progress" events carry the operator) and M01 (console sign-in) is
-used to reconcile disputed times, never as covert monitoring; workers can see their own
-reconciliation trail.
+terminal integrated as an adapter. Biometric data is special personal information under POPIA; a
+site MAY enable biometrics only with a documented purpose, a worker consent record and encrypted
+template storage (see 15). Corroboration from M08 (MPPS events carry the operator) and M01 (console
+sign-in) reconciles disputed times, never as covert monitoring; workers see their own trail.
 
 ### 2.6 Registration, CPD and radiation worker status
 
@@ -357,9 +355,7 @@ console holds patient data.
 | Injector consumables, cannulas, needles, syringes, sharps containers | Par levels per site | Reorder from usage rate |
 | Film, CD/DVD and USB media, printer consumables | Par levels | Declining category as Patient Space sharing grows; tracked to show the shift |
 | Cleaning and infection-control supplies, PPE | Par levels; usage against infection-control schedule | Linked to M19 infection-control audits |
-| Lead aprons and shields | Asset with annual integrity check (M10) | Failed items withdrawn |
-| Spares (tubes under contract, coils, probes, detectors) | Contract-held or site-held | Availability shown on the work order |
-| Dosimetry badges | Issue and return per period (M10, M17) | Missing badge alerts |
+| Lead aprons, spares (tubes under contract, coils, probes, detectors), dosimetry badges | Aprons as assets with annual integrity checks (M10); spares contract-held or site-held; badges issued and returned per period (M10, M17) | Failed aprons withdrawn; spare availability shown on the work order; missing badge alerts |
 
 Replenishment: the Maintenance Hand computes days-of-cover from usage and creates purchase
 requisitions within its leash (approved suppliers, price list, monthly cap per site); above leash or
@@ -420,9 +416,9 @@ daily, terminal cleaning), with completion logs on the technologist console or a
 tablet, linked to M19 infection-control audits and outbreak response.
 
 **Security**. Access control zones (public, staff, MRI zones III and IV, server room), key and card
-issue as minor assets, CCTV retention rules compliant with POPIA (signage, retention period,
-access log), alarm and armed-response contracts, after-hours procedures for on-call staff. MRI zone
-IV access is a physical control mirrored in M01 role permissions.
+issue as minor assets, CCTV under POPIA rules (signage, retention, access log), alarm and
+armed-response contracts, after-hours procedures for on-call staff. MRI zone IV access is a
+physical control mirrored in M01 role permissions.
 
 * M18-R-107 Each site MUST carry a load-shedding readiness record (UPS capacity, generator, fuel,
   last test) and the Platform MUST publish predicted outage windows to M05 and M17.
@@ -459,15 +455,12 @@ IV access is a physical control mirrored in M01 role permissions.
 
 ## 5. Data produced and consumed
 
-| Produced by M17/M18 | Consumed by |
-|---|---|
-| `shift.published.v1`, `shift.open.v1`, `shift.filled.v1`, `timesheet.approved.v1` | M05 capacity, M15 payroll cost, M16, payroll connector (14) |
-| `credential.expiring.v1`, `credential.lapsed.v1` | M01 permissions, M19 compliance calendar |
-| `asset.status.changed.v1`, `asset.downtime.started.v1/ended.v1` | M05 slot engine, M13 patient notifications, M16 |
-| `telemetry.alarm.v1` | Maintenance Hand, BIO console |
-| `stock.lot.received.v1`, `stock.issued.v1`, `stock.expiring.v1` | NUR console, M15 inventory postings, M19 recall workflow |
-| `remote_access.session.opened.v1/closed.v1` | 15 security audit |
-| `site.power.window.v1` | M05, M17, BKG console |
+Events produced: `shift.published.v1`, `shift.open.v1`, `shift.filled.v1`, `timesheet.approved.v1`
+(to M05, M15, M16 and the payroll connector); `credential.expiring.v1`, `credential.lapsed.v1`
+(to M01 and M19); `asset.status.changed.v1`, `asset.downtime.started.v1`, `asset.downtime.ended.v1`
+(to M05, M13, M16); `telemetry.alarm.v1` (to the Maintenance Hand and BIO); `stock.lot.received.v1`,
+`stock.issued.v1`, `stock.expiring.v1` (to NUR, M15, M19); `remote_access.session.opened.v1` and
+`closed.v1` (to the 15 audit stream); `site.power.window.v1` (to M05, M17, BKG).
 
 Consumed: M02 sites, rooms, modalities and agreements; M05 bookings and forecasts; M08 MPPS;
 M10 QA results and dose; M15 budgets; M19 policies and incidents; M21 notifications.

@@ -3,22 +3,17 @@
 ## 1. Purpose and scope
 
 M15 Finance & Consolidation turns the operational and billing data the Platform already holds into
-the numbers that run the business: a monthly P&L per Practice and per Site built from Platform
-events, intercompany invoices generated from posted rules, consolidated Group accounts with
-eliminations and minority interests, JV distributions computed from effective-dated cap tables,
-budgets and forecasts, capex approvals, banking, and an automated month-end close run by the Close
-Hand. Its promise to shareholders (SHR) is the brand promise applied to money: the Practice's numbers
-are visible before month-end, not weeks after.
+the numbers that run the business: a monthly P&L per Practice and Site built from Platform events,
+intercompany invoices generated from posted rules, consolidated Group accounts with eliminations and
+minority interests, JV distributions computed from effective-dated cap tables, budgets and
+forecasts, capex approvals, banking, and an automated month-end close run by the Close Hand. Its
+promise to shareholders (SHR) is the brand promise applied to money: the Practice's numbers are
+visible before month-end, not weeks after.
 
-In scope: chart of accounts and GL mapping; P&L construction; intercompany rules with VAT; export to
-accounting systems; consolidation and eliminations; distributions (waterfall, approvals, payment
-files, statements, tax certificates); budgets and forecasts; capex and reserved matters; banking;
-month-end close; audit support. Out of scope: the debtor sub-ledgers and revenue journal generation
-(M14), statutory accounting and tax filing (done in the accounting system by the Group's accountants
-using M15 exports), shareholding and agreement records themselves (M02).
-
-Rates, thresholds and accounting policies in this document are illustrative and configurable unless
-stated as statutory (VAT 15 %).
+Out of scope: debtor sub-ledgers and revenue journal generation (M14); statutory accounting and tax
+filing (done in the accounting system from M15 exports); shareholding and agreement records (M02).
+Rates, thresholds and accounting policies here are illustrative and configurable unless stated as
+statutory (VAT 15 %).
 
 ## 2. Process card (conventions §5)
 
@@ -122,14 +117,13 @@ the invoice is final and exported. Disputes go to EXE with the computation visib
 
 ## 6. Export to accounting systems (connector pattern)
 
-The Platform does not replace the accounting system. A connector per entity implements the
-`ports/Accounting` interface: push journals, push sales and purchase invoices (intercompany,
-corporate, patient summaries), push customer receipts summary, pull supplier invoices and bank
-balances, pull trial balance for reconciliation. Categories: cloud SME accounting packages, mid-market
-ERPs. Each connector maps the Group chart to the target's chart, is idempotent by journal id, keeps a
-per-document export log, and surfaces failures to group finance. A monthly reconciliation compares the
-posting ledger trial balance to the accounting system's trial balance per entity and lists
-differences with a root cause (timing, mapping, manual entry in the accounting system).
+The Platform does not replace the accounting system. A connector per entity implements
+`ports/Accounting`: push journals, sales and purchase invoices (intercompany, corporate, patient
+summaries) and receipt summaries; pull supplier invoices, bank balances and the trial balance.
+Categories: cloud SME accounting packages and mid-market ERPs. Each connector maps the Group chart
+to the target's chart, is idempotent by journal id, keeps a per-document export log and surfaces
+failures to group finance. A monthly reconciliation compares the posting-ledger trial balance to the
+accounting system's per entity and lists differences with a root cause (timing, mapping, manual entry).
 
 * M15-R-130 The Platform MUST reconcile its posting ledger to each entity's accounting system trial
   balance monthly and MUST report every difference with an owner.
@@ -138,21 +132,17 @@ differences with a root cause (timing, mapping, manual entry in the accounting s
 
 ### 7.1 Happy path
 
-1. Build the consolidation scope from M02: every entity, its parent, ownership percentage on the
-   period end date (derived from shares issued, M02-R-002), consolidation method (full for control,
-   equity method for significant influence without control, none for affiliates).
+1. Build the scope from M02: every entity, its parent, ownership percentage on the period end date
+   (derived from shares issued, M02-R-002) and method (full for control, equity method for
+   significant influence, none for affiliates).
 2. Aggregate entity ledgers on the Group chart.
 3. Eliminate intercompany revenue and costs, receivables and payables, and unrealised intra-group
-   margins (for example a Properties mark-up on equipment leased to a Practice) using the intercompany
-   invoices as the elimination list; a mismatch between the two sides of any pair is an exception.
+   margins (for example a Properties mark-up on leased equipment) using the intercompany invoices as
+   the elimination list; a mismatch between the two sides of a pair is an exception.
 4. Compute minority (non-controlling) interests per JV: the minority's economic share of profit after
-   tax and of net assets, using effective-dated shareholdings and pro-rata by days where shareholdings
-   changed in the period (§8.3).
-5. Produce the consolidated P&L, balance sheet summary and cash flow summary at Group, at
-   Professional Holdings, and at MSO, with IFRS-based management-pack layouts (statutory packs remain
-   in the accounting system).
-6. Produce the JV reconciliation: each JV's standalone profit, its minority share, and the
-   distributable-profit bridge for §8.
+   tax and net assets, pro-rated by days where shareholdings changed in the period (§8.3).
+5. Produce consolidated P&L, balance sheet and cash flow summaries at Group, Professional Holdings
+   and MSO in IFRS-based management-pack layouts, plus a JV reconciliation feeding §8.
 
 * M15-R-140 Consolidation MUST derive scope and percentages from M02 on the period end date and
   MUST recompute exactly for any historical period.
@@ -177,12 +167,12 @@ Waterfall steps are configured per Practice from the shareholders' agreement and
 
 | Step | Description | Configuration |
 |---|---|---|
-| Preference return | A share class receives a fixed or indexed return on its subscription first (illustrative: 10 % per annum cumulative) | Rate, cumulative or not, compounding, base amount, arrears tracking |
-| Return of capital | Subscription or loan account repayment priority | Per class, capped at outstanding balance |
-| Catch-up | After the preference is met, another class receives all or a percentage until a target ratio is restored | Target ratio, percentage |
-| Pro-rata | Remainder shared by economic percentage | Economic % from cap table, per class |
-| Hurdles and ratchets | Different splits above performance hurdles (illustrative: EBITDA above plan) | Hurdle metric, thresholds, splits |
-| Loan account offsets | Shareholder loan balances offset or repaid per agreement before cash distributions | Priority, interest |
+| Preference return | A class receives a fixed or indexed return on subscription first (illustrative: 10 % per annum cumulative) | Rate, cumulative, compounding, base, arrears tracking |
+| Return of capital | Subscription or loan account repayment priority | Per class, capped at balance |
+| Catch-up | Another class receives all or part until a target ratio is restored | Target ratio, percentage |
+| Pro-rata | Remainder by economic percentage | From cap table, per class |
+| Hurdles and ratchets | Different splits above performance hurdles | Metric, thresholds, splits |
+| Loan account offsets | Shareholder loans offset or repaid before cash distributions | Priority, interest |
 
 The engine runs the steps, records each step's inputs and outputs, and produces per-shareholder
 entitlements. Where the agreement is silent, pro-rata by economic percentage applies.
@@ -317,11 +307,11 @@ because revenue and cost journals are generated continuously, not at month-end.
 
 | Variant | Handling |
 |---|---|
-| M14 checklist incomplete (unbilled items above tolerance) | Close proceeds with accrual at expected price; items listed in the pack; PRM owns follow-up. |
-| Intercompany dispute open at day 5 | Consolidation uses the computed amount; dispute flagged in the pack; resolution posts in the next period with back-reference. |
-| Bank reconciliation difference | Close proceeds with a suspense entry and an owner; distribution proposal reduced by the unexplained amount until resolved (configurable). |
-| Post-close correction | Posts to the open period with reference to the closed period; re-run of distributions only by CFO decision with a documented reason. |
-| New model version of the variance commentary drafter | Commentary is Class 4 (internal draft) and always edited by the CFO; the model version is shown on the draft. |
+| M14 checklist incomplete (unbilled above tolerance) | Close proceeds with accrual at expected price; items listed in the pack; PRM follows up. |
+| Intercompany dispute open at day 5 | Consolidation uses the computed amount; flagged in the pack; resolution posts next period with back-reference. |
+| Bank reconciliation difference | Suspense entry with owner; distribution proposal reduced by the unexplained amount until resolved (configurable). |
+| Post-close correction | Posts to the open period with reference to the closed one; distribution re-run only by CFO decision with a documented reason. |
+| Variance commentary drafter model change | Commentary is a Class 4 internal draft, always edited by the CFO; model version shown on the draft. |
 
 ### 12.4 Requirements
 
@@ -392,13 +382,11 @@ are append-only or versioned.
 | `journal` / `journal_line` | entity, period, source, status, reversal link, attachments; account, debit, credit, dimensions, source ref |
 | `allocation_rule` / `allocation_run` | pool, driver, targets, dates; period, driver values, amounts |
 | `intercompany_invoice` | rule (M02), from, to, period, basis inputs, amount, VAT, number, status (draft, issued, disputed, final, exported) |
-| `accounting_connector` / `export_log` | entity, system category, account map; document, target reference, status, error |
-| `tb_reconciliation` | entity, period, ledger and accounting TBs, differences (account, amount, root cause, owner) |
+| `tb_reconciliation` / `export_log` | entity, period, differences (account, amount, root cause, owner); document, target reference, status |
 | `consolidation_run` / `elimination` | period, scope, minority interests, outputs; invoice pair refs, amount, matched flag |
 | `distributable_profit` | entity, period, bridge lines, solvency and liquidity test (inputs, result), resolution ref |
 | `waterfall_config` / `waterfall_step` | entity, agreement ref, version; order, type, parameters |
-| `distribution_run` / `shareholder_entitlement` | entity, period, segments (dates, cap-table version), step results, status, approvers; shareholder, segment, gross, dividends tax, exemption ref, net, loan movement, payment ref |
-| `shareholder_statement` / `tax_certificate` | shareholder, run or tax year, document ref, delivered_via |
+| `distribution_run` / `shareholder_entitlement` | entity, period, segments (dates, cap-table version), step results, status, approvers; shareholder, segment, gross, dividends tax, exemption ref, net, loan movement, payment ref, statement and tax certificate document refs |
 | `payment_file` | source, lines, hash, approvers, released_at, bank acknowledgement, settlement match |
 | `budget` / `forecast` | entity, version, status, assumptions, lines (account, dimension, month, amount) |
 | `capex_case` / `reserved_matter_vote` | business case, quotes, financing, licence implications, route, status, asset ref (M18); agreement ref, matter, voters, quorum, majority rule, votes, outcome |
