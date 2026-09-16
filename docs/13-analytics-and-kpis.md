@@ -25,7 +25,7 @@ Nightly snapshots (dims, balances) ───────────────
                     Dashboards    Insight Hand   Benchmarks    Forecasts     Exports/packs
 ```
 
-| Layer | Internal (Docker) | Demo (Cloudflare) |
+| Layer | Internal (Docker) | Cloud (Cloudflare: production, staging, demo) |
 |---|---|---|
 | Ingest | NATS JetStream consumer writes events to landing tables | Queue consumer writes to D1 landing tables and Analytics Engine datasets |
 | Warehouse | PostgreSQL 16 for facts up to about 50 M rows per table; ClickHouse for high-volume facts (audit, telemetry, communication, claim lines at 30 M lines a year) | D1 (SQLite) marts; Analytics Engine for time-series counters |
@@ -159,7 +159,7 @@ Unless stated, every metric slices by Practice, Site, Modality, Period (day, wee
 |---|---|---|---|---|---|
 | RCM.FPA | First-pass acceptance | claim lines accepted on first submission ÷ lines submitted | Claim line | ≥ 95 % | higher |
 | RCM.REJ | Rejection rate by reason | lines rejected ÷ lines submitted, by taxonomy reason, funder, site, coder (human or Hand) | Claim line | ≤ 4 % | lower |
-| RCM.REJ.FIX | Rejection recovery | rejected lines eventually paid ÷ rejected lines; median days to recover; share auto-fixed by the Rejection Hand | Claim line | ≥ 80 % | higher |
+| RCM.REJ.FIX | Rejection recovery | rejected lines eventually paid ÷ rejected lines; median days to recover; share auto-fixed by the Claims Hand | Claim line | ≥ 80 % | higher |
 | RCM.DTB | Days to bill | Median (claim submitted − service date), split available→signed and signed→submitted | Claim | ≤ 1 day for clean claims | lower |
 | RCM.UNBILLED | Unbilled | value of charges in draft, coded, ready or held older than 2 days; count and ZAR, by hold reason | Charge | ≤ 2 % of monthly revenue | lower |
 | RCM.DSO | Days sales outstanding | debtors balance ÷ (trailing 90-day net revenue ÷ 90); split scheme and patient | Account | ≤ 35 days scheme, ≤ 45 patient | lower |
@@ -201,7 +201,7 @@ Unless stated, every metric slices by Practice, Site, Modality, Period (day, wee
 | WFM.CRED | Credential expiry | staff with a credential expiring within 90/30 days; expired (must be 0 rostered) | Staff | 0 expired | lower |
 | WFM.CPD | CPD compliance | staff on track for cycle points ÷ staff | Staff | 100 % | higher |
 | WFM.RGT | Radiologist throughput | RVU-weighted reports signed per reading hour; TAT contribution; peer review score (private to RGT and RGT lead) | Shift | benchmark | higher |
-| WFM.HAND | Rostering Hand fill | gaps filled by the Rostering Hand ÷ gaps detected | Gap | ≥ 60 % | higher |
+| WFM.HAND | Roster Hand fill | gaps filled by the Roster Hand ÷ gaps detected | Gap | ≥ 60 % | higher |
 
 ### 4.9 Assets (owner: BIO)
 
@@ -343,13 +343,13 @@ Alerts are metric conditions evaluated at the metric's freshness tier; each aler
 
 | Alert | Condition (illustrative) | Owner | Hand action |
 |---|---|---|---|
-| Critical result unacknowledged | 30 min since raised | RGT, PRM | Critical Result Hand escalates per policy |
+| Critical result unacknowledged | 30 min since raised | RGT, PRM | Critical Results Hand escalates per policy |
 | TAT SLA at risk | Study within 20 % of SLA and unassigned | RGT lead, Hub | Reading Hand reassigns within pool |
 | Utilisation gap | Predicted fill rate tomorrow < 70 % | PRM, BKG | Booking Hand offers waitlist slots |
-| No-show risk | Predicted no-shows > 3 in a session | FDK | Attendance Hand sends confirmations, offers reschedule |
-| Rejection spike | RCM.REJ for a funder > 2 × trailing 8-week mean | BIL | Rejection Hand classifies, pauses submission for that rule if systematic |
+| No-show risk | Predicted no-shows > 3 in a session | FDK | Booking Hand sends confirmations, offers reschedule |
+| Rejection spike | RCM.REJ for a funder > 2 × trailing 8-week mean | BIL | Claims Hand classifies, pauses submission for that rule if systematic |
 | Unbilled ageing | RCM.UNBILLED > threshold or any charge > 5 days | BIL | Coding Hand retries; lists blockers |
-| Resubmission deadline | Rejected value within 30 days of deadline | BIL lead | Rejection Hand prioritises |
+| Resubmission deadline | Rejected value within 30 days of deadline | BIL lead | Claims Hand prioritises |
 | Cash | Collections week-to-date < 85 % of forecast | CFO, DEB | Collections Hand reviews stage transitions |
 | Licence or credential | Expiry within 30 days; any expired in use | CMP, BIO, PRM | Renewal task created; scheduling blocked |
 | QA overdue or failed | Any | BIO, RPO | Maintenance job opened; slots blocked |

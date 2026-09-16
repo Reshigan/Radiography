@@ -178,8 +178,8 @@ calls the radiologist for review, and arranges the follow-up call for the next d
 **What the Platform does.**
 * M19: incident with the injector data attached; extravasation rate is tracked per site and per
   cannula site and gauge for learning, not for blame.
-* M13: the Follow-up Hand (A3) schedules the next-day check-in message and phone call and escalates
-  any report of worsening symptoms to the nurse queue.
+* M13: the Platform schedules a templated next-day check-in message and a nurse-queue task to phone
+  the patient; any report of worsening symptoms routes to the nurse queue and the radiologist.
 * M14: the study is marked incomplete or repeated per the radiologist; the account follows the
   Practice's policy for repeated contrast after an extravasation.
 
@@ -233,7 +233,8 @@ with no unresolved incident.
 * A reaction protocol that runs as a timed checklist with weight-based doses from the Practice's
   policy and alerts the radiologist and the manager instantly.
 * A reaction recorded once becomes a Flare item at every Bonakala site in the country.
-* Extravasation and reaction follow-up calls scheduled automatically by the Follow-up Hand.
+* Extravasation and reaction follow-up check-ins scheduled automatically as nurse tasks with
+  templated patient messages.
 * Stock that decrements per scan and reorders itself within a budget leash.
 * Patient instructions after contrast delivered in the patient's language from an approved
   catalogue.

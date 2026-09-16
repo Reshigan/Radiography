@@ -52,7 +52,7 @@ The journey follows Thandi, a senior billing clerk in the Durban bureau, who ser
 |---|---|---|
 | Identity | Member number on file does not match scheme response | Confirm with patient via WhatsApp; `IdScan` on next visit |
 | Coding confidence | Report describes an additional contrast phase not on the order | Accept the Hand's suggested extra line or reject |
-| Funder rule | Authorisation number required for this tariff code with this scheme | Benefit Hand requests auth retrospectively; hold |
+| Funder rule | Authorisation number required for this tariff code with this scheme | Authorisation Hand requests auth retrospectively; hold |
 | Referrer | Referring practitioner practice number invalid or missing | Look up in the referrer directory; ask the Referrer Space contact |
 | Funder class | RAF, COIDA, corporate, foreign patient | Human-led per the funder playbook |
 | Data quality | Patient date of birth mismatch across two records | M03 merge candidate; route to FDK |
@@ -95,9 +95,9 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 
 **What they do.**
 
-1. Thandi opens the investigation. The Claims Hand's draft root cause reads: "Scheme rule pack version 2026.08 does not include circular 14/2026. Claims for tariff codes [illustrative list] submitted without authorisation number since 01 Sep are rejected. Proposed fix: rule pack update; retrospective authorisation requests via the Benefit Hand; resubmission batch." Thandi checks the circular herself.
+1. Thandi opens the investigation. The Claims Hand's draft root cause reads: "Scheme rule pack version 2026.08 does not include circular 14/2026. Claims for tariff codes [illustrative list] submitted without authorisation number since 01 Sep are rejected. Proposed fix: rule pack update; retrospective authorisation requests via the Authorisation Hand; resubmission batch." Thandi checks the circular herself.
 2. She raises a rule-pack change request. Rule packs are versioned data in `packages/billing-rules`; a change requires a second person (the bureau rules lead) to approve, and takes effect for a chosen Practice set. The Platform shows a dry-run: how many claims in the last 30 days would have been flagged under the new pack.
-3. She authorises the Benefit Hand (M06, A3 within leash: retrospective authorisation requests for CT only, this scheme only, up to 100 requests, this week) to request retrospective authorisations through the scheme's portal or API where offered, and to phone the scheme's authorisation line where not. The Hand logs each call outcome and reference number.
+3. She authorises the Authorisation Hand (M06, A3 within leash: retrospective authorisation requests for CT only, this scheme only, up to 100 requests, this week) to request retrospective authorisations through the scheme's portal or API where offered, and to phone the scheme's authorisation line where not. The Hand logs each call outcome and reference number.
 4. As authorisations arrive, the Claims Hand attaches the number and resubmits. Claims with an ICD-10 issue are routed back through the Coding Hand, which proposes a compliant primary code where the report supports it, and to Thandi where it does not (the radiologist may be asked, through the Reading Room, to confirm a clinical indication; the radiologist never changes a code to suit a funder, and the Platform records that the request was clinical clarification only).
 5. Thandi posts a bureau-wide notice through the console so the other three Practices' clerks see the pattern and the fix, and PRM at each site is told which patients may be contacted about a delay in scheme payment.
 
@@ -111,7 +111,7 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 **Edge cases.**
 - The scheme refuses retrospective authorisation for a subset. The claim converts to a patient liability only if the Practice's policy and the patient's signed financial consent (M07) allow it; otherwise it is written off under a "funder rule change, practice absorbs" code so that DEB never dunns a patient for a bureau miss. Write-offs above a threshold need PRM approval, and the Practice's shareholders see the reason in their monthly statement.
 - The circular is discovered to have been received on WhatsApp by a site manager rather than the info@ mailbox. The Platform's inbound document capture (M04 fax-to-digital and WhatsApp intake) is configured to classify any funder circular and route it to the rules lead; Thandi confirms the classifier now catches it.
-- The rules change also affects quotes given to patients for next week (M06). The Platform re-runs the benefit and authorisation check on upcoming bookings and the Benefit Hand obtains authorisations before the patients arrive.
+- The rules change also affects quotes given to patients for next week (M06). The Platform re-runs the benefit and authorisation check on upcoming bookings and the Authorisation Hand obtains authorisations before the patients arrive.
 
 **Success measure.** Time from first rejection to rule-pack fix under one working day; 90 % of the affected claims paid within 30 days; zero claims in the cohort lapse the stale-claim deadline; the same scheme's next circular is captured and actioned before its effective date.
 

@@ -1,4 +1,4 @@
-# 10 - Finance, Consolidation and Distributions (M15)
+# 10 — Finance, Consolidation and Distributions (M15)
 
 ## 1. Purpose and scope
 

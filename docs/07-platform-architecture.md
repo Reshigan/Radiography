@@ -43,7 +43,7 @@ business logic is identical.
 bonakala/
 ├── apps/
 │   ├── web/                # React SPA/PWA: all persona surfaces (route groups per lens)
-│   ├── api/                # Hono API; runs on Workers (demo) and Node (internal)
+│   ├── api/                # Hono API; runs on Workers (cloud) and Node (internal)
 │   ├── edge-gateway/       # Site appliance (Node + Orthanc sidecar): DICOM router, MWL, offline cache
 │   ├── inference/          # Python FastAPI + ONNX Runtime/TensorRT model server (Cloudflare Containers or GPU inference cell; Docker internal)
 │   ├── agents/             # Agent Runtime workers ("Hands"); Claude API tool-runner based

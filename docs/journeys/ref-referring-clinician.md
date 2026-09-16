@@ -42,8 +42,9 @@ the check digit failed), taps *Accept and offer slots to patient*, and tells the
 a WhatsApp message. She is done in 40 seconds.
 
 **What the Platform does.**
-* M04 Referral & Orders: the Referral Hand (M20, automation A2) extracts fields from the photo; the
-  ID check-digit validation runs before display; any field below threshold or failing validation
+* M04 Referral & Orders: the Referral Hand (M20, A3 when all mandatory fields clear and the referrer
+  is known, otherwise a BKG task) extracts fields from the photo; the ID check-digit validation runs
+  before display; any field below threshold or failing validation
   requires explicit correction. The original photo is retained as the source document. Event:
   `referral.received.v1`, then `order.created.v1` on acceptance.
 * M04 appropriateness: a rules-based guideline lookup (the Practice's adopted referral guidelines,
@@ -97,9 +98,10 @@ opens the full study to plan surgery.
   to her HPCSA and practice numbers.
 * M06: the Authorisation Hand (A3) submits the pre-authorisation request to the scheme with the ICD-10 code
   from the order (illustrative: M23.2 for a meniscal derangement), tracks the response, and posts
-  the authorisation number to the order; if the scheme requires a clinical motivation the Hand
-  drafts it from the order for Dr Mahlangu to approve in one click (the draft is annotated and never
-  sent without her acceptance).
+  the authorisation number to the order; if the scheme requires a clinical motivation, the Hand
+  assembles it from the order (never from unsigned AI text), BIL confirms it, and where the scheme
+  wants the referrer's own motivation Dr Mahlangu approves it in one click; the assembled text is
+  annotated and never sent without a person's acceptance.
 * M12 Reporting: the knee MRI structured template produces a report with a findings table; the
   outbound `DiagnosticReport` carries the structured content, a PDF rendering and key image
   references.
@@ -132,13 +134,14 @@ the Referrer Space *Urgent* section on his phone, taps *STAT CT head*, scans the
 wristband, and adds one line. The Urgent screen shows a live timeline: "Order received 02:04 ·
 On the scanner 02:11 · Images at archive 02:19 · AI triage priority: high (flagged for the
 radiologist to look at first) · Radiologist reading: Dr Sithole (Hub) 02:21 · Report signed 02:33".
-At 02:34 his phone rings: it is the Critical Results Hand, which says who is calling, names the
-patient by wristband ID, states the critical finding as signed by Dr Sithole, and asks him to
-acknowledge by saying his name and pressing 1, or by tapping the link that arrives at the same time.
-He can also ask to be connected to Dr Sithole directly.
+At 02:34 a WhatsApp message and, seconds later, a call arrive from the Critical Results Hand: a
+radiologist needs to speak to him urgently about the patient with wristband 4471; he acknowledges
+by pressing 1 or tapping the link, and is connected to Dr Sithole, who tells him the finding in her
+own words. The Hand never states the finding; that is the radiologist's act.
 
 **What they do.** Places the STAT order, watches the timeline while stabilising the patient, takes
-the call, acknowledges, and calls the neurosurgeon. The report is already in the hospital system.
+the call, acknowledges, hears the finding from Dr Sithole, and calls the neurosurgeon. The report
+is already in the hospital system.
 
 **What the Platform does.**
 * M04: the STAT priority sets a hard turnaround target (illustrative: 30 minutes from image arrival
@@ -152,11 +155,13 @@ the call, acknowledges, and calls the neurosurgeon. The report is already in the
   look at first".
 * M12: Dr Sithole reads from home on the Hub (see the RGT journey) and signs; the report marks the
   finding as critical with a coded category.
-* M13: the Critical Results Hand (A3, mandate: contact the responsible referrer for a signed critical
-  finding by phone, WhatsApp and the hospital system; record acknowledgement; escalate to the
-  on-call clinical lead if no acknowledgement within a configurable window) makes the call, reads
-  only the radiologist's signed wording, records the acknowledgement path, and posts it to the
-  report. Event: `critical.finding.raised.v1`, `critical.finding.acknowledged.v1`.
+* M13: the Critical Results Hand (A3) is triggered only by the radiologist's act,
+  `report.critical_flag.confirmed.v1`, never by a model score. Its mandate is to deliver the
+  contact request to the responsible referrer through the configured escalation ladder
+  (illustrative: message at 0 min, call at 5, alternate contact at 15, on-call radiologist task at
+  20), confirm acknowledgement and document every attempt. Its leash forbids stating the finding:
+  the scripted call says only that a radiologist needs to speak to him urgently and connects him.
+  Event: `report.acknowledged.v1` with the acknowledger, channel and time.
 * M06 and M14: the study is funded as an emergency pending identity; PMB status is suggested later
   by the Coding Hand and confirmed by BIL.
 
@@ -271,7 +276,8 @@ baseline from the Trend view, which records a new baseline date.
 * A new lesion appears: the report codes it as a new lesion; the Trend view flags progression; the
   notification is urgent, not critical, per the Practice's category definitions.
 * The scheme's oncology programme declines a scan as outside protocol: the order is held, Dr Pillay
-  sees the reason and may submit a motivation drafted by the Authorisation Hand for her approval.
+  sees the reason and may submit a motivation assembled by the Authorisation Hand from the order
+  for her approval.
 
 **Success measure.** Standing protocol runs for a year without a single manual booking; every
 quarterly report has a measurement table and a trend that Dr Pillay can show her patient.
@@ -303,12 +309,13 @@ phone call, every time.
   before the consultation ends.
 * Referral status is visible end-to-end: Referred, Booked, Arrived, Scanned, Reported, Viewed. A
   no-show is a notification, not a mystery.
-* Critical findings are phoned by the Critical Results Hand within minutes of sign-off, read only in
-  the radiologist's words, and the acknowledgement is recorded against the report.
+* The Critical Results Hand reaches the responsible doctor within minutes of the radiologist's
+  confirmed flag, records the acknowledgement against the report, and connects the radiologist, who
+  states the finding personally.
 * Results arrive inside the referrer's own system as FHIR or HL7 with key images, and the full study
   opens in the browser with no CD and no second login.
-* Pre-authorisation and motivations are handled by the Authorisation Hand, with the referrer approving a
-  drafted motivation in one click.
+* Pre-authorisation and motivations are handled by the Authorisation Hand, with the referrer
+  approving an assembled motivation in one click.
 * Serial oncology imaging is a standing protocol with measurement tables and trends, not a quarterly
   PDF.
 * Batch occupational orders from a spreadsheet, a mobile unit visit and ILO-classified reports back

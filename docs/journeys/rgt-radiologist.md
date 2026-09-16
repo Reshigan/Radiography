@@ -4,8 +4,8 @@ This journey follows the Radiologist persona (RGT) through a reading day and a m
 scene is written as: Situation, What they see, What they do, What the Platform does, Edge cases,
 Success measure. Turnaround targets, reading fees and model names are illustrative and stored as
 configurable reference data. Clinical interpretation is capped at automation level A1 by policy: a
-registered radiologist signs every report, and every AI output in this journey is a findings
-candidate, a triage priority, a draft or a suggested code until that signature.
+registered radiologist signs every report, and every AI output here is a findings candidate, a
+triage priority, a draft or a suggested code until that signature.
 
 ## Persona snapshot (from 04-personas)
 
@@ -45,22 +45,24 @@ draft, signs. Repeats for the other two. Twelve minutes.
 * M12 Reporting: the worklist is a projection over `study.acquired.v1`, `bci.result.v1`, prior-fetch
   events and claims; claim semantics (lock) prevent two radiologists reading the same study; a claim
   expires if idle.
-* M09 Image Management: pre-fetch rules load relevant priors (same body region, configurable
-  look-back) into the reading cache before the study reaches the top of the list; DICOMweb
+* M09 Image Management: the Priors Hand (A3) located and staged relevant priors (same identity above
+  the M03 threshold, same body region, configurable look-back, external archives only under a signed
+  data-sharing agreement) and tagged the comparison prior per the hanging-protocol rules before the
+  study reached the top of the list; DICOMweb
   progressive loading gets the first image on screen in under a second on the LAN.
 * M11 Clinical Intelligence: routing rules sent each study to the registered models for its modality
   and body part; results were stored as DICOM SR and JSON with provenance; the priority reordered the
   queue.
 * M13 Results & Communication: STAT sign-off triggers immediate delivery to the referrer's chosen
   channel and, if a critical category is set, the Critical Results Hand (Scene 6).
-* Events: `study.claimed.v1`, `report.signed.v1`, `results.delivered.v1`.
+* Events: `study.claimed.v1`, `report.signed.v1`, `report.distributed.v1`.
 
 **Edge cases.**
-* A STAT study has no prior fetched because it was acquired at a hospital outside the Group: the
-  `PriorStrip` shows "external, request" and a share-link request can be sent with consent.
+* A STAT study from a hospital outside the Group has no prior: the `PriorStrip` shows "external,
+  request" and a share-link request can be sent with consent.
 * Two radiologists claim at the same instant: the lock resolves it; the loser sees the row move.
-* The SLA timer breaches: the row turns Flare, the Practice's clinical lead is notified, and the
-  breach is recorded for the M16 turnaround metric with the reason if one is entered.
+* The SLA timer breaches: the row turns Flare, the clinical lead is notified, and the breach is
+  recorded for the M16 turnaround metric with a reason.
 
 **Success measure.** STAT turnaround within target every morning; no STAT study waits for a prior.
 
@@ -120,15 +122,16 @@ the critical-finding category picker is one keystroke away.
 **What they do.** Reviews the whole study, not only the flagged slices; confirms a subdural
 haematoma with midline shift; accepts the candidate into the findings with edits to its description;
 measures the shift (the measurement is a data field, not prose); sets the critical category
-("acute intracranial haemorrhage, new") and signs. The Critical Results Hand takes over the call
-(Scene 6).
+("acute intracranial haemorrhage, new") and signs. The Critical Results Hand takes over reaching
+Dr Botha (Scene 6); she will state the finding herself when he is connected.
 
 **What the Platform does.**
 * M11: the ICH model output is Class 2 in the AI charter: it may reorder and annotate but can never
   reach the referrer or the record without the radiologist's acceptance; the gate is technical, not
   procedural.
-* M12: the critical category is a coded field; signing with a critical category emits
-  `critical.finding.raised.v1` with the referrer, the study and the signed wording.
+* M12: the critical category is a coded field; confirming it at sign-off is the radiologist's act and
+  emits `report.critical_flag.confirmed.v1` with the referrer and the study; a model score can never
+  emit it.
 * M09: the overlay is stored as a DICOM presentation state or segmentation object with provenance;
   it is not burned into the images.
 * M16: the time from image arrival to signed report for ICH-flagged studies is a tracked quality
@@ -140,8 +143,8 @@ measures the shift (the measurement is a data field, not prose); sets the critic
 * The model does not flag, the radiologist finds a haemorrhage: the finding is recorded as a
   human-first finding; the miss is a monitoring event to AIO; nothing about the queue implied the
   study was normal.
-* The referrer is a hospital ward, not a named doctor: the responsible clinician is resolved from the
-  hospital's on-call roster feed, or the ward's landline as the fallback contact.
+* The referrer is a ward, not a named doctor: the responsible clinician is resolved from the
+  hospital's on-call roster feed, or the ward landline as fallback.
 
 **Success measure.** ICH-flagged CT heads signed within the STAT target; every critical finding
 carries a coded category and a recorded acknowledgement.
@@ -174,8 +177,8 @@ now toggle the AI overlay and score as an additional input.
   computed per reader and per programme against reference standards stored as reference data.
 
 **Edge cases.**
-* One reader is unavailable for days: the worklist reallocates the second read within the Hub pool
-  to keep the turnaround; the patient's promised turnaround is tracked.
+* One reader is unavailable for days: the second read is reallocated within the Hub pool to keep
+  the promised turnaround.
 * A diagnostic mammogram (symptomatic) arrives in the same session: it is a single read with
   ultrasound, and the overlay policy for diagnostic studies applies.
 * The priors were fetched after the first read: the second reader sees them; the first reader may
@@ -191,8 +194,9 @@ tracked; no screening result released on a single read.
 **What they see.** Push-to-talk dictation into the `ReportEditor`. As she speaks, the structured
 template fills: organ-by-organ findings, measurements as data fields, impression. A drafted
 comparison paragraph from the prior study's measurements appears in the annotated style. After she
-stops, a draft impression, generated from her dictated findings, appears annotated with a model
-label and a `Provenance` chip; a suggested ICD-10 code and suggested tariff codes appear as chips in
+stops, the Drafting Hand (A1, the policy cap) writes into her unsigned workspace a draft
+impression generated only from her dictated findings and the structured fields, annotated with a
+model label and a `Provenance` chip; a suggested ICD-10 code and suggested tariff codes appear as chips in
 the sidebar for BIL, annotated. Nothing in the annotated style can be signed.
 
 **What they do.** Reads the draft impression, edits two phrases, accepts. Accepts the comparison
@@ -203,8 +207,11 @@ shows the referrer, the delivery channels and any critical or urgent category.
 **What the Platform does.**
 * M12: speech-to-text runs through the LLM Gateway with a radiology vocabulary; the draft impression
   is a Class 2 output generated only from the radiologist's own dictated findings and the structured
-  fields, never from the images directly; accepting removes the annotated style and records the
-  acceptance; editing records the diff for monitoring.
+  fields, never from the images directly; the Drafting Hand writes only to the unsigned workspace of
+  her session and has no tool that changes report state, creates addenda or sends anything; an
+  unsourced sentence or a contradiction between findings and impression is highlighted and blocks
+  sign-off until she acts; accepting removes the annotated style and records the acceptance;
+  editing records the diff for monitoring.
 * M12 sign-off: a signed report is immutable; changes after signing are addenda (Scene 7); the PDF
   and structured versions are generated at sign-off with the Practice's letterhead, the
   radiologist's HPCSA number and practice number.
@@ -220,8 +227,8 @@ shows the referrer, the delivery channels and any critical or urgent category.
   field blocks signing until resolved.
 * The LLM Gateway is unavailable: dictation still works with the local speech engine; drafts are
   simply absent; signing is never blocked by AI availability.
-* A report template is missing for an unusual study: free text with mandatory impression and
-  recommendation fields.
+* No template exists for an unusual study: free text with mandatory impression and recommendation
+  fields.
 
 **Success measure.** Time from dictation end to signature falls; draft edit rate monitored; zero
 signed reports containing annotated content.
@@ -233,39 +240,44 @@ is Dr Botha in casualty (REF journey, Scene 3), who is with the patient.
 
 **What they see.** A Flare site-wide banner at the top of the Reading Room: "Critical finding:
 CT head, wristband 4471, Dr Botha, not yet acknowledged, 00:02:10", with the Critical Results Hand's
-live status: "Calling Dr Botha (casualty mobile)... Answered 11:47. Acknowledged by voice and link
-11:48." The banner turns Signal and collapses to the study's timeline. If Dr Botha had asked to
-speak to her, the console would have shown an incoming request with the study open.
+live status: "Message sent 11:45. Calling Dr Botha (casualty mobile) 11:50. Answered; acknowledged
+by keypress and link 11:51. Connecting." Her console shows the incoming connected call with the
+study open. After the conversation, the banner turns Signal and collapses to the study's timeline.
 
-**What they do.** Nothing, unless the Hand escalates. She keeps reading. When she is later asked
-by the neurosurgeon for the images, she sends a share link from the study page.
+**What they do.** Takes the connected call and tells Dr Botha the finding in her own words; the
+conversation is recorded on the study as the clinical communication. Everything before and after
+the conversation, the chasing, the ladder and the documentation, is the Hand's. She keeps reading.
+When she is later asked by the neurosurgeon for the images, she sends a share link from the study
+page.
 
 **What the Platform does.**
-* M13 Critical Results Hand (M20, automation A3): mandate is to reach the responsible referrer by
-  phone, WhatsApp and the hospital system, read only the radiologist's signed wording, record the
-  acknowledgement path (voice confirmation with name, link tap, or system read receipt with a
-  named user), and escalate along the Practice's configured chain (referrer's alternates, the
-  unit's landline, the radiologist, the clinical lead) when the acknowledgement window lapses; its
-  leash forbids paraphrasing findings, discussing management or speaking to anyone other than a
-  verified clinician or the unit's staff for a hand-over.
+* M13 Critical Results Hand (M20, automation A3): triggered by `report.critical_flag.confirmed.v1`,
+  the radiologist's act, never a model score. Mandate: deliver the contact request to the
+  responsible referrer through the configured escalation ladder (illustrative: templated WhatsApp,
+  SMS and email at 0 min, scripted call at 5, alternate contact at 15, on-call radiologist task at
+  20; 10 attempts per case), confirm acknowledgement (keypress with name, link tap, or a named
+  system read receipt) and document every attempt. Leash: it never states the finding, which is
+  Class 1 and is communicated by the radiologist; the script says only that a radiologist needs to
+  speak to the doctor urgently, and connects the two.
 * M13: the banner never auto-dismisses; only acknowledgement or a radiologist's recorded manual
   contact closes it (pattern 5.5).
 * M19: critical-result acknowledgement time is a quality measure with a target; breaches are
   incidents.
-* Events: `critical.finding.acknowledged.v1` with the acknowledger, the channel and the timestamp.
+* Events: `report.acknowledged.v1` with the acknowledger, the channel and the timestamp.
 
 **Edge cases.**
-* The Hand cannot verify the person answering: it does not read the finding; it asks for a call back
+* The Hand cannot verify the person answering: it does not connect the call; it asks for a call back
   through the recorded number and escalates.
 * The referrer has left for the day and the patient is in a ward: the ward's responsible clinician is
   resolved from the hospital's roster feed or the ward landline; the Hand hands over and records the
   named person.
-* The critical finding is on an outpatient whose GP is closed: the escalation chain includes calling
-  the patient to attend an emergency unit, with the radiologist's approval, using the approved
-  catalogue wording.
+* The critical finding is on an outpatient whose GP is closed: the escalation ladder ends in a task
+  for the radiologist, who may phone the patient to attend an emergency unit; the Hand never speaks
+  to the patient about a finding.
 
-**Success measure.** Acknowledgement within minutes on every critical finding; radiologist phone
-time on critical results near zero; zero critical findings closed without a named acknowledger.
+**Success measure.** Acknowledgement within minutes on every critical finding; radiologist time on
+critical results limited to the conversation itself, never the chase; zero critical findings closed
+without a named acknowledger.
 
 ## Scene 7 - 13:00: an addendum
 
@@ -283,7 +295,8 @@ Critical Results Hand.
 
 **What the Platform does.**
 * M12: the original remains immutable; the addendum is versioned; the report's outward
-  representation carries both; `report.addended.v1` is emitted.
+  representation carries both; `report.addended.v1` is emitted, or `report.corrected.v1` when the
+  impression changes.
 * M13: re-delivery to every channel that received the original, with the addendum highlighted; the
   Patient Space shows the addendum with a plain-language note if enabled.
 * M14: if the addendum changes coding, the Coding Hand re-evaluates and, where a claim was already
@@ -306,11 +319,10 @@ turn to review comes daily as a small batch.
 signed report and images; a peer review score entry (a standard scale, used descriptively, with
 categories for agreement, minor discrepancy, major discrepancy) and a free-text learning note.
 Discrepancies open a private thread with the original reader and, if the score is major, a task for
-the clinical lead. Her own reviewed cases appear in her "Learning" tab as they close, with the
-reviewer anonymised unless the reviewer chooses otherwise.
+the clinical lead. Her own reviewed cases appear in her Learning tab as they close, reviewer
+anonymised by default.
 
-**What they do.** Reviews five cases in twenty minutes; records one minor discrepancy with a
-constructive note.
+**What they do.** Reviews five cases in twenty minutes; records one minor discrepancy with a note.
 
 **What the Platform does.**
 * M12 and M19: sampling is stratified (random, plus targeted samples: AI-overridden studies,
@@ -338,8 +350,8 @@ fibre with LTE failover. The Hub worklist spans tenants, each row tagged with it
 credentials for each Practice (HPCSA number, reading services agreement) are verified. STAT studies
 develop at the top; the mobile review app on her phone shows the same list, for triage and for
 reading plain films if the workstation is dark. A CT pulmonary angiogram from Practice B arrives
-with a pulmonary embolism findings candidate. She reads it, signs, and the Critical Results Hand
-phones the casualty doctor in Umhlanga.
+with a pulmonary embolism findings candidate. She reads it, signs with a critical flag, and the
+Critical Results Hand reaches the casualty doctor in Umhlanga and connects her to him.
 
 **What they do.** Reads STAT and urgent work through the night, uses the phone app to check the list
 during a short power cut when the UPS is nearly exhausted, and hands over at 07:00 with a shift note
@@ -362,8 +374,8 @@ generated from her signed studies.
 **Edge cases.**
 * Her workstation dies mid-report: the draft is checkpointed; the study claim is released after the
   idle timeout; another reader can pick it up with the draft visible as "draft by Dr Van Wyk".
-* A Practice she does not have an agreement with sends a STAT study to the Hub: the study is visible
-  as a count only, and the Hub coordinator is paged.
+* A Practice without an agreement with her sends a STAT study to the Hub: she sees a count only and
+  the Hub coordinator is paged.
 
 **Success measure.** Night STAT turnaround equal to daytime; no STAT study unclaimed past the
 threshold; Hub reads billed automatically to the right Practice.
@@ -381,12 +393,12 @@ every line to the signed report it came from. A separate view, as a shareholder 
 the Practice's month (the SHR persona's portal), which is a different thing from her reading fees
 and is kept visibly separate.
 
-**What they do.** Checks two lines she expected (an after-hours uplift and a co-signed occupational
-batch), raises a query on one line with a click, approves the statement.
+**What they do.** Checks two expected lines (an after-hours uplift and a co-signed occupational
+batch), queries one line with a click, approves the statement.
 
 **What the Platform does.**
 * M15: reading fees are computed from `report.signed.v1` events and the fee schedules in the reading
-  services agreements (M02); intercompany invoices between Practices and the Hub are generated from
+  services agreements (M02), and the statement is emitted as `readingfee.statement.issued.v1`; intercompany invoices between Practices and the Hub are generated from
   the same data; queries route to the Practice's PRM and the MSO's finance function with the line's
   evidence attached.
 * M17: productivity views (studies per hour by modality, case-mix adjusted) are hers to see; the
@@ -397,7 +409,7 @@ batch), raises a query on one line with a click, approves the statement.
 **Edge cases.**
 * A report signed on the last day but delivered after midnight: the fee follows the sign-off
   timestamp in SAST.
-* A fee schedule changed mid-month: effective-dated schedules split the month correctly.
+* A fee schedule changed mid-month: effective-dated schedules split the month.
 
 **Success measure.** Statement accepted without manual reconciliation; every line traceable to a
 signed report; disputes resolved from evidence.
@@ -410,8 +422,8 @@ signed report; disputes resolved from evidence.
   accepted or rejected with one key, and never able to reach a report without the radiologist.
 * Dictation into a structured template with a drafted impression from the radiologist's own
   findings, and measurements stored as data that referrers can trend.
-* The Critical Results Hand makes the call, reads only the signed wording, records who acknowledged
-  and when, and escalates by itself.
+* The Critical Results Hand does the chasing: message, call, alternate contact, escalation ladder
+  and a recorded acknowledgement; the radiologist does only the conversation.
 * A mammography double read whose release rule is enforced by the module.
 * Peer review as a daily, blinded, learning practice with case-mix adjusted, private discrepancy
   rates.

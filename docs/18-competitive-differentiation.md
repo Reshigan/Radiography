@@ -24,7 +24,7 @@ contact is by phone and SMS. Results go to referrers by fax, email or a portal p
 | AI governance | Vendor black boxes | Model registry, shadow mode, provenance, kill switches, no-slip charter | 11, 12 |
 | Design | Generic health-blue UIs | BDL: one language, five lenses, Window/Level, provenance styling | 05, 06 |
 | Onboarding an acquisition | Months | Days (Onboarding Hand, templated configuration) | M02 + M20 |
-| Deployment | Vendor-hosted or on-prem only | Cloudflare demo + Docker/K8s internal, identical code | 07, 16, 17 |
+| Deployment | Vendor-hosted or on-prem only | All-Cloudflare cloud (production and demo) + optional Docker/K8s internal, identical code | 07, 16, 17 |
 
 ## 3. Feature completeness commitments
 "Fully developed" means each module ships with: all personas' surfaces, exception handling, audit,

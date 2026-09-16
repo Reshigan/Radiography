@@ -575,6 +575,28 @@ Illustrative numeric leashes below are configurable reference data per Practice.
 | KPIs | First-contact resolution, time to resolve, runbook success |
 | Exception owner | SUP |
 
+### 6.24 Registered sub-mandates
+
+Other documents name specialised Hands for narrower tasks. They are not additional agents with
+their own mandates; each is a registered sub-mandate of one of the canonical Hands above and
+inherits that Hand's tools, leash, approval policy, escalation and exception owner. The runtime
+registers them by name so audit records and dashboards can still show the narrower task.
+
+| Sub-mandate name (as used elsewhere) | Parent Hand | Task | Named in |
+|---|---|---|---|
+| Reading Hand | Drafting Hand | Worklist assignment and rebalancing across the Hub by subspecialty, load and SLA (A3) | 08, 13 |
+| Capacity Hand | Booking Hand | Re-offer and reschedule when a modality goes down (A3) | journeys PRM, BIO |
+| Procurement Hand, Stock Hand | Maintenance Hand | Consumables, contrast and fuel reorders within leash (A3) | 08, 13, journeys PRM |
+| Referrer Hand | Insight Hand | Referrer churn-risk scoring and referrer analytics (Class 4) | 13 |
+| Access Request Hand, Incident Hand, Complaint Hand | Compliance Hand | POPIA data-subject requests, incident timeline reconstruction, complaint acknowledgement drafts (A2) | journeys CMP, AIO, PRM |
+| Integration Hand | Onboarding Hand | Partner integration onboarding and conformance review (A2) | 14 |
+| Reconciliation Hand | QC Hand | Accession and worklist reconciliation proposals for unmatched DICOM (A2) | 08 |
+
+Names that previously appeared as separate Hands and are now the canonical Hand: Critical Result
+Hand and Critical Findings Hand (Critical Results Hand); Rostering Hand (Roster Hand); Rejection
+Hand (Claims Hand); Intake Hand (Referral Hand); Funding Hand and Benefit Hand (Authorisation
+Hand); Attendance Hand (Booking Hand); Identity Hand (Front Desk Hand).
+
 ## 7. Part E: Engineering
 
 ### 7.1 LLM Gateway

@@ -40,10 +40,12 @@ escalated 11, and 4 patients asked for a person.
   (M04).
 * M20: the Booking Hand's mandate covers: match patient (single high-confidence candidate only),
   create order from referral, run benefit check and quote (via the Authorisation Hand), offer up to three
-  slots at sites within a configurable radius, confirm and send preparation; its leash forbids
-  booking studies needing pre-authorisation that has not been granted, booking outside licence or
-  roster constraints, and any conversation where the patient asks for a person or expresses
-  distress; those escalate with a full transcript.
+  slots at sites within a configurable radius, confirm and send preparation; its leash allows
+  3 held slots per patient for 15 minutes and 2 reschedules per order without review, and forbids
+  booking studies needing pre-authorisation that has not been granted, booking outside licensed
+  hours or roster constraints, any contrast study before the M07 safety pre-screen is sent, and any
+  conversation with a clinical question, distress or a request for a person; those escalate with a
+  full transcript on a 10-minute SLA in operating hours.
 * M16 Analytics & Insight: the tiles are live projections of `appointment.booked.v1`,
   `conversation.escalated.v1` and handling-time events.
 
@@ -185,7 +187,7 @@ policy allows and never for MRI or contrast studies.
 
 ## Scene 6 - 15:00: no-show risk and the day-before pass
 
-**Situation.** The Booking Hand (A4 for routine reminders) has sent tomorrow's reminders. Some
+**Situation.** The Booking Hand (A3) has sent tomorrow's reminders in each patient's language. Some
 patients have not confirmed.
 
 **What they see.** A list of tomorrow's unconfirmed appointments ranked by predicted no-show risk

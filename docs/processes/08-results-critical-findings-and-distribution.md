@@ -1,4 +1,4 @@
-# 08: Results, Critical Findings and Distribution
+# 08 — Results, Critical Findings and Distribution
 
 Module: **M13 Results & Communication** (owner).
 Related: M12 Reporting (upstream signed report), M09 Image Management (PACS) (key images, sharing

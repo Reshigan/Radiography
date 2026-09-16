@@ -44,10 +44,10 @@ questions (pregnancy possibility, previous X-rays of the back, implants, preferr
 consent with her finger, and add the appointment to her phone calendar from the link.
 
 **What the Platform does.**
-* M04 Referral & Orders: the Referral Hand (M20, automation A2) extracts referrer, practice number,
-  requested study and clinical indication from the photo, with a `Provenance` chip on every field.
-  Fields under the confidence threshold go to the BKG exception queue; here all fields clear and the
-  order is created. Event: `referral.received.v1`, `order.created.v1`.
+* M04 Referral & Orders: the Referral Hand (M20, automation A3 when every mandatory field extracts
+  above threshold and the referrer's practice number is known and active; otherwise a BKG task)
+  extracts referrer, practice number, requested study and clinical indication from the photo, with a
+  `Provenance` chip on every field. Here all fields clear and the order is created. Event: `referral.received.v1`, `order.created.v1`.
 * M03 Patient Master Index: matches the ID number and mobile number to an existing patient record from
   a visit two years ago at a different Practice in the Group (cross-tenant lookup under the recorded
   data-sharing agreement); no re-registration.
@@ -58,8 +58,10 @@ consent with her finger, and add the appointment to her phone calendar from the 
 * M05 Scheduling & Capacity: the Booking Hand (A3) ranks slots by distance, modality availability,
   radiographer roster (M17), licence status of the room (M02) and predicted no-show risk; holds the
   chosen slot for 10 minutes with a Durable Object lock. Event: `appointment.booked.v1`.
-* M07 Registration & Safety: stores answers and consent with timestamp, device and language; flags
-  pregnancy possibility to the RAD console if answered "not sure".
+* M07 Registration & Safety: the Front Desk Hand (A3) presents the safety questions, the consent
+  and the preparation within its message leash; the Platform stores answers and consent with
+  timestamp, device and language (the Hand never marks consent as given; only her signature does);
+  a "not sure" on pregnancy holds the appointment and creates a RAD task.
 * M13 Results & Communication: schedules a reminder for 06:30 the next day and a load-shedding advisory
   if the site's Edge Gateway reports grid loss (imaging continues on UPS, the message says so).
 
@@ -179,8 +181,9 @@ Patient Space to see his own image and report.
 **Edge cases.**
 * A worker is not on the batch list: the radiographer can add a walk-on under the same contract with
   PRM approval within the leash.
-* A finding candidate for tuberculosis or pneumoconiosis: the radiologist's report triggers the
-  Critical Results Hand path to the occupational health doctor, not to the employer.
+* A finding candidate for tuberculosis or pneumoconiosis: if the radiologist confirms a critical
+  flag, the Critical Results Hand reaches the occupational health doctor, who then speaks to the
+  radiologist; the employer is told nothing clinical.
 * Thabo's phone is a feature phone: SMS only, no links; results are available in person at any site.
 
 **Success measure.** 40 workers imaged in one visit with no paper; occupational health doctor receives
@@ -257,8 +260,8 @@ the front desk sees on the day screen that he has a helper and prefers Afrikaans
   `PayLink` before he arrives so that nobody asks an elderly man for money at the desk.
 
 **Edge cases.**
-* Pieter has no phone: all messages go to Marlize; the site's reminder call (a Booking Hand voice
-  call in Afrikaans, A3) goes to the village office number with his consent.
+* Pieter has no phone: all messages go to Marlize; the site's reminder call (scripted by the Booking Hand in
+  Afrikaans, placed by the site) goes to the village office number with his consent.
 * Cognitive impairment: consent capacity is a clinical judgement; the Platform records that a
   helper or curator consented and the basis, and the radiographer confirms the patient's assent.
 * Load-shedding at the retirement village on the morning of the appointment: the reminder includes
@@ -339,8 +342,9 @@ and adds "please talk to me through the headphones".
 * M08: the protocol card offers the shortest adequate knee protocol as the radiologist-approved
   default, with a note that a "feet-first, head out" position is possible for this study.
 * M13: a message the evening before repeats what to expect and offers a WhatsApp voice reply from a
-  radiographer for questions (routed to the site's MRI radiographer during hours; the Booking Hand
-  handles routine questions from the approved FAQ and escalates anything else).
+  radiographer for questions (routed to the site's MRI radiographer during hours; the Front Desk
+  Hand answers routine preparation questions from the approved catalogue and escalates anything
+  clinical to the radiographer).
 
 **Edge cases.**
 * He cannot complete the scan: the study is recorded as partial with reason; the radiologist reads
@@ -391,8 +395,9 @@ attends, and receives her result.
 * Symptomatic on booking ("I felt a lump"): the flow converts to a diagnostic mammogram with
   ultrasound, a different tariff and a same-week slot, and the referrer is informed.
 * Breast implants: longer slot, implant-displacement views, safety note.
-* She does not respond to a recall: the Follow-up Hand (A3) retries by WhatsApp, SMS and then a
-  phone call by the site, and escalates to the referrer; nothing is silently dropped.
+* She does not respond to a recall: the Platform retries by WhatsApp and SMS from the approved
+  catalogue, then creates a site task to phone her, and tells the referrer; nothing is silently
+  dropped.
 
 **Success measure.** Screening invitations converted to attended studies; recall delivered with a
 booked follow-up in the same message; no recall lost.
@@ -420,8 +425,9 @@ account.
   wristband.
 * M11: the intracranial haemorrhage model runs on arrival at the archive; a triage priority (never a
   diagnosis) is attached; the on-call Hub radiologist's worklist develops the study at the top.
-* M12 and M13: the report is signed within the STAT target; any critical finding is phoned to the
-  casualty doctor by the Critical Results Hand (A3) and acknowledged digitally.
+* M12 and M13: the report is signed within the STAT target; for a critical finding the Critical
+  Results Hand (A3) reaches the casualty doctor and records his acknowledgement, and the radiologist
+  states the finding to him directly.
 * M03: the next day the temporary record is merged into the identified patient by FDK with a typed
   `Confirm`; every study, dose record and charge follows the merge; the audit shows both identities.
 * M06 and M14: once the scheme is known, the emergency is claimed under Prescribed Minimum Benefit
@@ -453,24 +459,28 @@ spots are not cancer. The radiologist recommends a CT scan in 6 months to check 
 changed."), the full signed report, and the images with a share link. The plain-language layer is
 marked as "written with computer help, checked by your radiologist" (the `Provenance` chip), because
 it is generated from the signed report and is reviewed before release. A *Follow-up* card appears
-with the due month and a button: "Remind me". Six months later, a message: "It is time for the CT
-scan Dr Mokoena recommended in March. Your doctor has been asked for a referral. Book here." When
-the referral arrives, the booking and quote flow from Scene 1 or 2 runs again, with the prior
-X-ray already in the `PriorStrip` for comparison.
+with the due month and a button: "Remind me". Six months later, a message: "Your doctor
+recommended a follow-up scan around now. Please contact your doctor. We have reminded the doctor
+too." The message does not repeat the reason, by design: the Follow-up Hand never tells the patient
+the reason and never books without a new referral. When the referral arrives, the booking and quote
+flow from Scene 1 or 2 runs again, with the prior X-ray already in the `PriorStrip` for comparison.
 
 **What they do.** Reads the summary, taps "Remind me", shows the report to his clinic nurse. Six
-months later, taps the booking link.
+months later, goes to the clinic; the clinic sends the referral by WhatsApp and the booking follows.
 
 **What the Platform does.**
 * M12: the structured report carries a coded recommendation (follow-up CT, interval 6 months,
   reason: incidental pulmonary nodule) so that the follow-up is data, not a sentence buried in prose.
-* M13: the Results Hand (A2) produces the plain-language layer from the signed report using an
-  approved template per finding type; the radiologist approves the layer with one click at sign-off,
-  or it is not sent. Event: `report.signed.v1`, `results.delivered.v1`.
+* M11 and M13: the plain-language layer is produced by the BCI plain-summary model (Class 3, A2)
+  only from the signed report, using radiologist-approved sentence templates and a validator that
+  maps every clinical statement to a signed sentence; the Practice may require the radiologist's
+  one-click approval at sign-off for chosen report types and samples the rest. Event:
+  `report.signed.v1`, `report.distributed.v1`.
 * M13: the Follow-up Hand (A3) creates a follow-up obligation with a due date, owner (referrer) and
-  patient; at due-minus-30-days it messages the referrer to request a referral and, at due date, the
-  patient; it escalates unanswered obligations to the referrer's practice and to the Practice's
-  clinical lead. Event: `followup.due.v1`, `followup.closed.v1`.
+  patient; it reminds the referrer ahead of the due date (up to three reminders per loop) and, with
+  the referrer's consent, sends the patient the neutral reminder above; a loop still open 30 days
+  past the recommended date becomes a PRM task and a visibility flag for the radiologist. Event:
+  `followup.due.v1`, `followup.closed.v1`.
 * M06 and M14: the reminder message carries the expected price or scheme position so that cost is
   never the reason to skip a follow-up.
 * M16 Analytics & Insight: the Practice sees its follow-up completion rate, a quality measure that
@@ -479,8 +489,8 @@ months later, taps the booking link.
 **Edge cases.**
 * Sipho changes his number: the Follow-up Hand tries SMS, WhatsApp and email; if all fail, the
   referrer is asked; the obligation is never closed silently, only with a reason.
-* The referrer does not respond: the Practice's clinical lead may authorise a direct booking under
-  the Practice's own protocol if policy allows; otherwise the patient is told whom to contact.
+* The referrer does not respond: the loop escalates to PRM, who contacts the referrer's practice;
+  the Hand never books without a new referral, and the patient is told whom to contact.
 * The follow-up CT shows the nodule has grown: the report triggers the critical or urgent results
   pathway to the referrer; the patient message is the approved neutral wording and directs him to
   his doctor.
@@ -513,8 +523,8 @@ plain-language layer read rate; no follow-up obligation closed without a recorde
 * Wrong patient: ID scan, wristband QR, guardian and helper grants, and typed confirmation on merges.
 * Lost paper referral: the photo becomes a structured order with provenance; the original image is
   retained.
-* Missed critical result: the Critical Results Hand phones and records acknowledgement; the site-wide
-  banner never auto-dismisses.
+* Missed critical result: the Critical Results Hand reaches the referrer, records the
+  acknowledgement and connects the radiologist; the site-wide banner never auto-dismisses.
 * Machine translation of clinical instructions: all patient-facing catalogue entries are
   human-approved per language; the engine falls back to English rather than guess.
 * AI presented as a diagnosis: every AI-derived element carries the annotated style and the model

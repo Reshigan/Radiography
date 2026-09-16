@@ -1,4 +1,4 @@
-# 05: Acquisition, Worklist, QA and Dose
+# 05 — Acquisition, Worklist, QA and Dose
 
 Modules: **M08 Acquisition & Worklist** (owner) and **M10 Dose & Radiation Safety**.
 Related: M07 Registration & Safety (upstream), M09 Image Management (PACS) (downstream), M11 Clinical

@@ -23,24 +23,24 @@ must run on its own infrastructure. This document covers:
 
 ### 1.1 Requirements (M21 Platform Core, cloud profile)
 
-* M21-R-100 The cloud deployment MUST run the identical domain packages (`packages/domain`,
+* M21-R-400 The cloud deployment MUST run the identical domain packages (`packages/domain`,
   `packages/billing-rules`, `packages/dicom`, `packages/hl7-fhir`, `packages/ai-contracts`) as the
   internal deployment, with differences confined to `packages/adapters-cloudflare` and feature flags.
-* M21-R-101 Each Practice tenant MUST have its own D1 database resolved through a tenant directory;
+* M21-R-401 Each Practice tenant MUST have its own D1 database resolved through a tenant directory;
   no query MAY run without a resolved tenant binding and a `practice_id` guard, except directory and
   cross-tenant analytics services with a recorded lawful basis.
-* M21-R-102 Identified data MUST be stored and processed in South Africa where Cloudflare provides
+* M21-R-402 Identified data MUST be stored and processed in South Africa where Cloudflare provides
   the control (Regional Services, R2 jurisdiction restrictions); where a control is not available
   for South Africa, the cross-border transfer MUST be covered by POPIA s.72 conditions and a
   data-processing agreement, recorded in M19 before go-live.
-* M21-R-103 Raw DICOM MUST NOT cross the internet. Edge Gateways MUST forward studies as DICOMweb
+* M21-R-403 Raw DICOM MUST NOT cross the internet. Edge Gateways MUST forward studies as DICOMweb
   STOW-RS over HTTPS through Cloudflare Tunnel; Workers MUST NOT expose DIMSE ports.
-* M21-R-104 Production, staging and demo MUST be separated at least by Cloudflare account, with
+* M21-R-404 Production, staging and demo MUST be separated at least by Cloudflare account, with
   separate API tokens, Access organisations and R2 buckets.
-* M21-R-105 The demo MUST NOT store, accept or transmit personal information of any real natural
+* M21-R-405 The demo MUST NOT store, accept or transmit personal information of any real natural
   person; all demo data MUST come from the synthetic generator in `apps/sim` with `synthetic = true`
   at row level, and every demo surface, document and message MUST carry a DEMO label.
-* M21-R-106 A demo tenant MUST be resettable in under 2 minutes, and a partner sandbox tenant MUST
+* M21-R-406 A demo tenant MUST be resettable in under 2 minutes, and a partner sandbox tenant MUST
   be provisionable by SUP in under 10 minutes.
 
 ## 2. Service map (production)
@@ -404,8 +404,8 @@ practices including a 51/49 JV, 5 sites, 5 000 patients, one year of claims), la
 | Scenario | Personas | Automation shown |
 |---|---|---|
 | **The 09:40 patient**: WhatsApp photo of a paper referral; Referral Hand extracts the order; Booking Hand offers 09:40 at the nearest site; quote with benefit check; pre-check-in; worklist; QC; drafted report signed; results to referrer and patient (8 minutes) | PAT, BKG, FDK, RAD, RGT, REF | Referral A3, booking A3, quote A2, QC A2, drafting A1 |
-| **The STAT head CT**: casualty referral; contrast safety checks; triage priority from a demo model; annotated overlay in the Reading Room; radiologist signs; Critical Findings Hand calls (simulated) and secures acknowledgement | REF, RAD, RGT, NUR | Triage A1, critical results A3 |
-| **The rejection wave**: switch returns 35 % rejections for one scheme; Rejection Hand classifies, auto-fixes within leash, resubmits, escalates the rest with suggested fixes; first-pass acceptance recovers on the control tower | BIL, DEB, PRM | Rejections A3, exceptions A1 |
+| **The STAT head CT**: casualty referral; contrast safety checks; triage priority from a demo model; annotated overlay in the Reading Room; radiologist signs; Critical Results Hand calls (simulated) and secures acknowledgement | REF, RAD, RGT, NUR | Triage A1, critical results A3 |
+| **The rejection wave**: switch returns 35 % rejections for one scheme; Claims Hand classifies, auto-fixes within leash, resubmits, escalates the rest with suggested fixes; first-pass acceptance recovers on the control tower | BIL, DEB, PRM | Rejections A3, exceptions A1 |
 | **Month-end in 4 minutes**: unbilled backlog, intercompany fees, management accounts, JV distributable profit and entitlements, distribution proposal, shareholder statements | BIL, EXE, SHR, PRM | Month-end A2, distributions A1 |
 | **Onboarding a practice**: the M02 wizard from legal entity to a live tenant with sites, rooms, modalities, fee schedules, DSP contracts and users | EXE, SUP, CMP | Guided A1 with a Hand pre-filling from documents |
 

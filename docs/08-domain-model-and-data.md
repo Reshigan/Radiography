@@ -23,9 +23,9 @@ document wins.
 
 Requirements:
 
-* M21-R-100 Every table listed in this document MUST carry `id`, `created_at`, `created_by`, `updated_at`, `updated_by`; tenant tables MUST carry `practice_id`.
-* M21-R-101 The Platform MUST reject any state transition not listed in the lifecycle tables of this document and MUST record the rejected attempt in `audit_log`.
-* M21-R-102 Money MUST be stored as integer cents; any API that returns money MUST return cents and a display string, never a float.
+* M21-R-300 Every table listed in this document MUST carry `id`, `created_at`, `created_by`, `updated_at`, `updated_by`; tenant tables MUST carry `practice_id`.
+* M21-R-301 The Platform MUST reject any state transition not listed in the lifecycle tables of this document and MUST record the rejected attempt in `audit_log`.
+* M21-R-302 Money MUST be stored as integer cents; any API that returns money MUST return cents and a display string, never a float.
 
 ## 2. Clinical core: Entity–Relationship overview
 
@@ -105,7 +105,7 @@ Patient identity verification lifecycle:
 | State | Allowed transitions | Trigger |
 |---|---|---|
 | `unverified` | → `format_valid` | Platform validates SA ID checksum (Luhn) and date-of-birth/sex consistency, or passport MRZ (A4) |
-| `format_valid` | → `document_seen`, → `dha_verified` | FDK scans ID (A1); a DHA/third-party verification service returns a match (A3, Identity Hand) |
+| `format_valid` | → `document_seen`, → `dha_verified` | FDK scans ID (A1); a DHA/third-party verification service returns a match (A3, Front Desk Hand) |
 | `document_seen` | → `dha_verified`, → `disputed` | as above; mismatch reported |
 | `dha_verified` | → `disputed` | fraud or identity-theft report (CMP) |
 | `disputed` | → `document_seen`, → `blocked` | CMP decision |
@@ -127,7 +127,7 @@ Order lifecycle:
 
 | State | Allowed transitions | Trigger |
 |---|---|---|
-| `received` | → `matched`, → `needs_info`, → `rejected` | Intake Hand matches patient and referrer (A3); missing fields |
+| `received` | → `matched`, → `needs_info`, → `rejected` | Referral Hand matches patient and referrer (A3); missing fields |
 | `needs_info` | → `matched`, → `cancelled` | REF/BKG supplies info; 14-day timeout cancels with notice |
 | `matched` | → `placed` | procedures coded, appropriateness reviewed |
 | `placed` | → `scheduled`, → `cancelled` | appointment created (M05) |
@@ -151,7 +151,7 @@ Appointment lifecycle:
 | State | Allowed transitions | Trigger |
 |---|---|---|
 | `tentative` | → `booked`, → `released` | slot held while funding is checked; 15-minute hold (illustrative, configurable) |
-| `booked` | → `confirmed`, → `rescheduled`, → `cancelled`, → `no_show` | reminder response; patient/BKG action; 30 min past start with no arrival (Attendance Hand marks A3) |
+| `booked` | → `confirmed`, → `rescheduled`, → `cancelled`, → `no_show` | reminder response; patient/BKG action; 30 min past start with no arrival (Booking Hand marks A3) |
 | `confirmed` | → `arrived`, → `rescheduled`, → `cancelled`, → `no_show` | check-in (M07) |
 | `arrived` | → `completed`, → `abandoned` | encounter reaches `discharged`; patient leaves before study |
 | `rescheduled` | terminal; new appointment row links `rescheduled_from_id` | |
@@ -173,8 +173,8 @@ Funding case lifecycle:
 | State | Allowed transitions | Trigger |
 |---|---|---|
 | `draft` | → `checking` | order placed |
-| `checking` | → `quoted`, → `auth_required`, → `cash` | Funding Hand runs benefit check (A3) |
-| `auth_required` | → `auth_pending`, → `cash` | Funding Hand submits auth (A3) or patient elects cash |
+| `checking` | → `quoted`, → `auth_required`, → `cash` | Authorisation Hand runs benefit check (A3) |
+| `auth_required` | → `auth_pending`, → `cash` | Authorisation Hand submits auth (A3) or patient elects cash |
 | `auth_pending` | → `quoted`, → `declined`, → `appeal` | funder response; 48-hour SLA timer escalates to BIL |
 | `declined` | → `appeal`, → `cash`, → `cancelled` | RGT clinical motivation (A1) |
 | `appeal` | → `quoted`, → `declined` | |
@@ -346,7 +346,7 @@ Claim lifecycle:
 | `submitted` | → `acknowledged`, → `submit_failed` | switch ack |
 | `acknowledged` | → `adjudicated` | adjudication response |
 | `adjudicated` | → `paid`, → `partially_paid`, → `rejected` | remittance matched; response outcome |
-| `rejected` | → `resubmitted`, → `patient_liable`, → `written_off`, → `disputed` | Rejection Hand auto-fix (A3) if taxonomy allows; else BIL; deadline timer |
+| `rejected` | → `resubmitted`, → `patient_liable`, → `written_off`, → `disputed` | Claims Hand auto-fix (A3) if taxonomy allows; else BIL; deadline timer |
 | `resubmitted` | behaves as `submitted` with `resubmission_no + 1` | |
 | `partially_paid` | → `paid`, → `patient_liable`, → `disputed` | balance allocation |
 | `paid`, `written_off`, `voided` | terminal | |
@@ -378,7 +378,7 @@ M16 Analytics & Insight owns `metric_definition`, `dashboard`, `benchmark_cohort
 | `time_entry` | shift_id, clock_in_at, clock_out_at, method, variance_min, approved_by | payroll export |
 | `cpd_record` | staff_member_id, activity, points, evidence_file_id, cycle | |
 
-Shift lifecycle: `planned → published → confirmed → worked | swapped | absent | cancelled`. Rostering Hand fills gaps at A3 within leash (no credential breaches, working-time limits, cost ceiling).
+Shift lifecycle: `planned → published → confirmed → worked | swapped | absent | cancelled`. Roster Hand fills gaps at A3 within leash (no credential breaches, working-time limits, cost ceiling).
 
 ### 3.17 M18 Assets & Engineering
 
@@ -443,9 +443,9 @@ Agent task lifecycle: `queued → running → waiting_approval → running → c
 | `prev_entry_hash`, `entry_hash` | `entry_hash = SHA-256(prev_entry_hash || canonical(entry))`; the chain root per partition per day is anchored by writing it to a separate write-once store and included in the daily compliance digest |
 | `request_id`, `correlation_id`, `ip`, `device` | |
 
-* M21-R-103 `audit_log` MUST be insert-only at the database privilege level; the application role MUST NOT hold UPDATE or DELETE on it.
-* M21-R-104 The Platform MUST verify the hash chain of the previous day's audit partition every day and raise a severity-2 incident on any break.
-* M21-R-105 Reads of `patient_identifier` values, full reports, images and financial statements MUST be audited as `read_sensitive` with the purpose of use.
+* M21-R-303 `audit_log` MUST be insert-only at the database privilege level; the application role MUST NOT hold UPDATE or DELETE on it.
+* M21-R-304 The Platform MUST verify the hash chain of the previous day's audit partition every day and raise a severity-2 incident on any break.
+* M21-R-305 Reads of `patient_identifier` values, full reports, images and financial statements MUST be audited as `read_sensitive` with the purpose of use.
 
 ## 4. National accession number format
 
@@ -460,9 +460,9 @@ The Accession Number joins order, worklist, study, report and charge, and is sen
 
 Canonical value: 14 characters, no separators, e.g. `SDTN2600012347` (illustrative); display form `SDTN-26-0001234-7`; barcodes and QR codes carry the canonical form. Hospital-based JVs that need the hospital's own accession in HL7 ORM messages store it as `study_identifier.type = hospital_accession` and the Platform maps both ways.
 
-* M09-R-100 Accession numbers MUST be unique across the whole Platform (all tenants), immutable once issued, and never reused, including after a study is voided.
-* M09-R-101 Every inbound DICOM object whose (0008,0050) does not parse and check-validate as a Platform accession MUST be quarantined for reconciliation rather than attached to a study; the Reconciliation Hand proposes matches by patient identifiers, modality and time window at A1.
-* M03-R-100 The enterprise patient id (`epid`) MUST be a 12-digit number with a Luhn check digit, allocated from a Group-wide counter, and MUST be the value placed in DICOM Patient ID (0010,0020) for all studies acquired on the Platform.
+* M09-R-150 Accession numbers MUST be unique across the whole Platform (all tenants), immutable once issued, and never reused, including after a study is voided.
+* M09-R-151 Every inbound DICOM object whose (0008,0050) does not parse and check-validate as a Platform accession MUST be quarantined for reconciliation rather than attached to a study; the Reconciliation Hand proposes matches by patient identifiers, modality and time window at A1.
+* M03-R-150 The enterprise patient id (`epid`) MUST be a 12-digit number with a Luhn check digit, allocated from a Group-wide counter, and MUST be the value placed in DICOM Patient ID (0010,0020) for all studies acquired on the Platform.
 
 ## 5. Domain event catalogue
 
@@ -478,9 +478,9 @@ Events are named `<aggregate>.<past-tense verb>.v<n>`, carry `practice_id`, `agg
 | `patient.registered.v1` | M03 | epid, identifiers (types only), verification | M05, M14, Analytics |
 | `patient.identity.verified.v1` | M03 | epid, method | M07, M14 |
 | `patient.scheme_membership.changed.v1` | M03 | epid, scheme, status | M06, M14 |
-| `patient.duplicate.suspected.v1` | M03 | candidate pair, score | Hands (Identity Hand), FDK queue |
+| `patient.duplicate.suspected.v1` | M03 | candidate pair, score | Hands (Front Desk Hand), FDK queue |
 | `patient.merged.v1` | M03 | survivor, merged, case id | all modules (re-point), M09, M14, Analytics |
-| `referral.received.v1` | M04 | referral id, channel, referrer (if matched) | Hands (Intake Hand), Analytics |
+| `referral.received.v1` | M04 | referral id, channel, referrer (if matched) | Hands (Referral Hand), Analytics |
 | `order.placed.v1` | M04 | order, procedures, priority, ICD-10 | M05, M06, M11 (protocol suggestion), Analytics |
 | `order.cancelled.v1` | M04 | order, reason | M05, M06, M14, M13 |
 | `order.appropriateness.flagged.v1` | M04 | procedure, score, alternative | M13 (REF), Analytics |
@@ -512,15 +512,15 @@ Events are named `<aggregate>.<past-tense verb>.v<n>`, carry `practice_id`, `agg
 | `report.signed.v1` | M12 | report version, signer, studies, ICD-10, critical flag | M13, M14 (coding), M15 (reading fee), M11 (agreement), Analytics |
 | `report.addended.v1` | M12 | report, new version, reason | M13, M14 (recode check), Analytics |
 | `peer_review.scored.v1` | M12 | report, score, learning flag | M19, Analytics |
-| `critical_result.raised.v1` | M13 | result, category, referrer | Hands (Critical Result Hand), M19 |
+| `critical_result.raised.v1` | M13 | result, category, referrer | Hands (Critical Results Hand), M19 |
 | `critical_result.acknowledged.v1` / `critical_result.escalated.v1` | M13 | result, level, elapsed | M19, Analytics |
 | `communication.sent.v1` / `communication.delivered.v1` / `communication.failed.v1` | M13 | communication, channel, cost | Analytics, M15 (comms cost), Hands (fallback) |
 | `results.released.v1` | M13 | report version, audience | Patient Space, Referrer Space, Analytics |
 | `charge.coded.v1` | M14 | charge, tariff code, confidence | BIL queue (low confidence), Analytics |
 | `claim.submitted.v1` | M14 | claim, funder, total | Analytics |
-| `claim.response.received.v1` | M14 | claim, outcome per line, reasons | Hands (Rejection Hand), Analytics |
+| `claim.response.received.v1` | M14 | claim, outcome per line, reasons | Hands (Claims Hand), Analytics |
 | `claim.rejected.v1` | M14 | claim line, taxonomy id, deadline | Hands, BIL queue, Analytics |
-| `remittance.received.v1` / `remittance.reconciled.v1` | M14 | remittance, totals, variance | Hands (Reconciliation Hand), M15, Analytics |
+| `remittance.received.v1` / `remittance.reconciled.v1` | M14 | remittance, totals, variance | Hands (Remittance Hand), M15, Analytics |
 | `payment.received.v1` / `payment.failed.v1` | M14 | payment, method, amount | M15, M13 (receipt), Analytics |
 | `account.stage.changed.v1` | M14 | account, stage | Hands (Collections Hand), Analytics |
 | `dispute.opened.v1` / `dispute.resolved.v1` | M14 | dispute, subject, outcome | M13, Analytics |
@@ -529,7 +529,7 @@ Events are named `<aggregate>.<past-tense verb>.v<n>`, carry `practice_id`, `agg
 | `period.closed.v1` | M15 | entity, period | M16 (management pack), M15 (distribution calc) |
 | `intercompany.invoice.issued.v1` | M15 | invoice, entities, amount | M15 counter-entity, EXE queue |
 | `distribution.proposed.v1` / `distribution.paid.v1` | M15 | distribution, lines | SHR portal, M13, Analytics |
-| `shift.gap.detected.v1` | M17 | site, role, window | Hands (Rostering Hand), PRM |
+| `shift.gap.detected.v1` | M17 | site, role, window | Hands (Roster Hand), PRM |
 | `credential.expiring.v1` | M17 | staff, type, days | M13, PRM, M19 |
 | `asset.telemetry.alarm.v1` | M18 | asset, signal, value | Hands (Maintenance Hand), BIO |
 | `asset.status.changed.v1` | M18 | asset, from, to | M05 (capacity), Analytics |
@@ -541,7 +541,7 @@ Events are named `<aggregate>.<past-tense verb>.v<n>`, carry `practice_id`, `agg
 | `approval.requested.v1` / `approval.decided.v1` | M20 | approval, action, persona | persona queues, Analytics |
 | `audit.chain.verified.v1` / `audit.chain.broken.v1` | M21 | partition, day, root hash | CMP, M19 |
 
-* M21-R-106 Events MUST be published from the outbox in the same transaction as the state change, with at-least-once delivery and idempotent consumers keyed on event id.
+* M21-R-306 Events MUST be published from the outbox in the same transaction as the state change, with at-least-once delivery and idempotent consumers keyed on event id.
 * M21-R-107 Adding a field to an event payload is a minor change; removing or re-typing a field MUST create a new version (`.v2`) with both versions published for at least 90 days.
 
 ## 6. Reference data sets and governance
@@ -578,10 +578,10 @@ The Platform ships one de-identifier (`packages/dicom`) applied to images, struc
 
 Rules:
 
-* M09-R-102 The de-identifier MUST be deterministic per tier and key so that a re-run over the same input yields the same output, and MUST write a de-identification receipt (profile version, options, tag actions) to `audit_log`.
-* M11-R-100 No image or report MAY enter a training set above tier T2, and every training manifest MUST list consent ids at the time of inclusion; withdrawal of consent MUST remove the record from future training runs and MUST be recorded against models already trained.
-* M20-R-100 Hands operate on T1 data by default; a mandate MUST explicitly list any tool that returns T0 data and the runtime MUST log each such call as `read_sensitive`.
-* M19-R-100 POPIA erasure requests on clinical records that are still within their retention obligation MUST be fulfilled by restriction of processing (flag, access limited to legal obligation) with the reason recorded, not by deletion; erasure of marketing and non-obligatory data MUST be actual deletion.
+* M09-R-152 The de-identifier MUST be deterministic per tier and key so that a re-run over the same input yields the same output, and MUST write a de-identification receipt (profile version, options, tag actions) to `audit_log`.
+* M11-R-150 No image or report MAY enter a training set above tier T2, and every training manifest MUST list consent ids at the time of inclusion; withdrawal of consent MUST remove the record from future training runs and MUST be recorded against models already trained.
+* M20-R-150 Hands operate on T1 data by default; a mandate MUST explicitly list any tool that returns T0 data and the runtime MUST log each such call as `read_sensitive`.
+* M19-R-150 POPIA erasure requests on clinical records that are still within their retention obligation MUST be fulfilled by restriction of processing (flag, access limited to legal obligation) with the reason recorded, not by deletion; erasure of marketing and non-obligatory data MUST be actual deletion.
 
 ## 8. Retention classes
 

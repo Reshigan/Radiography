@@ -1,4 +1,4 @@
-# 09 - Revenue Cycle: Billing and Claims (M14)
+# 09 — Revenue Cycle: Billing and Claims (M14)
 
 ## 1. Purpose and scope
 

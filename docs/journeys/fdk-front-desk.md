@@ -77,7 +77,9 @@ per year for records, showing when it was last verified.
 seconds), hands Nomvula a printed or WhatsApp queue status: "You are 2nd in line for Room 1."
 
 **What the Platform does.**
-* M07 Registration & Safety: `patient.arrived.v1` is emitted; the arrival time starts the wait-time
+* M07 Registration & Safety: the Front Desk Hand (A3) ran the pre-arrival steps (messages at 48, 24
+  and 2 hours, questionnaire, consent presentation, queue status) within its leash of 8 messages per
+  visit; consent was recorded only by her signature. `patient.arrived.v1` is emitted; the arrival time starts the wait-time
   clock; the wristband or queue ticket is printed with the study and room.
 * M03 Patient Master Index: the ID scan reads the barcode on the smart card or the number on the
   green book, verifies the check digit, compares to the record, stores the verification date; the
@@ -144,17 +146,20 @@ you R0" and "If not authorised: cash R3 900" (illustrative), with a third option
 signed acknowledgement that the patient accepts liability if the scheme declines, which the
 Practice's policy allows for this scheme and study class.
 
-**What they do.** Asks the Authorisation Hand to phone the scheme now (the Hand places the call, navigates
-the scheme's line, and reports back in the attention item), explains the options to Mr Khumalo in
-the meantime in plain words, and when the Hand returns an authorisation number six minutes later,
-arrives him with the scheme scenario locked in.
+**What they do.** Opens the call script the Authorisation Hand prepared (practice number, member
+number, tariff codes, ICD-10, the request reference, the scheme's authorisation line), phones the
+scheme from the desk's dedicated line while the Hand's electronic retries continue, explains the
+options to Mr Khumalo in plain words while on hold, and when the scheme gives an authorisation
+number six minutes later, enters it against the request and arrives him with the scheme scenario
+locked in.
 
 **What the Platform does.**
-* M06: the Authorisation Hand's mandate includes phoning scheme authorisation lines with a script, quoting
-  the practice number, member number, tariff codes and ICD-10, and capturing the authorisation
-  number and any conditions (for example, "authorised for CT abdomen, contrast included, valid 30
-  days"); the call is recorded and transcribed; the authorisation is stored on the order. Anything
-  outside the mandate, such as a scheme asking for a clinical motivation, becomes a REF task.
+* M06: the Authorisation Hand runs at A3 on electronic funder channels and at A1 when a phone call
+  is needed: it prepares the script and the references, the desk makes the call, and the Hand
+  captures the outcome against the order (authorisation number and conditions, for example
+  "authorised for CT abdomen, contrast included, valid 30 days"). A scheme asking for a clinical
+  motivation becomes a BIL task with the motivation assembled from the order, and the referrer is
+  asked only where the scheme requires the referrer's own words.
 * M14: the quote is re-issued on authorisation; the earlier quote and the new one are both kept.
 * M19 Quality, Risk & Compliance: the patient-liability acknowledgement, when used, is a versioned
   consent document with the scheme, amount and reason.
@@ -293,7 +298,9 @@ will block their claims.
 * One screen for the whole day, developing most-critical-first, with every attention item owned.
 * The `CollectCard` says what to collect, why, and how, including previous balances with the
   arithmetic shown, so money conversations are explanations rather than arguments.
-* The Authorisation Hand makes the scheme calls and reports back; the desk never waits on hold.
+* The Authorisation Hand resolves funding electronically overnight and, when a call is unavoidable,
+  hands the desk a ready script and captures the outcome; the desk phones with everything in hand
+  and never re-keys.
 * ID scan with check-digit validation and annual re-verification; merges require a typed
   confirmation and are reversible.
 * Walk-ins take the same three-step path as remote bookings and never create paper.

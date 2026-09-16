@@ -1,4 +1,4 @@
-# 06: Image Management (PACS)
+# 06 — Image Management (PACS)
 
 Module: **M09 Image Management (PACS)** (owner).
 Related: M08 Acquisition & Worklist (upstream), M03 Patient Master Index (identity), M11 Clinical

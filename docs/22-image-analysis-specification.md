@@ -255,21 +255,21 @@ deprecated → retired. Kill switch per model, per site, per Practice; rollback 
 within minutes; every state change is a change-control record with CMP and AIO sign-off.
 
 ## 11. Requirements
-* M11-R-200 The Platform MUST analyse every eligible study with the activated model set and MUST
+* M11-R-300 The Platform MUST analyse every eligible study with the activated model set and MUST
   record a result (or an explicit "not analysed" reason) per study.
-* M11-R-201 No AI result MAY attach to a study before patient/worklist reconciliation succeeds.
-* M11-R-202 Every result MUST carry provenance (§4.3) and MUST be stored immutably with the input hash.
-* M11-R-203 QC feedback MUST be available at the technologist console within 5 s at the Edge,
+* M11-R-301 No AI result MAY attach to a study before patient/worklist reconciliation succeeds.
+* M11-R-302 Every result MUST carry provenance (§4.3) and MUST be stored immutably with the input hash.
+* M11-R-303 QC feedback MUST be available at the technologist console within 5 s at the Edge,
   including offline.
-* M11-R-204 Triage priority MUST be available within 3 min of study completion for ≥ 95 % of
+* M11-R-304 Triage priority MUST be available within 3 min of study completion for ≥ 95 % of
   studies when the link is up, and MUST be back-filled on reconnection.
-* M11-R-205 Class 1 outputs MUST only reach report text through radiologist acceptance in M12.
-* M11-R-206 Mammography overlays MUST default to off until the radiologist's first read is recorded.
-* M11-R-207 Each model MUST have a model card, validation report, SA subgroup analysis, calibration
+* M11-R-305 Class 1 outputs MUST only reach report text through radiologist acceptance in M12.
+* M11-R-306 Mammography overlays MUST default to off until the radiologist's first read is recorded.
+* M11-R-307 Each model MUST have a model card, validation report, SA subgroup analysis, calibration
   report and monitoring plan before shadow mode; and a shadow-mode report before activation.
-* M11-R-208 Kill switches MUST act within 60 s and MUST be available to AIO and CMP.
-* M11-R-209 Third-party models MUST run only on de-identified data unless the vendor is a POPIA
+* M11-R-308 Kill switches MUST act within 60 s and MUST be available to AIO and CMP.
+* M11-R-309 Third-party models MUST run only on de-identified data unless the vendor is a POPIA
   operator under contract with data residency in South Africa.
-* M11-R-210 Overlays MUST never be burned into archived images.
-* M11-R-211 The Platform MUST keep per-site performance and MUST alert when a site diverges.
-* M11-R-212 Model bundles MUST be signed and MUST be refused if the digest does not match the registry.
+* M11-R-310 Overlays MUST never be burned into archived images.
+* M11-R-311 The Platform MUST keep per-site performance and MUST alert when a site diverges.
+* M11-R-312 Model bundles MUST be signed and MUST be refused if the digest does not match the registry.

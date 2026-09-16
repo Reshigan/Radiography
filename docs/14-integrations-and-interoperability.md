@@ -64,7 +64,7 @@ required before any pixel data leaves the tenant (15).
 * M21-R-100 Every DICOM association MUST be authenticated by calling AE title, IP allow-list on the
   modality VLAN, and TLS where the modality supports it; unknown AE titles MUST be rejected and
   logged.
-* M09-R-100 Storage Commitment MUST NOT be granted for an instance until it is durably written to
+* M09-R-160 Storage Commitment MUST NOT be granted for an instance until it is durably written to
   the gateway store or the central archive and its hash recorded.
 
 ### 2.2 HL7 v2.x
@@ -157,9 +157,9 @@ extensions, section 2.3) and per-switch adapters.
 | Security | Mutual TLS or SFTP with key authentication; credentials in the secrets manager (15); claims contain health data, so the switch is a POPIA operator with a signed agreement; no claim data logged in clear text |
 | Sandbox | `apps/sim/switch`: accepts the canonical model, applies a configurable rule set (random and rule-based rejections with realistic reason codes), produces scheme responses and remittance advices on a schedule, and replays scenarios (short payment, duplicate, resubmission deadline of typically four months from service date) |
 
-* M14-R-100 The Platform MUST support at least two switch adapters plus direct-to-scheme submission
+* M14-R-190 The Platform MUST support at least two switch adapters plus direct-to-scheme submission
   through the same canonical model, selectable per scheme per Practice.
-* M14-R-101 Every claim state change from a switch or scheme response MUST be traceable to the raw
+* M14-R-191 Every claim state change from a switch or scheme response MUST be traceable to the raw
   stored message.
 
 ### 3.2 Medical scheme and administrator portals and APIs (M06, M14)
@@ -167,7 +167,7 @@ extensions, section 2.3) and per-switch adapters.
 | Aspect | Specification |
 |---|---|
 | Direction | Outbound eligibility checks, benefit and PMB queries, pre-authorisation requests, claim status queries; inbound authorisation decisions, tariff and rule updates where offered |
-| Protocol | HTTPS APIs where a scheme or administrator publishes one (formats vary; JSON or SOAP); otherwise portal automation is prohibited and the Platform uses a **Funding Hand** that prepares the request for a human (BKG or BIL) to submit, with the response captured by upload or structured entry |
+| Protocol | HTTPS APIs where a scheme or administrator publishes one (formats vary; JSON or SOAP); otherwise portal automation is prohibited and the Platform uses a **Authorisation Hand** that prepares the request for a human (BKG or BIL) to submit, with the response captured by upload or structured entry |
 | Data | Member number, dependant code, ID number, planned procedure (tariff and ICD-10), site, date, clinical motivation |
 | Idempotency | Request reference per authorisation attempt; a decision is attached to the order and the claim |
 | Error handling | Timeouts fall back to the manual path with a task; conflicting decisions (portal says approved, API says pended) are surfaced, never auto-resolved |
@@ -196,7 +196,7 @@ environment, and go-live with a parallel-run period. ADT merges must be honoured
 to avoid wrong-patient worklist entries. Sandbox: a hospital ADT and order simulator with realistic
 ward flows and merge scenarios.
 
-* M03-R-100 Hospital MRNs MUST be stored as identifiers with assigning authority and MUST NOT be
+* M03-R-160 Hospital MRNs MUST be stored as identifiers with assigning authority and MUST NOT be
   used as the Platform patient identifier; merges MUST be recorded as reversible link events.
 
 ### 3.5 Laboratory results for eGFR and other safety checks (M07, NUR)
@@ -241,7 +241,7 @@ ward flows and merge scenarios.
 | Security | Content minimised (no diagnosis text in messages; results are links to the Patient Space with OTP); media stored in the tenant object store and deleted from the channel provider where the API allows; conversation transcripts are clinical records only when they carry clinical content |
 | Sandbox | Conversation simulator with a web chat UI in the demo; templates rendered locally |
 
-* M13-R-100 The Platform MUST NOT send clinical findings, report text or images in a WhatsApp or SMS
+* M13-R-150 The Platform MUST NOT send clinical findings, report text or images in a WhatsApp or SMS
   body; messages carry status and authenticated links only.
 
 ### 3.8 SMS aggregators, email, telephony and CTI (M13, BKG)

@@ -1,4 +1,4 @@
-# 07: Reporting and Peer Review
+# 07 — Reporting and Peer Review
 
 Module: **M12 Reporting** (owner), with **M11 Clinical Intelligence (BCI)** touchpoints.
 Related: M09 Image Management (PACS) (viewer, priors), M13 Results & Communication (distribution,

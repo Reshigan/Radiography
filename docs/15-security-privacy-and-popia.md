@@ -142,7 +142,7 @@ is reviewed.
 
 * M21-R-200 Identifiers in class C3 MUST be encrypted at the field level with tenant keys and
   searchable only through blind indexes.
-* M09-R-101 Every DICOM object at rest, centrally and at the gateway, MUST be encrypted with a data
+* M09-R-170 Every DICOM object at rest, centrally and at the gateway, MUST be encrypted with a data
   key wrapped by a tenant key; a key-management audit trail MUST show every unwrap.
 
 ## 7. Secrets
@@ -367,7 +367,7 @@ CMP keeps the agreements and their review dates in the compliance calendar (M19)
 | Automated decisions | Section 14.3, s.71 |
 | Model registry security | Model artefacts signed; deployment only from the registry; inference endpoints authenticated; drift monitoring by AIO |
 
-* M11-R-100 No identified pixel data or report text MAY leave the tenant boundary for inference or
+* M11-R-160 No identified pixel data or report text MAY leave the tenant boundary for inference or
   drafting unless the model registry entry records an approved identified data path with its lawful
   basis; the default path is de-identified.
 
@@ -426,6 +426,6 @@ source query and hash so that an auditor can re-run it.
 | Network isolation and brokered vendor access | Site network design, Edge Gateway, remote-access gateway |
 | Immutable backups and rehearsed restores | Object lock; separate administrative domain; quarterly tests |
 | POPIA registers and agreements | M19 data-flows, processing and transfer registers; connector enable gate |
-| AI data paths | Model registry gate (M11-R-100); M20 tool allow-lists; gateway redaction |
+| AI data paths | Model registry gate (M11-R-160); M20 tool allow-lists; gateway redaction |
 | Application security pipeline | CI gates (SAST, secrets, SBOM, DAST), annual penetration test |
 | Evidence | Automated packs with hashed sources |

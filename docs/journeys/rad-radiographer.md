@@ -32,7 +32,9 @@ safety answers (pregnancy: no; last X-ray of the spine: none known), the `PriorS
 region; a chest X-ray from two years ago at another Practice is listed but not loaded), and the
 protocol card: "Lumbar spine, adult, standard; suggested exposure factors by patient size band;
 DRL for this projection (illustrative) shown as a `DoseGauge`." The AI suggestion for size band comes
-from the recorded height and weight and is annotated. A wristband scan field waits at the top.
+from the recorded height and weight and is annotated. The protocol itself was set before arrival by
+the Protocol Hand (A2) from the Practice's signed allow-list for this examination and indication,
+with the protocolling radiologist reviewing a daily sample. A wristband scan field waits at the top.
 
 **What they do.** Scans Nomvula's wristband or queue ticket QR, confirms name and date of birth
 aloud, confirms the pregnancy answer verbally (recorded as re-confirmed in the room), accepts the
@@ -44,8 +46,10 @@ exposure check: "Lateral: collimation adequate, exposure index within range." Sh
   scan binds the patient to the room session; MPPS "in progress" and "completed" messages from the
   modality update the queue and the patient's WhatsApp status ("In Room 1").
 * M08 QC: the Edge Gateway runs the positioning and exposure QC model locally; results are
-  `bci.result.v1` events with provenance; they inform, never block, and the acceptance of a repeat
-  is the radiographer's.
+  `bci.result.v1` events with provenance. The QC Hand (A2) turns flags into repeat prompts and
+  reject reasons and holds study completion on a laterality or body-part mismatch (override needs a
+  typed reason and PRM notification); it never deletes an image or marks a repeat done, and the
+  decision to repeat is the radiographer's.
 * M10 Dose & Radiation Safety: the Dose Structured Report (or exposure index and DAP from the
   modality) is captured per exposure against the patient, room and radiographer; the `DoseGauge`
   compares to the DRL; exceedances are flagged for the RPO's periodic review, not as blame.
@@ -80,8 +84,9 @@ previous contrast reaction (no), weight 92 kg, the NUR sign-off on the cannula, 
 dose calculated by the `ContrastCalculator` with the batch and expiry of the vial scanned by
 barcode. The protocol card offers "CT abdomen and pelvis, portal venous phase, adult" as the
 radiologist-approved protocol for the indication, with an AI suggestion (annotated) to add a delayed
-phase because the indication mentions haematuria; the suggestion is for the radiologist to
-protocol, and the card shows the protocolling radiologist's decision: accepted. The `DoseGauge` shows
+phase because the indication mentions haematuria. The Protocol Hand assembled the protocolling packet (order,
+indication, safety answers, eGFR, priors, the suggestion) and, because contrast studies are never
+auto-protocolled, routed it to the protocolling radiologist; the card shows her decision: accepted. The `DoseGauge` shows
 the CT dose index and dose-length product reference for this protocol.
 
 **What they do.** Scans the wristband, confirms the checklist items with Mr Khumalo verbally, scans
@@ -101,7 +106,7 @@ He records the contrast volume actually given (the injector reports it).
 * M14 Revenue Cycle: the contrast volume and the tariff codes for the study and the contrast material
   flow to the Coding Hand; the authorisation on the order is compared to the protocol actually
   performed and any mismatch raises a task before the claim.
-* Events: `contrast.administered.v1`, `study.acquired.v1`, `dose.recorded.v1`, `stock.decremented.v1`.
+* Events: `contrast.administered.v1`, `study.acquired.v1`, `dose.recorded.v1`, `stock.issued.v1`.
 
 **Edge cases.**
 * Contrast extravasation: the console has a one-tap incident path that records the site, volume and
@@ -265,6 +270,7 @@ worklist filling.
 **What the Platform does.**
 * M21 Edge Gateway: MWL, MPPS, local storage for 30 days, resumable forwarding, and the worklist
   mirror keep acquisition at 100 % without grid or internet; the PWA keeps forms in IndexedDB.
+  Event: `site.power.window.v1` when the outage starts and ends.
 * M11: triage inference queues for when the link returns; the QC model runs on the Gateway.
 * M18: UPS state, generator state and link status are telemetry; BIO sees the site on the
   observability dashboard; the runtime on UPS is shown so the site knows how long it has.
