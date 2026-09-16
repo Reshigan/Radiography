@@ -5,7 +5,7 @@
 <title>Bonakala Screens</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../bdl.css">
-<style>main{max-width:1100px;margin:0 auto;padding:32px 16px}.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}.list a{display:block;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);padding:14px;color:var(--text)}.list a b{display:block;font-family:var(--display);color:var(--heading);margin-bottom:4px}.list a span{font-size:12px;color:var(--text-2)}.list a em{display:block;font-style:normal;font-size:12px;margin-top:6px}</style>
+<style>main{max-width:1100px;margin:0 auto;padding:32px 16px}.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}.list .item{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);padding:14px;color:var(--text)}.list .item b{display:block;font-family:var(--display);color:var(--heading);margin-bottom:4px}.list .item span{font-size:12px;color:var(--text-2)}.list .item em{display:block;font-style:normal;font-size:12px;margin-top:6px}</style>
 </head>
 <body>
 <main>
@@ -13,31 +13,31 @@
   <p class="muted">High-fidelity static mockups built on <span class="mono">brand/bdl.css</span>. Screen identifiers and the full inventory are in <span class="mono">docs/25-ui-specification.md</span>. All data is synthetic.</p>
   <h2 style="margin-top:24px">Patient and referrer</h2>
   <div class="list">
-    <a href="patient-space.html"><b>Patient Space</b><span>S-PAT · phone-first PWA: home, book, prepare and pay, results</span><em><a href="previews/patient-space.png">PNG preview</a></em></a>
-    <a href="whatsapp-and-kiosk.html"><b>WhatsApp booking and kiosk</b><span>S-WA, S-KSK · Booking Hand conversation; lobby kiosk check-in</span><em><a href="previews/whatsapp-and-kiosk.png">PNG preview</a></em></a>
-    <a href="referrer-space.html"><b>Referrer Space</b><span>S-REF · e-referral with appropriateness guidance, patients, results, critical acknowledgement</span><em><a href="previews/referrer-space.png">PNG preview</a></em></a>
+    <div class="item"><a href="patient-space.html"><b>Patient Space</b></a><span>S-PAT · phone-first PWA: home, book, prepare and pay, results</span><em><a href="patient-space.html">Open mockup</a> · <a href="previews/patient-space.png">PNG preview</a></em></div>
+    <div class="item"><a href="whatsapp-and-kiosk.html"><b>WhatsApp booking and kiosk</b></a><span>S-WA, S-KSK · Booking Hand conversation; lobby kiosk check-in</span><em><a href="whatsapp-and-kiosk.html">Open mockup</a> · <a href="previews/whatsapp-and-kiosk.png">PNG preview</a></em></div>
+    <div class="item"><a href="referrer-space.html"><b>Referrer Space</b></a><span>S-REF · e-referral with appropriateness guidance, patients, results, critical acknowledgement</span><em><a href="referrer-space.html">Open mockup</a> · <a href="previews/referrer-space.png">PNG preview</a></em></div>
   </div>
   <h2 style="margin-top:24px">Clinical consoles</h2>
   <div class="list">
-    <a href="technologist-console.html"><b>Technologist console</b><span>S-RAD · worklist, protocol, safety, QC, dose, offline mode</span><em><a href="previews/technologist-console.png">PNG preview</a></em></a>
-    <a href="reading-room.html"><b>Reading Room</b><span>S-RGT · worklist, viewer with provenance overlays, findings candidates, report, sign</span><em><a href="previews/reading-room.png">PNG preview</a></em></a>
+    <div class="item"><a href="technologist-console.html"><b>Technologist console</b></a><span>S-RAD · worklist, protocol, safety, QC, dose, offline mode</span><em><a href="technologist-console.html">Open mockup</a> · <a href="previews/technologist-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="reading-room.html"><b>Reading Room</b></a><span>S-RGT · worklist, viewer with provenance overlays, findings candidates, report, sign</span><em><a href="reading-room.html">Open mockup</a> · <a href="previews/reading-room.png">PNG preview</a></em></div>
   </div>
   <h2 style="margin-top:24px">Business consoles</h2>
   <div class="list">
-    <a href="front-desk.html"><b>Front Desk</b><span>S-FDK · arrivals, registration, Collect card</span><em><a href="previews/front-desk.png">PNG preview</a></em></a>
-    <a href="booking-console.html"><b>Central Booking</b><span>S-BKG · omnichannel inbox, Booking Hand proposals, calendar</span><em><a href="previews/booking-console.png">PNG preview</a></em></a>
-    <a href="billing-console.html"><b>Billing and claims</b><span>S-BIL · exception queue, rejection wave, arithmetic</span><em><a href="previews/billing-console.png">PNG preview</a></em></a>
-    <a href="debtors-console.html"><b>Debtors and collections</b><span>S-DEB · ageing, Collections Hand runs, plans, disputes</span><em><a href="previews/debtors-console.png">PNG preview</a></em></a>
-    <a href="practice-control-tower.html"><b>Practice control tower</b><span>S-PRM · daily site operations, alerts, approvals</span><em><a href="previews/practice-control-tower.png">PNG preview</a></em></a>
-    <a href="group-analytics.html"><b>Group control tower</b><span>S-EXE · benchmarking, funders, acquisitions, what-if, Insight Hand</span><em><a href="previews/group-analytics.png">PNG preview</a></em></a>
-    <a href="shareholder-portal.html"><b>Shareholder portal</b><span>S-SHR · JV partner P&amp;L, distributions, votes</span><em><a href="previews/shareholder-portal.png">PNG preview</a></em></a>
+    <div class="item"><a href="front-desk.html"><b>Front Desk</b></a><span>S-FDK · arrivals, registration, Collect card</span><em><a href="front-desk.html">Open mockup</a> · <a href="previews/front-desk.png">PNG preview</a></em></div>
+    <div class="item"><a href="booking-console.html"><b>Central Booking</b></a><span>S-BKG · omnichannel inbox, Booking Hand proposals, calendar</span><em><a href="booking-console.html">Open mockup</a> · <a href="previews/booking-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="billing-console.html"><b>Billing and claims</b></a><span>S-BIL · exception queue, rejection wave, arithmetic</span><em><a href="billing-console.html">Open mockup</a> · <a href="previews/billing-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="debtors-console.html"><b>Debtors and collections</b></a><span>S-DEB · ageing, Collections Hand runs, plans, disputes</span><em><a href="debtors-console.html">Open mockup</a> · <a href="previews/debtors-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="practice-control-tower.html"><b>Practice control tower</b></a><span>S-PRM · daily site operations, alerts, approvals</span><em><a href="practice-control-tower.html">Open mockup</a> · <a href="previews/practice-control-tower.png">PNG preview</a></em></div>
+    <div class="item"><a href="group-analytics.html"><b>Group control tower</b></a><span>S-EXE · benchmarking, funders, acquisitions, what-if, Insight Hand</span><em><a href="group-analytics.html">Open mockup</a> · <a href="previews/group-analytics.png">PNG preview</a></em></div>
+    <div class="item"><a href="shareholder-portal.html"><b>Shareholder portal</b></a><span>S-SHR · JV partner P&amp;L, distributions, votes</span><em><a href="shareholder-portal.html">Open mockup</a> · <a href="previews/shareholder-portal.png">PNG preview</a></em></div>
   </div>
   <h2 style="margin-top:24px">Governance and engineering</h2>
   <div class="list">
-    <a href="compliance-board.html"><b>Compliance board</b><span>S-CMP · regulatory status, reportable results, incidents, POPIA requests</span><em><a href="previews/compliance-board.png">PNG preview</a></em></a>
-    <a href="ai-ops-console.html"><b>BCI console</b><span>S-AIO · model registry, drift, shadow evaluation, kill switches</span><em><a href="previews/ai-ops-console.png">PNG preview</a></em></a>
-    <a href="engineering-console.html"><b>Engineering console</b><span>S-BIO · Edge Gateway fleet, devices, integrations, vendor access</span><em><a href="previews/engineering-console.png">PNG preview</a></em></a>
-    <a href="admin-settings.html"><b>Admin and configuration</b><span>S-ADM · Hands and leashes, fee schedules</span><em><a href="previews/admin-settings.png">PNG preview</a></em></a>
+    <div class="item"><a href="compliance-board.html"><b>Compliance board</b></a><span>S-CMP · regulatory status, reportable results, incidents, POPIA requests</span><em><a href="compliance-board.html">Open mockup</a> · <a href="previews/compliance-board.png">PNG preview</a></em></div>
+    <div class="item"><a href="ai-ops-console.html"><b>BCI console</b></a><span>S-AIO · model registry, drift, shadow evaluation, kill switches</span><em><a href="ai-ops-console.html">Open mockup</a> · <a href="previews/ai-ops-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="engineering-console.html"><b>Engineering console</b></a><span>S-BIO · Edge Gateway fleet, devices, integrations, vendor access</span><em><a href="engineering-console.html">Open mockup</a> · <a href="previews/engineering-console.png">PNG preview</a></em></div>
+    <div class="item"><a href="admin-settings.html"><b>Admin and configuration</b></a><span>S-ADM · Hands and leashes, fee schedules</span><em><a href="admin-settings.html">Open mockup</a> · <a href="previews/admin-settings.png">PNG preview</a></em></div>
   </div>
   <p class="muted" style="margin-top:32px">Style guide: <a href="../styleguide.html">brand/styleguide.html</a></p>
 </main>
