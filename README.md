@@ -8,8 +8,9 @@ it: scheduling, registration, acquisition, PACS, AI-assisted reporting, closed-l
 automated billing and collections, practice and joint-venture finance, workforce, assets, compliance
 and analytics, with autonomous agents ("Hands") under a no-slip AI safety charter.
 
-The Platform deploys as a public **demo on Cloudflare** (synthetic data) and as an **internal
-Docker/Kubernetes** stack with a per-site Edge Gateway for load-shedding resilience, from one codebase.
+The Platform runs **entirely on Cloudflare in the cloud** (production, staging and a public demo on
+synthetic data) and as an optional **internal Docker/Kubernetes** stack for self-hosting, from one
+codebase, with a per-site Edge Gateway for load-shedding resilience and on-site DICOM.
 
 ## Start here
 | Read | For |
@@ -42,12 +43,14 @@ Docker/Kubernetes** stack with a per-site Edge Gateway for load-shedding resilie
 | 13 | `docs/13-analytics-and-kpis.md` |
 | 14 | `docs/14-integrations-and-interoperability.md` |
 | 15 | `docs/15-security-privacy-and-popia.md` |
-| 16 | `docs/16-deployment-cloudflare-demo.md` |
-| 17 | `docs/17-deployment-docker-internal.md` |
+| 16 | `docs/16-deployment-cloudflare-demo.md` (cloud on Cloudflare: production, staging, demo) |
+| 17 | `docs/17-deployment-docker-internal.md` (internal / self-hosted option) |
 | 18 | `docs/18-competitive-differentiation.md` |
 | 19 | `docs/19-roadmap-and-release-plan.md` |
 | 20 | `docs/20-build-kickoff-claude-code.md` |
 | 21 | `docs/21-glossary.md` |
+| 22 | `docs/22-image-analysis-specification.md` (AI analysis of the images: pipeline, models, training, validation, deployment) |
+| 23 | `docs/23-image-analysis-guide.md` (guide for radiologists, radiographers, engineers and AI operations) |
 
 ## Brand and infrastructure references
 * `brand/tokens.json`, `brand/logo.svg`, `brand/logo-dark.svg`, `brand/styleguide.html`

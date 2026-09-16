@@ -18,7 +18,7 @@ under a safety charter that makes an "AI slip" technically impossible for clinic
 |---|---|
 | **Bonakala Imaging** | The consumer brand: a network of radiology practices (wholly owned subsidiaries and joint ventures with local radiologists), hospital-based sites, and a national reading hub. |
 | **Bonakala Platform** | A single software platform (21 modules) replacing RIS, PACS, reporting, billing, debtors, practice finance, compliance and analytics, with an Edge Gateway per site so imaging never stops. |
-| **Bonakala Clinical Intelligence** | Imaging AI (triage, QC, findings candidates, dose), language AI (referral extraction, coding, drafting, plain-language results, multilingual WhatsApp) and 21 autonomous "Hands" (agents) with mandates and leashes. |
+| **Bonakala Clinical Intelligence** | Imaging AI (triage, QC, findings candidates, dose; see 22 and 23), language AI (referral extraction, coding, drafting, plain-language results, multilingual WhatsApp) and 21 autonomous "Hands" (agents) with mandates and leashes. |
 | **Bonakala Design Language** | A world-first, original design system ("Latent Image") with one language and five persona lenses, a Window/Level control for interface density, and provenance-first AI presentation. |
 
 ## What "better than the market" means, concretely
@@ -48,10 +48,16 @@ licensing per room; AI as software medical device), BHF practice numbers, CMS/sc
 and NHI readiness. See `02-south-africa-context-and-regulation.md`.
 
 ## Deployment
-* **Demo on Cloudflare** (Pages, Workers, D1, R2, Queues, Durable Objects, Workers AI): the full
-  product on synthetic data with simulated modalities, funders and switch.
-* **Internal on Docker/Kubernetes**: the same code with Postgres, object storage, NATS, Orthanc,
-  GPU inference and site Edge Gateways, in South African data centres.
+* **Cloud: all Cloudflare.** Production, staging and the public demo run on Cloudflare (Pages,
+  Workers, D1 per tenant, R2, Queues, Workflows, Durable Objects, Containers, Workers AI, AI Gateway,
+  Pipelines, Zero Trust, Tunnel). The demo is the production stack on synthetic data with simulated
+  modalities, funders and switch.
+* **Internal on Docker/Kubernetes** for organisations that must self-host: the same code with
+  Postgres, object storage, NATS, Orthanc, GPU inference, in South African data centres.
+* **Edge Gateway at every site** in both cases, so imaging continues through outages and raw DICOM
+  never leaves the site network.
+* **Image analysis** has its own specification (`22-image-analysis-specification.md`) and guide
+  (`23-image-analysis-guide.md`).
 
 ## Programme
 Four releases over about 18 months (see `19-roadmap-and-release-plan.md`): R1 Foundation (identity,

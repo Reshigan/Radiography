@@ -10,8 +10,8 @@ Claude Code. It assumes the specification (this repository) is the single source
 |---|---|
 | Git access to `Reshigan/Radiography` | Development branch per feature; `main` protected |
 | Node.js 22 LTS, pnpm 9, Turborepo | `corepack enable && corepack prepare pnpm@latest --activate` |
-| Docker Desktop / Docker Engine + Compose v2 | For the internal stack and Orthanc |
-| Cloudflare account | Workers Paid plan recommended for D1/Queues/Durable Objects limits; `wrangler` CLI |
+| Docker Desktop / Docker Engine + Compose v2 | For the Edge Gateway appliance, Cloudflare Containers images and the internal (self-hosted) stack |
+| Cloudflare account(s) | Workers Paid plan; separate accounts for production, staging and demo recommended; Zero Trust, R2, D1, Queues, Workflows, Containers, AI Gateway enabled; `wrangler` CLI |
 | Anthropic API key (for the Hands and LLM Gateway) | Stored as a secret (`wrangler secret put ANTHROPIC_API_KEY`, or `.env` locally). Never commit keys. |
 | Claude Code | CLI: `npm install -g @anthropic-ai/claude-code` (or the desktop app / claude.ai/code). Sign in with your Anthropic account. |
 | Python 3.11 + uv (internal only) | For `apps/inference` |
@@ -64,8 +64,9 @@ Then:
 2. Implement M21 Platform Core minimal: tenancy context, event outbox, feature flags, health.
 3. Implement M02 Organisation (legal entities, relationships, shareholdings, sites, rooms,
    modalities) end-to-end: schema, migrations, API, UI (Business lens), tests.
-4. Wire infra/cloudflare/wrangler.toml so `pnpm dev` runs the API on Workers locally with D1,
-   and infra/docker/docker-compose.yml so `docker compose up` runs the API on Node with Postgres.
+4. Wire infra/cloudflare/wrangler.toml so `pnpm dev` runs the API on Workers locally with D1
+   (per-tenant databases via a tenant directory), and infra/docker/docker-compose.yml so
+   `docker compose up` runs the API on Node with Postgres for the internal option.
 5. Add GitHub Actions CI from .github/workflows/ci.yml (fix anything that does not run).
 6. Seed synthetic demo data (SA names across language groups, synthetic ID numbers that pass the
    Luhn check and are flagged synthetic, demo practices and sites).
@@ -87,7 +88,7 @@ When done, run lint, typecheck, unit tests and a Playwright smoke test and repor
 | R1-3 | M04 Referral & Orders + Referrer Space + Referral Hand (A1) | processes/01, journeys/ref, 11 |
 | R1-4 | M05 Scheduling & Capacity (slot engine, reminders, self-service, WhatsApp booking) | processes/02, journeys/bkg |
 | R1-5 | M06 Funding & Authorisation (quotes, benefit-check adapter, funder contracts) | processes/03 |
-| R1-6 | M08 Acquisition & Worklist + Edge Gateway v1 (Orthanc, MWL, MPPS, store-and-forward) | processes/05, 07 §5, 17 |
+| R1-6 | M08 Acquisition & Worklist + Edge Gateway v1 (Orthanc, MWL, MPPS, store-and-forward, Cloudflare Tunnel, STOW-RS to Workers/R2) | processes/05, 07 §5, 16, 17 |
 | R1-7 | M09 PACS (ingest, archive tiers, DICOMweb, viewer, priors, sharing) | processes/06 |
 | R1-8 | M12 Reporting + Reading Room v1 (structured templates, dictation, sign-off, addenda) | processes/07, journeys/rgt |
 | R1-9 | M13 Results & Communication (referrer delivery, patient results, critical-results workflow) | processes/08 |
@@ -96,7 +97,7 @@ When done, run lint, typecheck, unit tests and a Playwright smoke test and repor
 | R2-1 | M20 Agent Runtime (Hands: mandates, leashes, tools, approvals, audit) + LLM Gateway | 11 §D–E, 12 |
 | R2-2 | Coding, Claims, Remittance, Collections Hands; scheme rule packs; PSP; real switch adapter | processes/09 |
 | R2-3 | Booking, Authorisation, Front Desk Hands | processes/02–04 |
-| R2-4 | M11 BCI: model registry, inference orchestration, QC models on Edge, shadow mode | 11 §A, 12 |
+| R2-4 | M11 BCI: model registry, inference orchestration, QC models on Edge, shadow mode, image-analysis pipeline | 11 §A, 12, 22, 23 |
 | R2-5 | M10 Dose (RDSR, DRLs, alerts, dosimetry) | processes/05 |
 | R2-6 | M16 Analytics v1 (semantic layer, persona dashboards) + M15 Finance core | 13, processes/10 |
 | R3-1 | Reading Hub, JV waterfalls, consolidation, shareholder portal | 03, processes/10, journeys/shr |

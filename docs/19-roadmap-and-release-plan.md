@@ -1,8 +1,8 @@
 # 19 — Roadmap and Release Plan
 
 ## 1. Principles
-* Ship the demo continuously; every module lands on Cloudflare first (synthetic data), then in the
-  internal pilot.
+* Ship continuously on Cloudflare: every module lands in the demo environment (synthetic data),
+  then staging, then production; the internal Docker option tracks the same releases.
 * Clinical AI goes: offline validation → shadow mode at pilot sites → supervised activation → scale.
 * Nothing is "done" without: persona surfaces, exceptions, audit, analytics, docs, tests.
 
@@ -23,7 +23,7 @@
   claims assembly, switch simulator, remittance matching), M21 Platform Core, Patient Space,
   Referrer Space, Front Desk, Technologist console, Reading Room v1, BDL v1.
 * Demo scenarios: "the 09:40 patient", "the STAT head CT".
-* Pilot: 1 internal site on Docker + Edge Gateway.
+* Pilot: 1 site on Cloudflare production + Edge Gateway (and a Docker internal reference install).
 
 ### R2 — Revenue and Intelligence (months 5–9)
 * M14 full automation (Coding Hand, Claims Hand, Remittance Hand, Collections Hand; real switch
@@ -39,7 +39,8 @@
   consolidation and shareholder portal, M17 Workforce + Roster Hand, M18 Assets + Maintenance Hand,
   M19 Compliance + Compliance Hand, M16 benchmarking and forecasting + Insight Hand, Onboarding
   Hand, Edge fleet management, multilingual WhatsApp (isiZulu, isiXhosa, Afrikaans, Sesotho first),
-  BCI activation (supervised) for QC and triage where validation passes; SAHPRA regulatory files.
+  BCI activation (supervised) for QC and triage where validation passes (per 22 and 23); SAHPRA
+  regulatory files; GPU inference cell in an SA data centre attached via Cloudflare Tunnel.
 * Demo scenario: "onboarding a practice".
 * Scale: 10–25 sites.
 
