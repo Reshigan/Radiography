@@ -1,4 +1,4 @@
-# AIO — AI Operations and Clinical Safety Officer for AI: Persona Journey
+# Journey: AIO — AI Operations and Clinical Safety Officer for AI
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 
 ---
 
-## Scene 1 — A drift alarm on chest X-ray triage at one site
+## Scene 1: A drift alarm on chest X-ray triage at one site
 
 **Situation.** Monday 06:30 SAST. The BCI Monitoring view raises a Beam alarm: "cxr-triage v3.2 at Randburg: input image statistics drifted (pixel intensity histogram and noise-texture distance above threshold since Thursday); triage-priority rate for 'urgent' up from 6.1 % to 11.4 %; radiologist override rate up from 4 % to 13 %. Other sites unchanged." The alarm is drawn in the annotated style with the monitor's own version.
 
@@ -34,13 +34,12 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 **Edge cases.**
 - The false-negative proxy had moved. The incident would be classified as potential harm, the Cohort would be reviewed by a radiologist for missed findings, and any affected patient recalled through the addendum and Critical Result workflow in M12 and M13.
 - The vendor confirms the detector is out of the model's validated scope. The model stays suppressed for that room until a validated version exists; the registry entry's "validated inputs" list is updated so the routing rule excludes that detector model at every site.
-- The site's radiologists ask for the triage back because the worklist is busy. The Reading Room still shows priorities from the radiologist's own clinical indication ranking and STAT flags; AI triage is an addition, never the only ordering.
 
 **Success measure.** Drift detected within 3 days of the cause; suppression within an hour of confirmation; no patient harm; the device-change subscription catches the next such change before drift.
 
 ---
 
-## Scene 2 — Shadow-mode evaluation of a new fracture model
+## Scene 2: Shadow-mode evaluation of a new fracture model
 
 **Situation.** A vendor's fracture-detection model for extremity radiographs (SAHPRA registration reference recorded in the registry, with the class and the intended use as registered) is proposed for the Group. The AI committee has approved a shadow-mode evaluation at four sites for 8 weeks.
 
@@ -56,13 +55,12 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 
 **Edge cases.**
 - A stopping rule fires: the model's quality-flag rate at one site exceeds 20 % because of a non-standard collimation practice. The evaluation pauses at that site automatically, and BIO and the site's RAD lead are asked to check positioning practice (which is also a dose and quality question for M10).
-- The vendor asks for the evaluation images to improve their model. The operator agreement does not permit it; the request is declined in the record, and any future secondary use would require a separate lawful basis and CMP approval.
 
 **Success measure.** Evaluation completed to protocol; live scope narrower than the vendor's claim where evidence is weaker; every adjudication stored; no out-of-scope routing.
 
 ---
 
-## Scene 3 — A near-slip incident review
+## Scene 3: A near-slip incident review
 
 **Situation.** A radiologist at the Hub reports, through the Reading Room, that a draft report for a CT brain contained the sentence "No acute intracranial abnormality" pre-populated in the findings section from the AI-drafted text, and that he nearly signed it before noticing that the AI's own findings candidate list for the same study had flagged a small subdural collection at 0.61 confidence. He rejected the draft, reported the collection, and filed the report. No slip occurred: the report was signed by the radiologist with the correct finding. But the draft was inconsistent with the model's own candidate, and the inconsistency was not surfaced.
 
@@ -78,13 +76,12 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 
 **Edge cases.**
 - The review finds that a similar draft was signed unchanged by another radiologist last month. That is a potential slip: the study is re-read, an addendum is issued if needed, the patient and referrer are informed through M12 and M13, and the incident is reclassified.
-- The radiologist who reported it asks that the report not identify him. Reporter identity is protected by the just-culture setting in M19; the review sees the role, not the name, unless the reporter opts in.
 
 **Success measure.** Near-slip reported and reviewed within 5 working days; the hard gate deployed within one release; candidate-conflict rate tracked from day one; the reporter thanked.
 
 ---
 
-## Scene 4 — A SAHPRA vigilance report
+## Scene 4: A SAHPRA vigilance report
 
 **Situation.** The drift incident (Scene 1) and the near-slip (Scene 3) both involve software that is a medical device under SAHPRA's framework: the chest X-ray triage model is a vendor SaMD with a SAHPRA registration reference, and the drafting Hand is part of the Platform's own regulated function (the Group's regulatory lead has recorded the Platform's own SaMD position and registration or exemption reference in the registry, with the legal advice attached). The Group's vigilance policy requires the regulatory lead to assess each AI incident against the reporting criteria in the vendor's and the Platform's post-market surveillance plans and, where met, to report to SAHPRA and to the vendor within the periods those plans and the regulator's guidance prescribe (the Platform stores the periods as reference data, labelled to be confirmed against current SAHPRA guidance).
 
@@ -99,18 +96,17 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 - Events: `vigilance.assessment.recorded.v1`, `vigilance.report.submitted.v1`, `vigilance.vendor.notified.v1`.
 
 **Edge cases.**
-- SAHPRA requests further information. The correspondence attaches to the incident; the countdown resets to the regulator's date.
 - The vendor issues a field safety notice for the model. The registry marks the version, the routing rules apply the notice's restriction (for example, suppression on the affected detector model) across every Practice at once, and each Practice's CMP is notified because the change affects their tenants.
 
 **Success measure.** Every AI incident has a recorded reportability assessment; reports submitted inside the prescribed period; vendor notices applied network-wide within a day.
 
 ---
 
-## Scene 5 — The quarterly AI committee
+## Scene 5: The quarterly AI committee
 
 **Situation.** Quarter-end. The AI committee (the CMO as chair, the clinical safety officer for AI, a Practice CMP representative, a radiologist from the Hub, the regulatory lead, the CIO's delegate and a patient representative) meets to review the quarter and to approve the next quarter's changes.
 
-**What they see.** The Committee view in M11 assembles the quarter: the model registry with status per model per Practice (live, shadow, suppressed, retired), performance versus baseline per model with site-level outliers, override rates by model and by reader band (de-identified), incidents and near-slips with their status, vigilance reports, shadow evaluations completed and proposed, change requests approved and pending (including the fracture model's staged rollout from the CMP journey and the Reading Room hard gate from Scene 3), the Hands' operational metrics (exception rates, budget, mandate breaches attempted and refused by the runtime, which should be zero and are), the fairness review (performance by age band, sex and site, since the Platform does not process race data without consent), patient-facing communication status (the Patient Space and consent copy about computer checks, in each language), and the training status of readers per model.
+**What they see.** The Committee view in M11 assembles the quarter: the model registry with status per model per Practice (live, shadow, suppressed, retired), performance versus baseline per model with site-level outliers, override rates by model and by reader band (de-identified), incidents and near-slips with their status, vigilance reports, shadow evaluations completed and proposed, change requests approved and pending (including the fracture model's staged rollout from the CMP journey and the Reading Room hard gate from Scene 3), the Hands' operational metrics (exception rates, budget, mandate breaches attempted and refused by the runtime, which should be zero and are), the fairness review (performance by age band, sex and site, since the Platform does not process race data without consent), and patient-facing communication status (the Patient Space and consent copy about computer checks, in each language).
 
 **What they do.** The committee reviews. It approves the fracture model's rollout to Randburg after Sandton's 30 days, declines a vendor's proposal to run a mammography triage model with overlays on by default (the Group's human-first policy for mammography keeps overlays off), asks for the chest X-ray triage model's validated-input list to be reviewed across all detector models in the fleet (M18 provides the list), and records a decision that the drafting Hand's candidate-conflict proxy becomes a standing committee metric. The patient representative asks whether patients can opt out of AI triage; the answer recorded is that triage affects reading order only, never the report, and the Patient Space explains this; a per-patient opt-out from findings-candidate overlays is put on the roadmap for discussion with CMP and the CMO. The minutes are generated from the recorded decisions, reviewed, and locked.
 
@@ -122,7 +118,6 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 
 **Edge cases.**
 - A Practice's CMP declines a network-wide decision for their tenant. Tenancy wins: the decision is recorded as "not adopted at Practice X, reason", and the committee sees it.
-- A model is retired. The registry keeps its full history, and every report that used its candidates keeps the provenance; retirement never rewrites the past.
 
 **Success measure.** Every model has a committee-reviewed status each quarter; zero mandate breaches by Hands; fairness review completed; decisions traceable to routing changes.
 
@@ -136,7 +131,6 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 - A near-slip is treated as an incident, reconstructed from the Reading Room session log, and turned into a hard gate that makes the next one impossible.
 - The vigilance file writes itself from events, with affected populations computed rather than estimated.
 - Age and population scope are enforced by routing rules, not by policy documents.
-- Hands' attempted mandate breaches are a committee metric, and the runtime keeps them at zero.
 - The quarterly committee approves from a saved query, and its decisions become effective-dated changes still subject to each Practice's CMP.
 
 ## Failure modes designed out
@@ -148,4 +142,3 @@ The journey follows Dr Adams, the clinical safety officer for AI, and Thabo, the
 - **Images leaving the country for vendor benefit.** De-identified inference in the SA inference cell; secondary use requires a separate lawful basis.
 - **Vigilance from memory.** Reportability assessment is mandatory before incident closure; drafts assemble from facts.
 - **Network decisions overriding tenants.** Practice-level CMP change control always applies.
-- **Fairness assumed.** Quarterly performance by age band, sex and site is a committee deliverable.

@@ -1,4 +1,4 @@
-# CMP — Compliance, Quality, Radiation Protection and Information Officer: Persona Journey
+# Journey: CMP — Compliance, Quality, Radiation Protection and Information Officer
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 
 ---
 
-## Scene 1 — A POPIA access request
+## Scene 1: A POPIA access request
 
 **Situation.** Monday 09:10 SAST. A patient emails the Practice's info@ address: he wants copies of all his records, including images, and wants to know who has accessed them, because he suspects a former employer obtained his report. Under POPIA section 23 a data subject may request confirmation of whether the responsible party holds their personal information, and a description of it and of the recipients. The Practice's policy (stored as configurable reference data) is to respond within the period the Regulations prescribe and, as a matter of practice, within 10 working days; the Platform tracks the statutory and the policy deadline separately, and the statutory deadline is labelled as reference data to be confirmed by the Practice's legal adviser.
 
@@ -32,16 +32,14 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 - Events: `popia.access_request.opened.v1`, `popia.access_request.identity_verified.v1`, `popia.access_request.fulfilled.v1`.
 
 **Edge cases.**
-- The request comes from a lawyer acting for the patient. Authority is verified by a signed mandate uploaded and checked; the disclosure goes to the lawyer's secure share with the patient copied.
 - The access log shows an access the patient did not expect: a scheme's audit request under the Funder API, done with the consent given at registration. Nomvula explains it in the cover letter and the consent record is included.
 - The patient asks for deletion. Medical records have retention obligations (HPCSA guidance, stored as reference data per record class); Nomvula explains the lawful basis for retention and records the objection.
-- The access log reveals a break-glass access by a clinician at another Practice during an emergency. The break-glass record (M01) shows the justification entered at the time and the review that followed; it is disclosed and explained.
 
 **Success measure.** Identity verified within one working day; disclosure delivered within the policy deadline; zero disclosures by email; every request in the Information Officer register.
 
 ---
 
-## Scene 2 — Radiation licence renewal
+## Scene 2: Radiation licence renewal
 
 **Situation.** The SAHPRA Radiation Control licence for Randburg's general X-ray room 2 expires in 120 days. Licences under the Hazardous Substances Act for Group III equipment are issued to the licence holder for equipment at an address with an RPO; renewal needs the application, the licence conditions evidence (QA, shielding, staff training, dosimetry) and the fee.
 
@@ -58,13 +56,12 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 **Edge cases.**
 - SAHPRA requests additional information. The correspondence is attached to the licence record and the timer resets to the new due date.
 - The room is being decommissioned next quarter. Nomvula records the planned decommissioning; the Hand switches the task to a licence cancellation and the slot engine winds down the room's bookings from the planned date.
-- Licence holder changes because of a JV transaction (see the SHR and EXE journeys): the amendment application is a variant of the same workflow.
 
 **Success measure.** No licence at the Practice ever reaches expiry without a submitted renewal; renewal packs prepared with zero manual document hunting.
 
 ---
 
-## Scene 3 — A wrong-patient exposure incident
+## Scene 3: A wrong-patient exposure incident
 
 **Situation.** Thursday 15:40. At Sandton, a radiographer calls two patients with the same surname from the waiting area; the wrong Mr Dlamini enters room 1 and receives a chest X-ray (two projections) intended for the other. The error is noticed at the modality when the radiographer compares the wristband ID to the worklist after exposure. No harm beyond an unnecessary exposure; the second patient is imaged correctly afterwards.
 
@@ -87,13 +84,12 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 **Edge cases.**
 - The exposed patient is pregnant. The pregnancy screening record from M07 is shown; the incident severity is raised and a radiologist and a medical physicist (an `external_partner` contracted to the Practice) are added to the investigation for dose estimation to the foetus.
 - The wrong patient's scheme was billed before the error was noticed. The Coding Hand's claim is reversed automatically when the study is marked "acquired in error", and DEB is blocked from any balance for it.
-- The radiographer's identification error is the second in six months. M17's competency record shows the pattern to the site's professional lead, not as a disciplinary trigger but as a training input; HR processes are separate and access-restricted.
 
 **Success measure.** Reported within 30 minutes of discovery; patient disclosed to within an hour; regulator notified within the licence-condition period; corrective actions closed within 30 days; no repeat of the same root cause at any Group site in the following year.
 
 ---
 
-## Scene 4 — The peer-review learning meeting
+## Scene 4: The peer-review learning meeting
 
 **Situation.** The monthly peer-review learning meeting for Practice A's radiologists (and, by invitation, the Hub readers who report for the Practice). Peer review in M12 is continuous: a sample of signed reports is allocated to a second radiologist for scoring, and discrepancies from addenda, referrer feedback and clinical follow-up are added.
 
@@ -108,14 +104,13 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 - Events: `peer_review.allocated.v1`, `peer_review.scored.v1`, `report.addendum.signed.v1`, `learning.action.recorded.v1`.
 
 **Edge cases.**
-- A Hub reader disputes a "significant" score. A third reader is allocated automatically and the dispute is recorded; the score used is the consensus.
 - Referrer feedback through the Referrer Space ("the fracture was visible on the films") is routed to peer review as a case, and the referrer gets a reply once the review is done.
 
 **Success measure.** Every significant discrepancy leads to a recorded learning action; addenda and recalls are completed with acknowledgement; the discrepancy rate by category is stable or improving.
 
 ---
 
-## Scene 5 — The accreditation evidence pack
+## Scene 5: The accreditation evidence pack
 
 **Situation.** The Practice is preparing for its accreditation surveillance visit under the standard it has chosen (a COHSASA-style or ISO-style healthcare quality standard; the Platform stores the standard's criteria as a configurable framework). The surveyor's request list arrives six weeks before the visit.
 
@@ -130,13 +125,12 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 
 **Edge cases.**
 - The framework version changes. The criterion mapping is versioned; the Group's compliance lead updates the mapping once and every Practice inherits it.
-- The surveyor asks for evidence of a process the Platform does not run (a manual fire drill). The criterion accepts uploaded evidence with a date and owner, and the calendar schedules the next one.
 
 **Success measure.** Readiness known continuously; pack generated in under an hour; no criterion without evidence at the visit.
 
 ---
 
-## Scene 6 — An AI change-control review
+## Scene 6: An AI change-control review
 
 **Situation.** AIO proposes to move a new fracture-detection model for extremity X-rays from shadow mode to live findings-candidate overlays at Practice A's two sites (see the AIO journey for the shadow evaluation). The Practice's AI governance policy requires CMP's change-control review before any Class 2 output (findings candidate visible to a radiologist) goes live at the Practice, and the quarterly AI committee's minute.
 
@@ -152,7 +146,6 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 
 **Edge cases.**
 - A vendor pushes a new model version. The registry treats a version change as a new change request; the old version keeps running until approved.
-- A radiologist has not completed orientation. Overlays for that reader stay off, and the Reading Room tells them why.
 
 **Success measure.** No Class 2 AI output live at the Practice without a change-control record; roll-back tested before go-live; staged rollout reviewed on schedule.
 
@@ -167,7 +160,6 @@ The journey follows Nomvula, quality and compliance manager for Practice A (Sand
 - Accreditation readiness is visible every day; the pack is generated in an hour.
 - AI cannot go live at a Practice without CMP's change-control approval, and roll-back is a single action.
 - Break-glass, cross-tenant and Hand access are all in the same audit stream and can be explained to a patient.
-- The Group's compliance lead sees counts and patterns across Practices without seeing content.
 
 ## Failure modes designed out
 

@@ -1,4 +1,4 @@
-# SHR — Practice Shareholder / JV Partner: Persona Journey
+# Journey: SHR — Practice Shareholder / JV Partner
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Dr Pillay, who holds 24.5 % of Practice B Inc. (the Umhlanga
 
 ---
 
-## Scene 1 — The monthly statement
+## Scene 1: The monthly statement
 
 **Situation.** The 6th of the month, 18:30 SAST. Practice B's period closed on the 5th. Dr Pillay gets a WhatsApp: "Practice B's August statement is ready. Distributable profit R1 412 000. Your proposed distribution R346 000. Open the portal to review." (Illustrative amounts.)
 
@@ -39,7 +39,7 @@ The journey follows Dr Pillay, who holds 24.5 % of Practice B Inc. (the Umhlanga
 
 ---
 
-## Scene 2 — The distribution
+## Scene 2: The distribution
 
 **Situation.** All three approvals are in by the 8th. The Practice's bank account holds the cash.
 
@@ -60,7 +60,7 @@ The journey follows Dr Pillay, who holds 24.5 % of Practice B Inc. (the Umhlanga
 
 ---
 
-## Scene 3 — A reserved-matter vote
+## Scene 3: A reserved-matter vote
 
 **Situation.** Two proposals are open for Practice B's shareholders under the reserved-matters clause of their shareholders' agreement: the second MRI (capex above threshold, from the EXE journey) and the fee-schedule change for the scheme DSP contract renegotiation.
 
@@ -82,7 +82,7 @@ The journey follows Dr Pillay, who holds 24.5 % of Practice B Inc. (the Umhlanga
 
 ---
 
-## Scene 4 — Selling part of the interest
+## Scene 4: Selling part of the interest
 
 **Situation.** Dr Pillay is reducing his clinical hours and wants to sell 12.25 % (half his holding) to Dr Mthembu, a radiologist who joined the Practice two years ago. The shareholders' agreement gives the other shareholders a pre-emptive right; the Group and Dr Khumalo have waived it. The price is agreed between the parties with reference to the Practice's trailing EBITDA. Effective date: the 15th of next month.
 

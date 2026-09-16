@@ -105,7 +105,7 @@ exposure index, matrix size, vendor tags); calibration (confidence against accep
 subgroup deltas; and the peer-review discrepancy link (misses the model flagged, flags accepted and
 later found wrong).
 
-## 3. Part A — Imaging analysis models (Bonakala Clinical Intelligence)
+## 3. Part A: Imaging analysis models (Bonakala Clinical Intelligence)
 
 Model ids are stable registry identifiers with the version appended at runtime
 (`BCI-CXR-TRIAGE@2.3.1`). If a vendor model is adopted for a use case the id stays and the
@@ -231,7 +231,7 @@ position is confirmed (§2.4) these run as labelled quality features, never as a
 | BCI-CONSIST | Pre-sign consistency check: laterality words versus image, body part versus study, numbers versus structured measurements, missing comparison when a prior exists, sex and age mismatch, referrer question unaddressed | All | Draft, metadata, structured findings | Warnings to the signing RGT only; sign-off proceeds after each is acknowledged (Class 4) | A1 | `ReportEditor` pre-sign checklist |
 | BCI-CHANGE | Comparison-with-prior change detection | CXR, CT chest and abdomen, MR brain, MG | Current and prior | Change-region candidates (Class 1 when adopted as comparison text); auto-prior selection (Class 4) | A1 / A2 | `PriorStrip` highlights; comparison draft block |
 
-## 4. Part B — Language and document models
+## 4. Part B: Language and document models
 
 Language models run through the LLM Gateway (§7.1). Each entry states its grounding, because the
 hallucination controls (doc 12 rule 4) require language outputs to be grounded in structured Platform
@@ -253,7 +253,7 @@ data and to cite the source fields used.
 Patient voice notes are transcribed for intent only and retained under the M21 conversational
 retention class, never attached to the medical record unless a human decides they are relevant.
 
-## 5. Part C — Predictive and operational models
+## 5. Part C: Predictive and operational models
 
 Part C outputs are Class 4 unless they drive an external action, which is then performed by a Hand
 under that action's class (a propensity score is Class 4; the payment-plan offer it triggers is
@@ -274,7 +274,7 @@ characteristics; all are covered by the fairness audit in doc 12 §7.
 | BCI-PRED-CHURN | Referrer churn risk | Volume trend, TAT experienced, complaints, competitor openings recorded by PRM | PRM, EXE | A2 | Lift on retained referrers |
 | BCI-PRED-SAT | Patient satisfaction drivers | Surveys, wait times, quote accuracy, complaint topics | PRM, EXE | A2 | Correlation with survey trend |
 
-## 6. Part D — The Hands (M20)
+## 6. Part D: The Hands (M20)
 
 A Hand has a **name**, a **mandate**, a **leash** (numeric limits), allow-listed **tools** each with a
 risk class, an **approval policy**, an **escalation** path, **KPIs** and an **exception owner**. The
@@ -575,7 +575,7 @@ Illustrative numeric leashes below are configurable reference data per Practice.
 | KPIs | First-contact resolution, time to resolve, runbook success |
 | Exception owner | SUP |
 
-## 7. Part E — Engineering
+## 7. Part E: Engineering
 
 ### 7.1 LLM Gateway
 

@@ -1,4 +1,4 @@
-# SUP — Platform Support (MSO): Persona Journey
+# Journey: SUP — Platform Support (MSO)
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Musa, second-line support engineer on the day shift.
 
 ---
 
-## Scene 1 — A claims switch running slow
+## Scene 1: A claims switch running slow
 
 **Situation.** 09:20 SAST. The Observability view shows the claims switch adapter for one switch vendor with P95 response latency at 40 seconds against a normal 3 seconds; error rate is still low. The Claims Hand's queue for the three Practices that use that switch is growing. The CIO's console has already shown it (see the EXE journey).
 
@@ -25,7 +25,7 @@ The journey follows Musa, second-line support engineer on the day shift.
 
 **What they do.** Musa confirms the cause is on the switch's side (the requests are well-formed and the timeouts are at the vendor). He approves the notice, opens a ticket with the switch vendor through the integration's support channel, and sets the adapter to "queue and retry with backoff" so the Claims Hand stops waiting synchronously. He watches the recovery; at 11:05 latency normalises and the backlog drains. He closes the incident with the vendor's reference.
 
-**What the Platform does.** SLOs per integration raise incidents; the raw message store makes the diagnosis a look, not a reproduction; the Claims Hand's leash includes "do not resubmit on timeout" so the recovery cannot create duplicates (idempotency by `(source, message_id)` also prevents it). Events: `incident.opened.v1`, `tenant.notice.sent.v1`, `integration.mode.changed.v1`, `incident.closed.v1`.
+**What the Platform does.** SLOs per integration raise incidents; the raw message store makes finding the cause a matter of looking, not reproducing; the Claims Hand's leash includes "do not resubmit on timeout" so the recovery cannot create duplicates (idempotency by `(source, message_id)` also prevents it). Events: `incident.opened.v1`, `tenant.notice.sent.v1`, `integration.mode.changed.v1`, `incident.closed.v1`.
 
 **Edge cases.** The switch returns errors for one Practice only: a practice-number registration problem at the switch. The incident narrows to that tenant, and BIL is told which claims are affected and by when they must be resubmitted against the stale-claim rule.
 
@@ -33,7 +33,7 @@ The journey follows Musa, second-line support engineer on the day shift.
 
 ---
 
-## Scene 2 — A configuration change from an incident
+## Scene 2: A configuration change from an incident
 
 **Situation.** CMP at Practice A has asked, from the wrong-patient exposure incident in the CMP journey, that the technologist console's "wristband scan before exposure" gate be set to mandatory for the Sandton site.
 
@@ -49,7 +49,7 @@ The journey follows Musa, second-line support engineer on the day shift.
 
 ---
 
-## Scene 3 — Onboarding support and a tenant restore
+## Scene 3: Onboarding support and a tenant restore
 
 **Situation.** During the Mpumalanga acquisition's onboarding (see the EXE journey), the Secunda site's IT contact enrolled the Edge Gateway with the wrong site code, pairing it with White River. Twenty test studies landed under the wrong site. Separately, a user at a management-only affiliate deleted a saved worklist filter set for their whole Practice by mistake and asks for it back.
 

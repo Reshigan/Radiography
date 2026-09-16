@@ -1,4 +1,4 @@
-# DEB — Debtors and Collections Controller: Persona Journey
+# Journey: DEB — Debtors and Collections Controller
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Sipho, debtors controller for Practice A (Sandton and Randbu
 
 ---
 
-## Scene 1 — The Collections Hand's morning run
+## Scene 1: The Collections Hand's morning run
 
 **Situation.** 08:00 SAST, Monday. The Collections Hand ran at 06:00, as it does every working day, against every open patient balance older than the Practice's grace period (illustrative: 7 days after the statement date; configurable per Practice).
 
@@ -45,7 +45,7 @@ The Hand's overnight actions are listed in a `Timeline`, each with the message s
 
 ---
 
-## Scene 2 — A dispute
+## Scene 2: A dispute
 
 **Situation.** A patient, Mrs Naidoo, replies on WhatsApp: "My scheme said this was covered in full. Why must I pay R1 460?" The Hand recognises a dispute intent and stops the sequence.
 
@@ -67,7 +67,7 @@ The Hand's overnight actions are listed in a `Timeline`, each with the message s
 
 ---
 
-## Scene 3 — A payment plan
+## Scene 3: A payment plan
 
 **Situation.** A cash patient owes R7 800 for a CT with contrast performed as an urgent outpatient study. He replies to the day-21 message: "I can pay but not all at once."
 
@@ -89,7 +89,7 @@ The Hand's overnight actions are listed in a `Timeline`, each with the message s
 
 ---
 
-## Scene 4 — Handover approval
+## Scene 4: Handover approval
 
 **Situation.** Quarter-end. The Hand has recommended 46 balances, totalling R318 000, for handover to the Practice's external collection attorney. Each has completed the full sequence with no reply, no payment and no dispute.
 
@@ -111,7 +111,7 @@ The Hand's overnight actions are listed in a `Timeline`, each with the message s
 
 ---
 
-## Scene 5 — An RAF settlement three years later
+## Scene 5: An RAF settlement three years later
 
 **Situation.** Three years and two months after a motor-vehicle accident patient had a CT of the cervical spine and a series of X-rays at Randburg, the Practice's bank statement shows a receipt of R11 240 from the Road Accident Fund with a reference that matches nothing recent.
 

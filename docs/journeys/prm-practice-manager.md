@@ -1,4 +1,4 @@
-# PRM — Practice / Site Manager: Persona Journey
+# Journey: PRM — Practice / Site Manager
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 1 — The daily control tower
+## Scene 1: The daily control tower
 
 **Situation.** 07:20 SAST. The site opens at 07:30. Lerato is at the front desk with a tablet.
 
@@ -33,13 +33,12 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 **Edge cases.**
 - A referrer's practice is closed for a week; the referral forecast for that referrer drops and the `Heatmap` shows expected soft spots so Lerato can open walk-in capacity.
-- School holidays shift paediatric demand; the forecast uses the SA school calendar as reference data.
 
 **Success measure.** Lerato has seen every risk for the day by 07:30; no patient waits more than 20 minutes past their slot on a day with no equipment failure; walk-in capacity is used, not wasted.
 
 ---
 
-## Scene 2 — A CT goes down
+## Scene 2: A CT goes down
 
 **Situation.** 09:52. CT 1 (the newer, 128-slice unit) reports a tube arc fault and shuts down mid-list with 23 CT patients still booked for the day, six of them with contrast, two of them trauma referrals from the nearby casualty.
 
@@ -66,7 +65,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 3 — A radiographer calls in sick
+## Scene 3: A radiographer calls in sick
 
 **Situation.** 06:10 the next day. The mammography radiographer, who is the only staff member on site with the mammography credential, sends a WhatsApp: sick, doctor's note to follow.
 
@@ -89,7 +88,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 4 — A complaint
+## Scene 4: A complaint
 
 **Situation.** A patient's daughter posts a complaint through the Patient Space Help section: her mother waited two hours for an ultrasound, was not told why, and was "spoken to rudely" at the desk. She also copied the complaint to a consumer review site.
 
@@ -112,7 +111,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 5 — A SAHPRA inspection
+## Scene 5: A SAHPRA inspection
 
 **Situation.** Wednesday, 09:15. Two inspectors from SAHPRA Radiation Control arrive unannounced to inspect the site's X-ray, CT and mammography rooms under the licence conditions.
 
@@ -134,7 +133,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 6 — A load-shedding week
+## Scene 6: A load-shedding week
 
 **Situation.** Stage 4 load-shedding is announced for the week: two to three outages a day, two to four hours each, on the site's municipal block. The site has a generator (sized for CT 2, X-ray rooms, ultrasound, the Edge Gateway and the front desk, but not for MRI or CT 1 at full duty) and a UPS for the Edge Gateway and network.
 
@@ -157,7 +156,7 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 ---
 
-## Scene 7 — Monthly review with the shareholders
+## Scene 7: Monthly review with the shareholders
 
 **Situation.** The 8th working day of the month. Practice B's management accounts closed on the 5th. Lerato presents the month to the Practice's two local radiologist partners (SHR) and the Group's professional-holding representative.
 
@@ -173,7 +172,6 @@ The journey follows Lerato, site manager at Bonakala Imaging Umhlanga (Practice 
 
 **Edge cases.**
 - A partner disputes the management fee allocation driver. The intercompany rule and its driver data (studies, headcount, square metres) are shown on the page; disputes route to EXE as M15 specifies.
-- A partner wants the numbers in a spreadsheet. Export is a click; the export carries the same period lock reference so a later "different version" is impossible.
 
 **Success measure.** Month closed by the 5th, reviewed by the 8th; every variance explained by an event; capex questions answered with a what-if in the meeting, not a week later.
 

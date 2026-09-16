@@ -1,4 +1,4 @@
-# EXE — Group Executive: Persona Journey
+# Journey: EXE — Group Executive
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows the five executives across one quarter: Naledi (CEO), Pieter
 
 ---
 
-## Scene 1 — Five views of the same Monday
+## Scene 1: Five views of the same Monday
 
 **Situation.** 07:00 SAST, Monday. Each executive opens the Group console. The console is one page with a role view; the underlying metrics come from the same semantic layer (`packages/analytics`), so the CFO's revenue and the COO's studies reconcile by construction.
 
@@ -41,7 +41,7 @@ The journey follows the five executives across one quarter: Naledi (CEO), Pieter
 
 ---
 
-## Scene 2 — Acquiring a three-site practice and onboarding it in five days
+## Scene 2: Acquiring a three-site practice and onboarding it in five days
 
 **Situation.** The Group has signed a sale agreement to acquire a three-site radiology practice in Mpumalanga (Nelspruit, White River, Secunda; two general X-ray and ultrasound sites and one with CT and mammography). The structure is an equity JV: Bonakala Professional Holdings takes 60 %, the two founding radiologists keep 40 %, and the MSO signs a management services agreement. Effective date is the first of next month, 12 working days away. The Competition Commission notification threshold has been assessed by the Group's attorneys as not triggered at this size (the Platform records the assessment as a document; it does not make the determination). Naledi wants the practice live on the Platform on day one, and Zanele has committed to the "5 working days" onboarding target from the organisation model.
 
@@ -84,7 +84,7 @@ The journey follows the five executives across one quarter: Naledi (CEO), Pieter
 
 ---
 
-## Scene 3 — Negotiating a scheme DSP contract with data
+## Scene 3: Negotiating a scheme DSP contract with data
 
 **Situation.** A large open medical scheme is renegotiating its Designated Service Provider network for radiology for next year. The scheme proposes a network rate at a discount to its standard tariff for CT and MRI in exchange for volume, and a requirement that pre-authorisation for all MRI be obtained through its portal within a turnaround SLA. Pieter and Dr Govender lead; Naledi decides.
 
@@ -107,7 +107,7 @@ The journey follows the five executives across one quarter: Naledi (CEO), Pieter
 
 ---
 
-## Scene 4 — A capex what-if for a second MRI
+## Scene 4: A capex what-if for a second MRI
 
 **Situation.** Umhlanga (Practice B) has run its MRI above 85 % utilisation for four months, with a median wait for a routine MRI slot of nine days. Lerato (PRM) and the JV partners have asked for a second MRI. It is a reserved matter (capex above threshold) and a Group capital allocation question.
 
@@ -128,7 +128,7 @@ The journey follows the five executives across one quarter: Naledi (CEO), Pieter
 
 ---
 
-## Scene 5 — The board pack
+## Scene 5: The board pack
 
 **Situation.** Quarter-end. The Group's board meets in three weeks. Pieter owns the pack; the other executives own sections.
 

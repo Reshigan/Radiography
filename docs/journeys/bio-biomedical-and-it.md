@@ -1,4 +1,4 @@
-# BIO — Biomedical Engineering and IT Operations: Persona Journey
+# Journey: BIO — Biomedical Engineering and IT Operations
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Kabelo, regional biomedical engineer for the Group's KwaZulu
 
 ---
 
-## Scene 1 — A predictive-maintenance alert on a CT tube
+## Scene 1: A predictive-maintenance alert on a CT tube
 
 **Situation.** Tuesday 06:40 SAST. The Engineering console shows a Beam alert for CT 1 at Umhlanga: "Tube arc events: 14 in the last 7 days, up from a 30-day baseline of 2 per week. Cooling-cycle duration trending up. Recommended: vendor inspection within 5 working days. Predicted failure window: 2 to 4 weeks (model confidence 0.72)." The alert is drawn in the annotated style with its model id and version.
 
@@ -40,7 +40,7 @@ The journey follows Kabelo, regional biomedical engineer for the Group's KwaZulu
 
 ---
 
-## Scene 2 — An Edge Gateway offline at a site
+## Scene 2: An Edge Gateway offline at a site
 
 **Situation.** Thursday 11:15. The fleet view shows the Edge Gateway at the Secunda site (one of the three acquired Mpumalanga sites) as offline: no heartbeat for 6 minutes. The site has a general X-ray room, ultrasound and, recently, a CT.
 
@@ -63,7 +63,7 @@ The journey follows Kabelo, regional biomedical engineer for the Group's KwaZulu
 
 ---
 
-## Scene 3 — DICOM integration for a new modality
+## Scene 3: DICOM integration for a new modality
 
 **Situation.** The second MRI approved in the EXE and SHR journeys has been delivered to Umhlanga. Priya and Kabelo need to bring it onto the Platform: DICOM Modality Worklist, MPPS, image storage to the gateway, protocol library, dose (not applicable for MRI) but safety questionnaire routing (M07), hanging protocols in the Reading Room, and billing codes for the new protocols.
 
@@ -86,7 +86,7 @@ The journey follows Kabelo, regional biomedical engineer for the Group's KwaZulu
 
 ---
 
-## Scene 4 — A vendor engineer's remote access approval
+## Scene 4: A vendor engineer's remote access approval
 
 **Situation.** The CT 1 vendor's engineer, following the inspection from Scene 1, wants remote access to the scanner's service console to run diagnostics and update firmware. Historically this meant a shared VPN account or a screen-sharing tool with no record.
 

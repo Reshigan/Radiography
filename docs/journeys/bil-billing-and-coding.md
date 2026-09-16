@@ -1,4 +1,4 @@
-# BIL — Billing, Coding and Claims Clerk: Persona Journey
+# Journey: BIL — Billing, Coding and Claims Clerk
 
 ## Persona snapshot
 
@@ -17,7 +17,7 @@ The journey follows Thandi, a senior billing clerk in the Durban bureau, who ser
 
 ---
 
-## Scene 1 — A normal morning with the Coding Hand
+## Scene 1: A normal morning with the Coding Hand
 
 **Situation.** 07:45 SAST. Overnight, the Coding Hand and Claims Hand have processed everything signed since Thandi logged off. Thandi's job is no longer to bill; it is to handle what the Hands could not, and to keep the Hands honest.
 
@@ -37,13 +37,12 @@ The journey follows Thandi, a senior billing clerk in the Durban bureau, who ser
 **Edge cases.**
 - The report is signed but the order carried no ICD-10 from the referrer. The Coding Hand suggests an ICD-10 from the clinical indication in the report, flags it "suggested code", and routes it to Thandi because ICD-10 selection from free text is capped at A1 for the first 90 days of a new rules version.
 - Two studies on the same patient the same day (CT brain and CT cervical spine) trigger the scheme's multiple-procedure rule; the engine applies the reduction and shows the arithmetic in the `Money explained` pattern.
-- A study signed by a radiologist whose HPCSA registration verification (M01) is showing an expired annual renewal cannot be claimed; the claim is held with a Flare status and CMP is notified.
 
 **Success measure.** Studies signed yesterday are claimed before 09:00 today; Thandi's queue holds fewer than 5 % of yesterday's volume; sample review agreement with the Hand above 98 %.
 
 ---
 
-## Scene 2 — Working the exception queue
+## Scene 2: Working the exception queue
 
 **Situation.** 21 items. Thandi has until 10:30 to clear them before the 11:00 switch batch cut-off that Practice B uses for its largest batch scheme.
 
@@ -67,13 +66,12 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 **Edge cases.**
 - The scheme's real-time response says "benefit exhausted" for a member whose benefit check at booking said funds were available. The Platform shows both timestamps and the difference, converts the shortfall into a patient liability with the explanation the DEB persona will use, and does not let a second submission go out without a human decision.
 - A dental referral (a dentist is a valid referrer for a panoramic X-ray) uses a different practice number format; the referrer directory knows this and does not raise a false exception.
-- A public holiday: the `DatePicker` and SLA timers are SA public-holiday aware; stale-claim countdowns use calendar days because scheme rules do.
 
 **Success measure.** Queue cleared before the batch cut-off; each exception resolved in under 4 minutes median; repeat exceptions of the same referrer or reason drop week on week.
 
 ---
 
-## Scene 3 — Remittances and the afternoon reconciliation
+## Scene 3: Remittances and the afternoon reconciliation
 
 **Situation.** 14:00. Overnight remittance advices from four schemes and two bank statement feeds have arrived.
 
@@ -89,7 +87,7 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 
 ---
 
-## Scene 4 — A rejection wave after a scheme rule change
+## Scene 4: A rejection wave after a scheme rule change
 
 **Situation.** Tuesday, 3rd of the month. A large open scheme changed a rule on the 1st: a specific group of out-of-hospital CT tariff codes now requires a pre-authorisation number on the claim, and a set of ICD-10 codes is no longer accepted as primary for those tariffs. The scheme communicated this in a circular to practices two weeks earlier; the circular was received by the Practice's info@ mailbox and not actioned. Real-time responses on Monday came back with rejection reason "authorisation required" and "invalid diagnosis for procedure" across 63 claims for the Practice, and similar patterns at three other Practices.
 
@@ -119,7 +117,7 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 
 ---
 
-## Scene 5 — Month-end: the unbilled register
+## Scene 5: Month-end: the unbilled register
 
 **Situation.** Last working day of the month, 16:00. The Practice B finance close (M15) needs a signed-off unbilled register: every study performed in the month that is not yet claimed, with a reason and an expected value, so the accrual is right and the JV partners' distributable profit is not overstated or understated.
 
@@ -151,7 +149,6 @@ Each row's `Inspector` shows the arithmetic and the exact rule that fired, with 
 - Remittances match themselves; paid-to-member and claw-backs are recognised as what they are and handed to DEB with an explanation the patient can understand.
 - The unbilled register is a live view all month and a signed snapshot at month-end that flows directly into the JV's distributable profit.
 - Every accept, edit and reject the clerk makes trains the next evaluation of the Coding Hand; the Hand gets more accurate on this Practice's case mix.
-- Rule packs are data, versioned, dry-run before release and approved by two people; a fix for one Practice is available to every Practice the same day.
 
 ## Failure modes designed out
 

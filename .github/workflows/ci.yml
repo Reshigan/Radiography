@@ -6,10 +6,14 @@
 #                  deploy preview (Workers + Pages) and comment the URLs
 #   push to main:  same checks, deploy staging, smoke, reset staging fixture
 #   tag demo-v*:   deploy demo (gated by the "demo" GitHub Environment)
+#   tag v*:        deploy PRODUCTION (gated by the "production" GitHub Environment,
+#                  two reviewers; identified data; separate Cloudflare account)
 #   PR closed:     delete preview resources
 #
-# Repository secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, TURBO_TOKEN
-# Repository vars:    TURBO_TEAM, CF_PAGES_PROJECT
+# Each GitHub Environment (preview, staging, demo, production) holds its own
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID scoped to that Cloudflare
+# account (docs/16 section 9). Repository secret: TURBO_TOKEN.
+# Repository vars: TURBO_TEAM, CF_PAGES_PROJECT.
 # Runtime Worker secrets are set once per environment with `wrangler secret put`.
 # =============================================================================
 
@@ -20,7 +24,7 @@ on:
     types: [opened, synchronize, reopened, closed]
   push:
     branches: [main]
-    tags: ["demo-v*"]
+    tags: ["demo-v*", "v[0-9]+.[0-9]+.[0-9]+"]
   workflow_dispatch:
 
 concurrency:
@@ -56,11 +60,15 @@ jobs:
           --health-cmd "pg_isready -U bonakala" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }     # turbo --filter needs history
+        with:
+          fetch-depth: 0     # turbo --filter needs history
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Lint, typecheck, unit tests, build (affected only on PRs)
         run: |
@@ -95,9 +103,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @bonakala/e2e exec playwright install --with-deps chromium
       - name: Start API + sim on Miniflare with the small fixture, run Playwright
@@ -126,9 +137,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Create per-PR D1 database and apply mirror migrations
         run: |
@@ -176,9 +190,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: |
           for app in api agents whatsapp sim; do
@@ -195,23 +212,26 @@ jobs:
     timeout-minutes: 25
     environment:
       name: staging
-      url: https://staging.demo.bonakala.example
+      url: https://app.staging.bonakala.example
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Record D1 bookmark (for rollback) and apply migrations
+      - name: Record D1 bookmarks (for rollback) and apply migrations (directory + tenant pool)
         run: |
-          pnpm wrangler d1 time-travel info bonakala-staging-group-a --env staging \
-            --config infra/cloudflare/wrangler.toml | tee d1-bookmark.txt
-          pnpm wrangler d1 migrations apply bonakala-staging-group-a --env staging --remote \
-            --config infra/cloudflare/wrangler.toml
+          for db in bonakala-staging-directory $(jq -r '.tenants[].database_name' infra/cloudflare/tenants.staging.json); do
+            pnpm wrangler d1 time-travel info "$db" --env staging --config infra/cloudflare/wrangler.toml | tee -a d1-bookmark.txt
+            pnpm wrangler d1 migrations apply "$db" --env staging --remote --config infra/cloudflare/wrangler.toml
+          done
       - name: Deploy Workers
         run: |
           for app in sim api agents whatsapp; do
@@ -219,13 +239,13 @@ jobs:
           done
       - name: Deploy Pages (staging branch)
         run: |
-          VITE_API_BASE="https://api.staging.demo.bonakala.example" pnpm --filter @bonakala/web build
+          VITE_API_BASE="https://api.staging.bonakala.example" pnpm --filter @bonakala/web build
           pnpm wrangler pages deploy apps/web/dist --project-name "${{ vars.CF_PAGES_PROJECT }}" --branch staging
-      - name: Smoke: run scenario API scripts, then reset staging from the medium fixture
+      - name: "Smoke: run scenario API scripts, then reset staging from the medium fixture"
         run: |
-          pnpm --filter @bonakala/sim scenarios --api https://api.staging.demo.bonakala.example --all
+          pnpm --filter @bonakala/sim scenarios --api https://api.staging.bonakala.example --all
           pnpm --filter @bonakala/sim reset --tenant demo-main --fixture medium --seed 1 \
-            --api https://api.staging.demo.bonakala.example
+            --api https://api.staging.bonakala.example
       - uses: actions/upload-artifact@v4
         with: { name: d1-bookmark-staging, path: d1-bookmark.txt }
 
@@ -233,7 +253,7 @@ jobs:
   deploy-demo:
     name: deploy demo (tag demo-v*)
     needs: [checks, e2e]
-    if: startsWith(github.ref, 'refs/tags/demo-v') || github.event_name == 'workflow_dispatch'
+    if: startsWith(github.ref, 'refs/tags/demo-v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment:
@@ -245,13 +265,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: pnpm }
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Apply D1 migrations to every demo tenant group (stop on first failure)
+      - name: Apply D1 migrations to the directory and every demo tenant (stop on first failure)
         run: |
-          for db in $(jq -r '.groups[].database_name' infra/cloudflare/tenants.json); do
+          for db in bonakala-demo-directory $(jq -r '.tenants[].database_name' infra/cloudflare/tenants.demo.json); do
             pnpm wrangler d1 time-travel info "$db" --env demo --config infra/cloudflare/wrangler.toml >> d1-bookmarks.txt
             pnpm wrangler d1 migrations apply "$db" --env demo --remote --config infra/cloudflare/wrangler.toml
           done
@@ -271,3 +294,54 @@ jobs:
           pnpm wrangler pages deploy apps/web/dist --project-name "${{ vars.CF_PAGES_PROJECT }}" --branch main
       - uses: actions/upload-artifact@v4
         with: { name: d1-bookmarks-demo, path: d1-bookmarks.txt }
+
+  # ---------------------------------------------------------------------------
+  deploy-production:
+    name: deploy production (tag v*)
+    needs: [checks, e2e]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment:
+      name: production                # two reviewers; change record in M19 before approval
+      url: https://app.bonakala.example
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}     # production-account token
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Migrations in tenant waves (directory, canary tenants, then all) with Time Travel bookmarks
+        run: |
+          # tenants.production.json lists each Practice tenant database and its wave (canary|1|2)
+          for wave in canary 1 2; do
+            for db in $( [ "$wave" = canary ] && echo bonakala-directory; jq -r --arg w "$wave" '.tenants[] | select(.wave==$w) | .database_name' infra/cloudflare/tenants.production.json ); do
+              pnpm wrangler d1 time-travel info "$db" --env production --config infra/cloudflare/wrangler.toml >> d1-bookmarks.txt
+              pnpm wrangler d1 migrations apply "$db" --env production --remote --config infra/cloudflare/wrangler.toml
+            done
+            # read-only health scenario between waves; abort the release on failure
+            pnpm --filter @bonakala/e2e health --api https://api.bonakala.example --wave "$wave"
+          done
+      - name: Gradual Workers rollout (10 percent, health check, then 100 percent)
+        run: |
+          for app in inference api agents whatsapp; do
+            pnpm --filter @bonakala/$app exec wrangler versions upload --env production
+            pnpm --filter @bonakala/$app exec wrangler versions deploy --env production --percentage 10 --yes
+          done
+          pnpm --filter @bonakala/e2e health --api https://api.bonakala.example --wave canary
+          for app in inference api agents whatsapp; do
+            pnpm --filter @bonakala/$app exec wrangler versions deploy --env production --percentage 100 --yes
+          done
+      - name: Deploy Pages production
+        run: |
+          VITE_API_BASE="https://api.bonakala.example" pnpm --filter @bonakala/web build
+          pnpm wrangler pages deploy apps/web/dist --project-name "${{ vars.CF_PAGES_PROJECT }}" --branch main
+      - uses: actions/upload-artifact@v4
+        with: { name: d1-bookmarks-production, path: d1-bookmarks.txt, retention-days: 90 }
