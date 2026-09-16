@@ -4,6 +4,9 @@ This document is the operating manual for turning this specification into workin
 Claude Code. It assumes the specification (this repository) is the single source of truth and that
 `CLAUDE.md` at the repository root is kept current.
 
+> Status: the R0/R1 build exists on this branch (foundation, all modules, demo). Use the sessions below to extend
+> and harden it; the first prompt in §3 has been executed and its output is the code in `apps/` and `packages/`.
+
 ## 1. Prerequisites (one-time)
 
 | Item | Notes |

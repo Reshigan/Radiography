@@ -1,5 +1,10 @@
 # 17 — Deployment: Internal Docker and Kubernetes (On-Premise / Private Cloud)
 
+> Build note (ADR-001, ADR-002): the shipped self-hosted stack in `infra/docker/docker-compose.yml` runs the API on
+> Node with SQLite (libsql) on a persistent volume, the web app on nginx, and an optional Orthanc DICOM node. The
+> Postgres/NATS/MinIO/observability topology below remains the scale-out design and is preserved in
+> `infra/docker/docker-compose.reference.yml`.
+
 ## 1. Purpose and scope
 
 This document specifies how the Bonakala Platform is deployed for real clinical operation: identified

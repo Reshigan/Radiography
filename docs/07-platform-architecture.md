@@ -39,6 +39,11 @@ business logic is identical.
 
 ## 2. Repository layout (monorepo, pnpm + Turborepo)
 
+> Build note: the implemented layout consolidates `agents`, `sim`, `billing-rules`, `dicom`, `ai-contracts`,
+> `analytics` and `hands` into `apps/api` (modules and `/api/sim`) and `packages/domain` (`billing`, `bci`,
+> `hands`, `analytics`), and uses one SQLite dialect (D1 in the cloud, libsql on Node) per
+> `docs/decisions/ADR-001-storage-dialect.md`. The cloud Worker also serves the built web app as static assets.
+
 ```
 bonakala/
 ├── apps/
