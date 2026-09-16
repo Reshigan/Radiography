@@ -11,7 +11,7 @@
 .inspector{padding:14px}
 .card .hd h3{white-space:nowrap}
 .kv b{font-weight:500}
-.set{display:grid;grid-template-columns:172px 1fr;gap:14px;align-items:start}
+.set{display:grid;grid-template-columns:186px 1fr;gap:14px;align-items:start}
 .set>*{min-width:0}
 .snav{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);padding:6px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0}
 .snav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;color:var(--text);font-size:13px}
@@ -19,7 +19,9 @@
 .snav a.on{background:var(--surface-3);color:var(--primary);font-weight:500;box-shadow:inset 3px 0 0 var(--primary)}
 .snav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2);padding:8px 10px 2px}
 .mainset{display:flex;flex-direction:column;gap:14px}
-.hands{table-layout:fixed;--row:44px;font-size:12px}
+table.hands{table-layout:fixed;--row:44px;font-size:12px}
+.banner{font-size:13px}
+.snav a .pill{white-space:nowrap}
 .hands th,.hands td{white-space:normal;line-height:1.35;padding:6px 8px;height:auto;vertical-align:top}
 .hands th{white-space:nowrap;height:34px;vertical-align:middle;font-size:10.5px}
 .hands td.hn{font-weight:500;font-size:12.5px}
@@ -88,7 +90,7 @@
     <div class="ph">
       <div class="title">
         <h1>Organisation and configuration</h1>
-        <span class="muted">Practice A (demo) · Sandton, Randburg · practice manager: Thandi Ngcobo · effective-dated and versioned</span>
+        <span class="muted">Practice A (demo) · Sandton, Randburg · practice manager: Thandi Ngcobo</span>
       </div>
       <div class="actions">
         <button class="btn">Export configuration</button>
@@ -100,7 +102,7 @@
       <nav class="snav" aria-label="Settings sections">
         <span class="grp">Practice</span>
         <a href="#">Organisation</a>
-        <a href="#">Sites and rooms<span class="pill">2 · 9</span></a>
+        <a href="#">Sites and rooms<span class="pill">9</span></a>
         <a href="#">Users and roles<span class="pill">41</span></a>
         <span class="grp">Revenue</span>
         <a href="#">Fee schedules<span class="pill info">2</span></a>
@@ -184,7 +186,7 @@
   </main>
 
   <aside class="inspector" aria-label="Inspector">
-    <div class="spread"><h3>Change history</h3><span class="chip"><i></i>Hands and leashes</span></div>
+    <div><h3>Change history</h3><span class="note">Hands and leashes · Practice A · 14 versions</span></div>
     <ul class="ver">
       <li><span class="dot info"></span><div><div class="v"><b>v14 · draft</b><span>effective 2026-10-01</span><span>by T. Ngcobo (PRM)</span></div><div class="diff">Claims Hand · daily autonomous value <span class="amt">R 2 000 000</span> to <span class="amt chg">R 2 500 000</span></div><div class="small muted">Reason: Scheme A volume growth; scrubber first-pass acceptance 96.8 % over 90 days. Awaiting CMP approval.</div></div></li>
       <li><span class="dot ok"></span><div><div class="v"><b>v13</b><span>effective 2026-08-01</span><span>approved N. Mahlangu (CMP)</span></div><div class="diff">Collections Hand · write-off per account <span class="amt">R 150</span> to <span class="amt">R 200</span></div></div></li>
