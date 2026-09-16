@@ -1,13 +1,19 @@
+import { vi } from 'vitest';
 import { createTestDb } from '@bonakala/db/node';
 import { seedAll } from '@bonakala/db/seed';
 import { createApp, bootModules } from '../src/app.js';
-import { InProcessQueue, MemoryObjectStore, systemClock } from '../src/kernel/adapters-node.js';
+import { InProcessQueue, MemoryObjectStore } from '../src/kernel/adapters-node.js';
 import { createLlm } from '../src/kernel/llm.js';
 import type { Services } from '../src/kernel/ports.js';
 import { dispatchPending } from '../src/kernel/events.js';
 import { registerJobs } from '../src/jobs.js';
 
 export interface TestApp {
+  /**
+   * Pin the platform clock so tests that search from "now" (slot availability, earliest-near-me,
+   * SLA ages) are deterministic regardless of when the suite runs. Pass null to return to real time.
+   */
+  setNow(when: Date | string | null): void;
   app: ReturnType<typeof createApp>;
   services: Services;
   /** Sign in as a demo persona; returns a cookie header. */
@@ -24,8 +30,9 @@ export async function createTestApp(): Promise<TestApp> {
   await seedAll(db);
   const queue = new InProcessQueue();
   const deferred: Promise<unknown>[] = [];
+  let pinnedNow: Date | null = null;
   const services: Services = {
-    db, objects: new MemoryObjectStore(), queue, clock: systemClock, llm: createLlm({}), demoMode: true, env: {},
+    db, objects: new MemoryObjectStore(), queue, clock: { now: () => pinnedNow ?? new Date() }, llm: createLlm({}), demoMode: true, env: {},
     defer: (p) => { deferred.push(p.catch(() => undefined)); },
   };
   registerJobs(queue, services);
@@ -39,6 +46,18 @@ export async function createTestApp(): Promise<TestApp> {
   };
   return {
     app, services, flush,
+    setNow(when) {
+      // Fake time globally, not just the clock port: module code is a mix of services.clock.now()
+      // and direct new Date(), and both must agree or cross-module flows disagree about "now".
+      if (when === null) {
+        pinnedNow = null;
+        vi.useRealTimers();
+        return;
+      }
+      pinnedNow = new Date(when);
+      vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['Date'] });
+      vi.setSystemTime(pinnedNow);
+    },
     async login(email) {
       const res = await app.request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password: 'bonakala-demo' }), headers: { 'content-type': 'application/json' } });
       if (res.status !== 200) throw new Error(`login failed for ${email}: ${res.status}`);

@@ -72,7 +72,7 @@ function Page() {
       {tiles.isLoading ? <Skeleton rows={2} /> : t && (
         <div className="grid g6">
           <Tile label="DSO" value={<>{t.dsoDays}<small style={{ font: '500 13px var(--text-font)', color: 'var(--text-2)', marginLeft: 6 }}>days</small></>} delta="scheme ≤ 35 · patient ≤ 45" />
-          <Tile label="Collected 30/60/90" value={`${t.collection.d30} · ${t.collection.d60} · ${t.collection.d90} %`} tone="up" delta="of the patient book" />
+          <Tile label="Collected 30/60/90" value={`${t.collection.d30}·${t.collection.d60}·${t.collection.d90}`} tone="up" delta="per cent of the patient book" />
           <Tile label="Write-offs MTD" value={<Money cents={t.writeOffsMtdCents} />} delta={`${t.writeOffPct} % of gross`} />
           <Tile label="Plan book" value={<Money cents={t.planBookCents} />} delta={`${t.activePlans} active · ${t.plansInArrearsPct} % in arrears`} tone={t.plansInArrearsPct > 10 ? 'down' : 'up'} />
           <Tile label="Disputes open" value={t.disputesOpen} tone={t.disputesPastSla ? 'down' : undefined} delta={t.disputesPastSla ? `${t.disputesPastSla} past SLA` : 'all within SLA'} />
@@ -178,7 +178,7 @@ function Page() {
               <div className="wa" style={{ padding: 8, marginBottom: 8 }}>
                 <div className="m" style={{ maxWidth: '100%', fontSize: 12 }}>{openDispute.message ?? openDispute.reason}<div className="t">{openDispute.raisedVia} · <Chip kind="ai">intent-classifier · dispute</Chip></div></div>
               </div>
-              {openDispute.evidence && (
+              {openDispute.evidence?.claimRef && (
                 <div className="grid g2" style={{ fontSize: 12 }}>
                   <div style={{ border: '1px solid var(--line)', borderRadius: 2, padding: 8 }}><b>Claim</b><br />{openDispute.evidence.claimRef}<br /><span className="muted">{openDispute.evidence.funder}</span></div>
                   <div style={{ border: '1px solid var(--line)', borderRadius: 2, padding: 8 }}><b>Scheme paid</b><br /><Money cents={openDispute.evidence.paidCents ?? 0} /><br /><span className="muted">{openDispute.evidence.reason ?? 'per the remittance'}</span></div>

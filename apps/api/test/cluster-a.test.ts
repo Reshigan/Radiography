@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { schema } from '@bonakala/db';
 import { eq, and } from 'drizzle-orm';
 import { createTestApp, type TestApp } from './harness.js';
@@ -147,6 +147,14 @@ describe('M04 referral and orders', () => {
 describe('M05 scheduling', () => {
   let orderId: string;
   let patientId: string;
+
+  // Pin the platform clock to 08:00 SAST so slot searches that start from "now" do not depend on
+  // the wall-clock time the suite happens to run at (rooms close at 17:00 with a 20-minute lead).
+  beforeAll(() => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Johannesburg' }).format(new Date());
+    t.setNow(`${today}T08:00:00+02:00`);
+  });
+  afterAll(() => t.setNow(null));
 
   beforeAll(async () => {
     const patients = await t.call(cookies['bkg']!, 'GET', '/api/patients?limit=6', undefined, B);

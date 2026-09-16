@@ -47,7 +47,7 @@ function Page() {
         <Tile label="My net received" value={<Money cents={statements.filter((s) => s.status === 'paid').reduce((a, s) => a + s.netCents, 0)} />} delta="after dividends tax" />
       </div>
 
-      <div className="split" style={{ gridTemplateColumns: 'minmax(0, 1fr) 360px', alignItems: 'start' }}>
+      <div className="split" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', alignItems: 'start' }}>
         <Card title="Distribution history" extra="bank references come from statement matching">
           {data.isLoading ? <Skeleton rows={5} /> : rows.length === 0 ? <EmptyState>No distributions have been proposed.</EmptyState> : (
             <DataTable

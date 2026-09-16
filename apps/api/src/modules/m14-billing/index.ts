@@ -193,17 +193,21 @@ r.post('/charges/:id/escalate', allow(...MONEY), async (c) => {
 /* ============================ Claims ============================ */
 
 r.get('/claims', allow(...MONEY, 'PAY'), async (c) => {
-  const practiceId = requirePractice(c);
+  const user = c.get('user')!;
+  // A funder is not a tenant: PAY sees its own claims across every practice it contracts with.
+  const practiceId = user.persona === 'PAY' ? c.get('practiceId') : requirePractice(c);
   const { status, funderId, q, limit } = query(c, z.object({ status: z.string().optional(), funderId: z.string().optional(), q: z.string().optional(), limit: z.coerce.number().min(1).max(500).default(200) }));
   const db = c.get('services').db;
-  const user = c.get('user')!;
-  const where = [eq(schema.claims.practiceId, practiceId)];
+  const where = [];
+  if (practiceId) where.push(eq(schema.claims.practiceId, practiceId));
   if (status) where.push(inArray(schema.claims.status, status.split(',')));
-  if (funderId) where.push(eq(schema.claims.funderId, funderId));
+  if (funderId && user.persona !== 'PAY') where.push(eq(schema.claims.funderId, funderId));
   if (user.persona === 'PAY') where.push(eq(schema.claims.funderId, funderForPayUser(user.email)));
   if (q) where.push(or(like(schema.claims.claimRef, `%${q}%`), like(schema.claims.memberNo, `%${q}%`))!);
   const rows = await db.select().from(schema.claims).where(and(...where)).orderBy(desc(schema.claims.createdAt)).limit(limit);
-  const patients = await db.select({ id: schema.patients.id, firstName: schema.patients.firstName, lastName: schema.patients.lastName }).from(schema.patients).where(eq(schema.patients.practiceId, practiceId));
+  const patients = practiceId
+    ? await db.select({ id: schema.patients.id, firstName: schema.patients.firstName, lastName: schema.patients.lastName }).from(schema.patients).where(eq(schema.patients.practiceId, practiceId))
+    : [];
   const byId = new Map(patients.map((p) => [p.id, p]));
   const t = today();
   return c.json({

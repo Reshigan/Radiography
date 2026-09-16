@@ -646,7 +646,7 @@ export async function seedClusterC(db: Db, ctx: SeedContext): Promise<Record<str
         managementFeeCents: pnl.managementFeeCents, platformFeeCents: 0, rentCents: pnl.rentCents, staffCents: pnl.staffCents, consumablesCents: pnl.consumablesCents, otherCents: pnl.otherCents,
         ebitdaCents: pnl.ebitdaCents, depreciationCents: pnl.depreciationCents, taxProvisionCents: pnl.taxProvisionCents, profitAfterTaxCents: pnl.profitAfterTaxCents, reserveCents: pnl.reserveCents,
         distributableCents: pnl.distributableCents, collectionsCents, unbilledCents: Math.round(revenueCents * 0.049), studies,
-        kpis: { ebitdaMarginPct: pnl.ebitdaMarginPct, signedReports: studies, firstPassPct: 96.4 - (i === periods.length - 2 ? 3.3 : 0), dsoDays: 34 + Math.round(r() * 4) },
+        kpis: { ebitdaMarginPct: pnl.ebitdaMarginPct, signedReports: studies, firstPassPct: Math.round((96.4 - (i === periods.length - 2 ? 3.3 : 0)) * 10) / 10, dsoDays: 34 + Math.round(r() * 4) },
         budgetRevenueCents: budgetRevenue, budgetEbitdaCents: Math.round(budgetRevenue * 0.265), status: locked ? 'locked' : 'soft', lockedAt: locked ? `${period}-05T12:00:00.000Z` : null,
         computedBy: 'close-hand', createdAt: `${period}-05T06:00:00.000Z`, updatedAt: `${period}-05T12:00:00.000Z`,
       });
