@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bonakala Design Language</title>
+<meta name="description" content="Static style guide for the Bonakala Design Language (Latent Image): tokens, lenses, components and the provenance style for AI-derived content.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bone:#F5F1E9;--bone-2:#EAE4D8;--carbon:#0E1113;--graphite:#171B1E;--ink:#1B1F22;--marrow:#14324A;
+  --signal:#12B5A5;--signal-ink:#0A7268;--beam:#F0A52B;--beam-ink:#8A5A00;--flare:#E5484D;--flare-ink:#B3262B;
+  --iris:#5B8FE8;--iris-ink:#2A5FC0;
+  --ash-050:#FAF8F4;--ash-100:#F0ECE4;--ash-200:#E2DCD1;--ash-300:#CFC8BB;--ash-400:#B3AC9F;--ash-500:#8E887C;
+  --ash-600:#6B665C;--ash-700:#4F4B44;--ash-800:#36332E;--ash-900:#24221F;--ash-950:#151412;
+  --surface:var(--bone);--surface-2:var(--bone-2);--text:var(--ink);--text-2:var(--ash-600);--heading:var(--marrow);
+  --primary:var(--signal-ink);--primary-label:var(--bone);--line:var(--ash-200);--info:var(--iris-ink);--warn:var(--beam-ink);--crit:var(--flare-ink);
+  --display:'Manrope',sans-serif;--text-font:'Inter','Noto Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --u:4px;--row:48px;--fs:15px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --surface:var(--carbon);--surface-2:var(--graphite);--text:var(--bone);--text-2:var(--ash-400);--heading:var(--bone);
+  --primary:var(--signal);--primary-label:var(--carbon);--line:var(--ash-800);--info:var(--iris);--warn:var(--beam);--crit:var(--flare);}}
+:root[data-theme="dark"]{
+  --surface:var(--carbon);--surface-2:var(--graphite);--text:var(--bone);--text-2:var(--ash-400);--heading:var(--bone);
+  --primary:var(--signal);--primary-label:var(--carbon);--line:var(--ash-800);--info:var(--iris);--warn:var(--beam);--crit:var(--flare);}
+:root[data-level="L1"]{--u:8px;--row:56px;--fs:16px}:root[data-level="L2"]{--u:6px;--row:48px;--fs:15px}
+:root[data-level="L3"]{--u:4px;--row:40px;--fs:14px}:root[data-level="L4"]{--u:3px;--row:32px;--fs:13px}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--text);font-family:var(--text-font);font-size:var(--fs);line-height:1.45;font-variant-numeric:tabular-nums}
+header{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);z-index:2}
+.bar{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;letter-spacing:-.02em;font-size:22px;color:var(--heading)}
+.brand svg{width:28px;height:28px}
+.wl{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--text-2)}
+.wl label{display:flex;gap:6px;align-items:center}
+select,button{font:inherit}
+select{background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:2px;padding:4px 6px}
+main{max-width:1200px;margin:0 auto;padding:24px 16px 64px}
+h1,h2,h3{font-family:var(--display);color:var(--heading);line-height:1.15;letter-spacing:-.01em;margin:0 0 12px}
+h1{font-size:36px}h2{font-size:22px;margin-top:48px}h3{font-size:16px;margin-top:24px}
+p{max-width:70ch;margin:0 0 12px}.muted{color:var(--text-2)}
+section{padding-top:8px}
+.grid{display:grid;gap:calc(var(--u)*3);grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.swatch{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface-2)}
+.swatch .c{height:64px}.swatch .m{padding:8px;font-family:var(--mono);font-size:12px}
+.card{border:1px solid var(--line);border-radius:6px;background:var(--surface-2);padding:calc(var(--u)*4)}
+.row{display:flex;gap:calc(var(--u)*3);flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:var(--row);padding:0 calc(var(--u)*4);border-radius:2px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-weight:500;cursor:pointer}
+.btn.primary{background:var(--primary);color:var(--primary-label);border-color:transparent}
+.btn.danger{background:var(--crit);color:#fff;border-color:transparent}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:2px;font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--surface)}
+.chip i{width:10px;height:10px;display:inline-block;border-radius:50%}
+.s-neutral i{background:var(--ash-500)}.s-active i{background:var(--info);border-radius:50% 0 0 50%}.s-done i{background:var(--primary)}
+.s-att i{background:var(--warn);clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}.s-crit i{background:var(--crit);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);border-radius:0}
+.ai{border:1px dashed var(--ash-500);border-radius:2px;padding:calc(var(--u)*2) calc(var(--u)*3);position:relative;background:transparent}
+.ai .prov{font-family:var(--mono);font-size:11px;color:var(--text-2);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.ai .prov b{font-weight:500;color:var(--text)}
+.actions{display:flex;gap:8px;margin-top:8px}
+.actions .btn{height:32px;padding:0 10px;font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px)}
+th,td{text-align:left;padding:calc(var(--u)*2) calc(var(--u)*2);border-bottom:1px solid var(--line);height:var(--row)}
+th{color:var(--text-2);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+.money{font-family:var(--mono)}.neg{color:var(--crit)}
+.type-sample div{margin:6px 0}
+.t64{font:600 64px/1.15 var(--display)}.t36{font:600 36px/1.15 var(--display)}.t22{font:600 22px/1.15 var(--display)}
+.t16{font:400 16px/1.45 var(--text-font)}.t13{font:400 13px/1.45 var(--text-font)}.mono{font-family:var(--mono)}
+.field{border:1px solid var(--line);border-radius:6px;padding:16px;background:var(--surface-2)}
+.field svg{width:100%;height:auto;display:block}
+.collect{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:baseline}
+.collect .lbl{color:var(--text-2)}.collect .tot{font:600 22px/1.15 var(--display);color:var(--heading)}
+.banner{border-left:4px solid var(--crit);background:var(--surface-2);padding:12px 16px;border-radius:0 6px 6px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.banner .btn{margin-left:auto}
+.dev{animation:develop 180ms ease-out both}
+@keyframes develop{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.dev{animation:none}}
+.no{list-style:none;padding:0;margin:0}.no li{padding:6px 0;border-bottom:1px solid var(--line)}
+footer{max-width:1200px;margin:0 auto;padding:24px 16px;color:var(--text-2);font-size:13px;border-top:1px solid var(--line)}
+@media (max-width:600px){h1{font-size:28px}.t64{font-size:40px}.banner .btn{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand" aria-label="Bonakala">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+      bonakala <span class="muted" style="font:500 13px var(--text-font);margin-left:2px">design language</span>
+    </div>
+    <div class="wl" role="group" aria-label="Window and Level controls">
+      <label>Surface <select id="theme"><option value="auto">Auto</option><option value="light">Bone</option><option value="dark">Carbon</option></select></label>
+      <label>Level <select id="level"><option>L1</option><option selected>L2</option><option>L3</option><option>L4</option></select></label>
+      <label>Lens <select id="lens"><option value="">Custom</option><option value="patient">Patient</option><option value="referrer">Referrer</option><option value="clinical">Clinical</option><option value="business">Business</option><option value="governance">Governance</option></select></label>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="dev">
+    <h1>Latent Image</h1>
+    <p>One design language, five lenses. Use the Surface, Level and Lens controls in the header to window the interface the way a radiologist windows an image. This page is static and reads its values from <span class="mono">brand/tokens.json</span>.</p>
+    <p class="muted">Demo content is synthetic. No real patients, practices or prices appear on this page.</p>
+  </section>
+
+  <section>
+    <h2>The mark</h2>
+    <div class="row">
+      <div class="card" style="background:var(--bone)"><svg width="120" height="120" viewBox="0 0 512 512" aria-label="Mark on Bone"><path fill="#0E1113" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg></div>
+      <div class="card" style="background:var(--carbon)"><svg width="120" height="120" viewBox="0 0 512 512" aria-label="Mark on Carbon"><path fill="#F5F1E9" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg></div>
+      <div class="card" style="background:var(--bone)"><svg width="32" height="32" viewBox="0 0 512 512" aria-label="Mark at 32 px"><path fill="#0E1113" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg></div>
+      <p style="max-width:40ch">An open, tapered ring (the detector and the beam entering) with a point of light (what becomes visible). Original geometry; construction in <span class="mono">brand/logo.svg</span>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Colour: materials, not moods</h2>
+    <div class="grid">
+      <div class="swatch"><div class="c" style="background:#F5F1E9"></div><div class="m">bone #F5F1E9</div></div>
+      <div class="swatch"><div class="c" style="background:#EAE4D8"></div><div class="m">bone-2 #EAE4D8</div></div>
+      <div class="swatch"><div class="c" style="background:#0E1113"></div><div class="m">carbon #0E1113</div></div>
+      <div class="swatch"><div class="c" style="background:#171B1E"></div><div class="m">graphite #171B1E</div></div>
+      <div class="swatch"><div class="c" style="background:#14324A"></div><div class="m">marrow #14324A</div></div>
+      <div class="swatch"><div class="c" style="background:#12B5A5"></div><div class="m">signal #12B5A5</div></div>
+      <div class="swatch"><div class="c" style="background:#0A7268"></div><div class="m">signal-ink #0A7268</div></div>
+      <div class="swatch"><div class="c" style="background:#F0A52B"></div><div class="m">beam #F0A52B</div></div>
+      <div class="swatch"><div class="c" style="background:#E5484D"></div><div class="m">flare #E5484D</div></div>
+      <div class="swatch"><div class="c" style="background:#5B8FE8"></div><div class="m">iris #5B8FE8</div></div>
+      <div class="swatch"><div class="c" style="background:#2A5FC0"></div><div class="m">iris-ink #2A5FC0</div></div>
+      <div class="swatch"><div class="c" style="background:linear-gradient(90deg,#FAF8F4,#E2DCD1,#8E887C,#36332E,#151412)"></div><div class="m">ash 050 to 950</div></div>
+    </div>
+    <p class="muted" style="margin-top:12px">Every text pairing used in the product is listed in tokens.json with its measured WCAG contrast; all are at or above 4.5:1.</p>
+  </section>
+
+  <section>
+    <h2>Type</h2>
+    <div class="type-sample card">
+      <div class="t64">Everything, made visible.</div>
+      <div class="t36">Your scan is at 09:40 at Umhlanga.</div>
+      <div class="t22">Bring your ID and your scheme card.</div>
+      <div class="t16">Body text is Inter. Short sentences. Numerals for numbers, 24-hour time, no idioms, so that copy translates cleanly into isiZulu, isiXhosa, Afrikaans and Sesotho.</div>
+      <div class="t13 muted">Secondary text at 13 px.</div>
+      <div class="mono">ACC BNK-JHB-000012345-7 · CT HEAD W/O · R 3 180.00 · 2026-09-16 09:40 SAST</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Status vocabulary</h2>
+    <div class="row">
+      <span class="chip s-neutral"><i></i>Booked</span>
+      <span class="chip s-active"><i></i>In room</span>
+      <span class="chip s-done"><i></i>Signed</span>
+      <span class="chip s-att"><i></i>Needs auth</span>
+      <span class="chip s-crit"><i></i>STAT</span>
+      <span class="chip" style="border-style:dashed;font-family:var(--mono)">AI · triage P1 · cxr-triage 2.3.1</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Provenance: AI-derived content can never look human-entered</h2>
+    <div class="ai dev">
+      <div class="prov"><span>model <b>cxr-triage</b></span><span>version <b>2.3.1</b></span><span>confidence <b>0.91</b></span><span>class <b>1 (requires radiologist sign-off)</b></span></div>
+      <div>Findings candidate: right apical pneumothorax, estimated small. Triage priority raised to P1 for this study.</div>
+      <div class="actions"><button class="btn primary">Accept</button><button class="btn">Edit</button><button class="btn">Reject</button></div>
+    </div>
+    <p class="muted" style="margin-top:8px">Dashed hairline, mono label, model id and version, explicit Accept. On acceptance the dashed style is removed and the acceptance is recorded with the radiologist's identity.</p>
+  </section>
+
+  <section>
+    <h2>The Collect card</h2>
+    <div class="card" style="max-width:480px">
+      <div class="collect">
+        <div class="lbl">CT head without contrast · tariff 1 × R 3 180.00</div><div class="money">R 3 180.00</div>
+        <div class="lbl">Scheme pays (benefit checked 08:12)</div><div class="money">R 2 870.00</div>
+        <div class="lbl">Network co-payment</div><div class="money">R 310.00</div>
+        <div class="lbl">Previous balance</div><div class="money">R 0.00</div>
+        <div class="tot">Collect now</div><div class="tot money">R 310.00</div>
+      </div>
+      <div class="actions" style="margin-top:12px"><button class="btn primary">Card</button><button class="btn">PayShap</button><button class="btn">Send link</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Critical finding banner</h2>
+    <div class="banner" role="alert">
+      <span class="chip s-crit"><i></i>Critical</span>
+      <span>Intracranial haemorrhage confirmed by Dr N. Dlamini at 10:52. Referrer Dr S. Naidoo not yet acknowledged. Critical Results Hand calling (attempt 2 of 3).</span>
+      <button class="btn danger">Take over call</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Data table (business lens)</h2>
+    <table>
+      <thead><tr><th>Claim</th><th>Funder</th><th>Status</th><th class="num">Claimed</th><th class="num">Paid</th><th class="num">Patient</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">CLM-000482</td><td>Scheme A (demo)</td><td><span class="chip s-done"><i></i>Paid</span></td><td class="num">3 180.00</td><td class="num">2 870.00</td><td class="num">310.00</td></tr>
+        <tr><td class="mono">CLM-000483</td><td>Scheme B (demo)</td><td><span class="chip s-att"><i></i>Rejected R21</span></td><td class="num">1 240.00</td><td class="num">0.00</td><td class="num neg">-1 240.00</td></tr>
+        <tr><td class="mono">CLM-000484</td><td>Cash</td><td><span class="chip s-active"><i></i>Plan 2/4</span></td><td class="num">860.00</td><td class="num">430.00</td><td class="num">430.00</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Field study (brand imagery)</h2>
+    <div class="field">
+      <svg viewBox="0 0 1200 240" role="img" aria-label="Abstract greyscale composition derived from windowing curves and a collimation grid">
+        <defs><linearGradient id="w" x1="0" x2="1"><stop offset="0" stop-color="#151412"/><stop offset=".55" stop-color="#8E887C"/><stop offset="1" stop-color="#FAF8F4"/></linearGradient></defs>
+        <rect width="1200" height="240" fill="url(#w)"/>
+        <g stroke="#0E1113" stroke-opacity=".25" stroke-width="1">
+          <path d="M0 40H1200M0 80H1200M0 120H1200M0 160H1200M0 200H1200"/>
+          <path d="M100 0V240M300 0V240M500 0V240M700 0V240M900 0V240M1100 0V240"/>
+        </g>
+        <path d="M0 220 C 300 220, 420 20, 1200 20" fill="none" stroke="#12B5A5" stroke-width="3"/>
+        <circle cx="820" cy="96" r="10" fill="#12B5A5"/>
+      </svg>
+    </div>
+    <p class="muted" style="margin-top:8px">No radiographs as decoration. No stock photography. Compositions are drawn from the geometry of imaging.</p>
+  </section>
+
+  <section>
+    <h2>What Bonakala never looks like</h2>
+    <ul class="no">
+      <li>No purple-to-blue gradients, glass blur cards, floating 3D blobs, or hero robots.</li>
+      <li>No AI-generated imagery of people. No stock doctors pointing at screens.</li>
+      <li>No emoji in product UI. No exclamation marks. No copy that starts with "Welcome to".</li>
+      <li>No invented statistics, testimonials or partner logos in demos.</li>
+      <li>No AI output styled like human-entered data.</li>
+    </ul>
+  </section>
+</main>
+<footer>Bonakala Design Language v1.0. Fonts: Manrope, Inter, IBM Plex Mono (SIL OFL 1.1). Name and mark subject to trademark clearance before public use.</footer>
+<script>
+(function(){
+  var root=document.documentElement;
+  var lens={patient:{theme:'light',level:'L1'},referrer:{theme:'light',level:'L2'},clinical:{theme:'dark',level:'L3'},business:{theme:'light',level:'L3'},governance:{theme:'light',level:'L2'}};
+  var t=document.getElementById('theme'),l=document.getElementById('level'),n=document.getElementById('lens');
+  function apply(){ if(t.value==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',t.value)} root.setAttribute('data-level',l.value); try{localStorage.setItem('bdl',JSON.stringify({t:t.value,l:l.value,n:n.value}))}catch(e){} }
+  t.addEventListener('change',function(){n.value='';apply()});
+  l.addEventListener('change',function(){n.value='';apply()});
+  n.addEventListener('change',function(){var p=lens[n.value]; if(p){t.value=p.theme;l.value=p.level} apply()});
+  try{var s=JSON.parse(localStorage.getItem('bdl')||'null'); if(s){t.value=s.t||'auto';l.value=s.l||'L2';n.value=s.n||''}}catch(e){}
+  apply();
+})();
+</script>
+</body>
+</html>
