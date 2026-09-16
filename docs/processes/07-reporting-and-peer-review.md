@@ -296,3 +296,11 @@ Every output carries model id, version and confidence and is rendered in the pro
 * M12-R-117 The Platform SHOULD provide session reading time, break prompts and fatigue indicators to the radiologist and hub manager.
 * M12-R-118 The Platform SHOULD compare peer review discrepancies with BCI candidates for the same study and feed the result to AIO monitoring.
 * M12-R-119 The Platform MAY release registrar preliminary reports to wards where site policy allows, with the preliminary label enforced.
+
+## Reportable-result categories at sign-off
+
+At sign-off the radiologist can select reportable-result categories (for example TB-suggestive
+pattern, suspected non-accidental injury in a child, possible occupational lung disease, radiation
+incident). Each category inserts a legally reviewed standard statement into the report; AI never
+generates legal wording. The categories, statements and downstream duties are governed by
+`24-statutory-and-regulatory-register.md` §3 and §6.

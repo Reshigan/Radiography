@@ -20,6 +20,10 @@ codes and deadlines are stored as **configurable reference data** in the Platfor
 * Radiology reports are legally the radiologist's professional act; radiographers acquire images.
 
 ## 2. Regulators and bodies
+
+The complete obligation-by-obligation register, the imaging results that carry statutory reporting
+duties, and the statutory outputs the Platform produces are in `24-statutory-and-regulatory-register.md`.
+
 | Body | Relevance to the Platform |
 |---|---|
 | **HPCSA** (Health Professions Council of South Africa) | Registration of radiologists, radiographers, sonographers; ethical rules (ownership, fee sharing, advertising, telemedicine); CPD; complaints. Platform verifies HPCSA numbers and tracks renewals. |

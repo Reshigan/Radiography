@@ -10,6 +10,7 @@ repository holds the full specification (`docs/`), brand (`brand/`) and referenc
 2. The document(s) for the module you are working on (`docs/processes/*`, `docs/journeys/*`).
 3. `docs/12-ai-safety-no-slip-charter.md` before touching anything that generates or displays AI output.
 4. `docs/15-security-privacy-and-popia.md` before touching identity, data access or integrations.
+5. `docs/24-statutory-and-regulatory-register.md` before touching sign-off, results delivery, claims, licences, incidents or anything that produces a regulatory submission.
 
 ## Non-negotiables
 - **No AI slip**: Class 1 content (findings, impressions, report text, critical flags) can only reach a record, referrer or patient through a registered radiologist's explicit sign/accept. There must be no code path that publishes unsigned AI text. Every AI output renders with the `Provenance` component and stores model id, version, confidence and acceptance.

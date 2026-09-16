@@ -106,7 +106,13 @@ Every capability belongs to exactly one module. Use these names verbatim.
 Clinical interpretation is capped at **A1** by policy (radiologist signs). Billing of cleanly coded,
 authorised, non-disputed claims may run at **A3/A4**.
 
-## 7. AI Slip — definition
+## 7. Statutory and regulatory results
+
+Obligations, reportable imaging results and statutory outputs are governed by
+`24-statutory-and-regulatory-register.md`. No document may state a legal deadline, form name or
+threshold as fact unless it is confirmed there; otherwise it is labelled illustrative or [confirm].
+
+## 8. AI Slip — definition
 
 An **AI slip** is any AI-generated content or decision that reaches a patient, referrer, funder,
 ledger, regulator, or the medical record without passing the verification tier defined for that

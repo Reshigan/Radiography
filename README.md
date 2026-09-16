@@ -51,6 +51,7 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 | 21 | `docs/21-glossary.md` |
 | 22 | `docs/22-image-analysis-specification.md` (AI analysis of the images: pipeline, models, training, validation, deployment) |
 | 23 | `docs/23-image-analysis-guide.md` (guide for radiologists, radiographers, engineers and AI operations) |
+| 24 | `docs/24-statutory-and-regulatory-register.md` (every statute and obligation mapped to controls and outputs; imaging results with statutory reporting duties; items awaiting legal confirmation) |
 
 ## Brand and infrastructure references
 * `brand/tokens.json`, `brand/logo.svg`, `brand/logo-dark.svg`, `brand/styleguide.html`

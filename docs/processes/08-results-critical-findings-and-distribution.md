@@ -270,3 +270,13 @@ The Referrer Space and the practice's referrer liaison view show, per referrer: 
 * M13-R-114 The Platform SHOULD offer one-tap follow-up ordering and booking from the Referrer Space and, where policy allows, from the Patient Space.
 * M13-R-115 The Platform SHOULD run a funding pre-check on M06 for a recommended follow-up study before sending patient reminders, so that funding barriers are surfaced early.
 * M13-R-116 The Platform MAY offer translated plain-language layers per the language roadmap, with the English version always available.
+
+## Reportable results with statutory duties
+
+Some findings carry legal reporting duties (notifiable medical conditions such as tuberculosis,
+occupational lung disease under COIDA and ODMWA, suspected abuse of a child or an older person,
+radiation and device incidents). The categories, the legal notifier, the acknowledgement windows,
+the support packs and the case records are specified in `24-statutory-and-regulatory-register.md`
+§3. This module implements the delivery and acknowledgement mechanics for those flags exactly as it
+does for critical results, with the category-specific windows and release rules defined there
+(M19-R-302 to M19-R-305).

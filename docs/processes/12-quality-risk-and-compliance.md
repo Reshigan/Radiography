@@ -357,3 +357,10 @@ Third-party data (a referrer's private notes) is redacted per PAIA grounds with 
 | Retention | Incident, complaint, licence and QA records retained per the 15 schedule (regulatory minimums, longer for radiation and occupational records) |
 | Versioned reference data | Obligation catalogue, severity matrix, SLAs and fee tables versioned with effective dates and change approvals |
 | Reporting | Monthly governance pack to EXE and SHR; quarterly committee packs; annual management review |
+
+## Statutory register
+
+The obligation catalogue in this document is operationalised as the statutory and regulatory
+register in `24-statutory-and-regulatory-register.md`, which is the authoritative list of
+instruments, obligations, controls, statutory outputs, the regulatory calendar, and the open items
+awaiting legal confirmation. Where this document and 24 differ, 24 governs.
