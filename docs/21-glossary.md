@@ -49,7 +49,7 @@
 | SAHPRA | South African Health Products Regulatory Authority |
 | SaMD | Software as a Medical Device |
 | SAST | South African Standard Time (UTC+2) |
-| Slip | An AI output reaching a downstream party without its verification tier (00 §7) |
+| Slip | An AI output reaching a downstream party without its verification tier (00 §8) |
 | SR | DICOM Structured Report |
 | Switch | Electronic claims intermediary between providers and funders |
 | Tariff code | Procedure billing code used on SA claims |
