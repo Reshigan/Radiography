@@ -19,7 +19,9 @@
     "db:migrate": "pnpm --filter @bonakala/db migrate",
     "db:seed": "pnpm --filter @bonakala/db seed",
     "db:reset": "pnpm --filter @bonakala/db reset",
-    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json}\"",
+    "deploy:demo": "pnpm --filter @bonakala/web build && cd apps/api && npx wrangler d1 migrations apply bonakala-demo --env demo --remote --config ../../infra/cloudflare/wrangler.toml && npx wrangler deploy --env demo --config ../../infra/cloudflare/wrangler.toml",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
