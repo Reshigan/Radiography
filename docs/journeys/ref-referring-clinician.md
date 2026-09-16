@@ -21,7 +21,7 @@ Space has six sections: Refer, Patients, Results, Urgent, Analytics, Settings. A
 identified by HPCSA registration number and BHF practice number, verified through M01 at
 onboarding, and may delegate a receptionist role with a narrower scope.
 
-## Scene 1 — GP with a paper pad: a photo becomes a booked patient
+## Scene 1 - GP with a paper pad: a photo becomes a booked patient
 
 **Situation.** Dr Naidoo runs a solo general practice in Chatsworth. She has no practice-management
 integration and writes referrals on a printed pad. She sees a patient with three weeks of right
@@ -42,7 +42,7 @@ the check digit failed), taps *Accept and offer slots to patient*, and tells the
 a WhatsApp message. She is done in 40 seconds.
 
 **What the Platform does.**
-* M04 Referral & Orders: the Intake Hand (M20, automation A2) extracts fields from the photo; the
+* M04 Referral & Orders: the Referral Hand (M20, automation A2) extracts fields from the photo; the
   ID check-digit validation runs before display; any field below threshold or failing validation
   requires explicit correction. The original photo is retained as the source document. Event:
   `referral.received.v1`, then `order.created.v1` on acceptance.
@@ -50,7 +50,7 @@ a WhatsApp message. She is done in 40 seconds.
   stored as reference data) provides guidance text; it never blocks a referral, it informs.
 * M03 Patient Master Index: matches or creates the patient, sending the patient a WhatsApp opt-in
   message (POPIA: the patient consents to messaging before anything else is sent).
-* M06 Funding & Authorisation and M05 Scheduling & Capacity: the Funding Hand (A3) runs the benefit
+* M06 Funding & Authorisation and M05 Scheduling & Capacity: the Authorisation Hand (A3) runs the benefit
   check; the Booking Hand (A3) offers slots to the patient directly and confirms back to Dr Naidoo.
 * M13 Results & Communication: Dr Naidoo's Patients section shows the referral status as it moves:
   Referred, Booked, Arrived, Scanned, Reported, Result viewed by patient. Her WhatsApp Business
@@ -59,7 +59,7 @@ a WhatsApp message. She is done in 40 seconds.
 
 **Edge cases.**
 * Handwriting unreadable: the extracted field shows as empty with a Beam flag; she types it; the
-  Intake Hand learns nothing from her correction unless AIO approves the sample for training.
+  Referral Hand learns nothing from her correction unless AIO approves the sample for training.
 * The patient has no WhatsApp: she can enter a number for SMS, or print a confirmation for the
   patient from the Referrer Space.
 * She refers a study the guideline marks as low-value for the indication (for example, lumbar spine
@@ -72,7 +72,7 @@ a WhatsApp message. She is done in 40 seconds.
 **Success measure.** Referral to booked appointment in under five minutes for most paper referrals;
 Dr Naidoo learns of a no-show without phoning anyone.
 
-## Scene 2 — Specialist with an integrated practice system: orders and results without leaving her software
+## Scene 2 - Specialist with an integrated practice system: orders and results without leaving her software
 
 **Situation.** Dr Mahlangu is an orthopaedic surgeon in Pretoria. Her rooms use a practice-management
 system that supports FHIR R4. She orders imaging dozens of times a week and wants the order and the
@@ -95,7 +95,7 @@ opens the full study to plan surgery.
 * M21 Platform Core and packages/hl7-fhir: inbound FHIR `ServiceRequest` becomes an M04 order, mapped
   to the Practice's procedure catalogue; the referrer identity is verified by integration key bound
   to her HPCSA and practice numbers.
-* M06: the Funding Hand (A3) submits the pre-authorisation request to the scheme with the ICD-10 code
+* M06: the Authorisation Hand (A3) submits the pre-authorisation request to the scheme with the ICD-10 code
   from the order (illustrative: M23.2 for a meniscal derangement), tracks the response, and posts
   the authorisation number to the order; if the scheme requires a clinical motivation the Hand
   drafts it from the order for Dr Mahlangu to approve in one click (the draft is annotated and never
@@ -121,7 +121,7 @@ opens the full study to plan surgery.
 **Success measure.** Zero re-keying between her system and the Platform; report and images inside
 her own file within minutes of sign-off.
 
-## Scene 3 — Casualty doctor at 02:00: STAT CT head
+## Scene 3 - Casualty doctor at 02:00: STAT CT head
 
 **Situation.** Dr Botha is the casualty doctor at a private hospital where Bonakala Practice C runs
 imaging under a JV. At 02:00 an unidentified patient arrives with a head injury and a falling GCS. He
@@ -175,7 +175,7 @@ the call, acknowledges, and calls the neurosurgeon. The report is already in the
 responsible doctor within minutes with a recorded path; no critical finding ever relies on a
 voicemail.
 
-## Scene 4 — Occupational health doctor: 40 miners for chest X-rays
+## Scene 4 - Occupational health doctor: 40 miners for chest X-rays
 
 **Situation.** Dr Mokoena is the occupational medical practitioner for a platinum mine in the North
 West. Under ODMWA and the mine's medical surveillance programme, she needs annual chest X-rays for
@@ -224,7 +224,7 @@ summary, and books the three workers with flagged findings for follow-up from th
 **Success measure.** 40 orders from one upload; all reports with ILO classification returned within
 the contracted turnaround; flagged workers booked for follow-up from the batch view.
 
-## Scene 5 — Oncologist with a serial-imaging protocol
+## Scene 5 - Oncologist with a serial-imaging protocol
 
 **Situation.** Dr Pillay is a medical oncologist in Durban. Her patient Mrs Govender has metastatic
 colorectal cancer and needs CT chest, abdomen and pelvis every 12 weeks on treatment, reported with
@@ -251,7 +251,7 @@ baseline from the Trend view, which records a new baseline date.
 * M05: the Booking Hand (A3) prefers the same site and scanner for comparability and books the
   contrast slot with the NUR resource attached; M07 sends Mrs Govender the contrast safety questions
   and the eGFR requirement.
-* M06: the Funding Hand requests authorisation in advance under the oncology benefit, including the
+* M06: the Authorisation Hand requests authorisation in advance under the oncology benefit, including the
   scheme's oncology programme reference where the scheme runs one.
 * M12: the structured oncology template carries lesion measurements as data (lesion id, site, series,
   image number, long axis, short axis for nodes); the `PriorStrip` loads previous timepoints; the
@@ -271,12 +271,12 @@ baseline from the Trend view, which records a new baseline date.
 * A new lesion appears: the report codes it as a new lesion; the Trend view flags progression; the
   notification is urgent, not critical, per the Practice's category definitions.
 * The scheme's oncology programme declines a scan as outside protocol: the order is held, Dr Pillay
-  sees the reason and may submit a motivation drafted by the Funding Hand for her approval.
+  sees the reason and may submit a motivation drafted by the Authorisation Hand for her approval.
 
 **Success measure.** Standing protocol runs for a year without a single manual booking; every
 quarterly report has a measurement table and a trend that Dr Pillay can show her patient.
 
-## Scene 6 — Every referrer: results, analytics and preferences
+## Scene 6 - Every referrer: results, analytics and preferences
 
 **Situation.** Once a month, Dr Naidoo (Scene 1) looks at how her referrals are doing.
 
@@ -307,7 +307,7 @@ phone call, every time.
   the radiologist's words, and the acknowledgement is recorded against the report.
 * Results arrive inside the referrer's own system as FHIR or HL7 with key images, and the full study
   opens in the browser with no CD and no second login.
-* Pre-authorisation and motivations are handled by the Funding Hand, with the referrer approving a
+* Pre-authorisation and motivations are handled by the Authorisation Hand, with the referrer approving a
   drafted motivation in one click.
 * Serial oncology imaging is a standing protocol with measurement tables and trends, not a quarterly
   PDF.
@@ -323,7 +323,7 @@ phone call, every time.
   the Critical Results Hand calls recorded numbers and records who acknowledged.
 * Critical finding left on voicemail: no acknowledgement, no closure; escalation is automatic.
 * Report content lost in prose: structured templates carry measurements and recommendations as data.
-* Authorisation obtained after the scan, or never: the Funding Hand tracks it from the order and the
+* Authorisation obtained after the scan, or never: the Authorisation Hand tracks it from the order and the
   slot is not confirmed without a funding position the patient has seen.
 * Ionising radiation ordered by an unverified or delegated user without oversight: verified
   identities and countersignature policy.

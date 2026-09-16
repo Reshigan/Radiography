@@ -22,7 +22,7 @@ this journey must work on a 3G connection on a five-year-old Android phone, and 
 SMS or WhatsApp equivalent. Copy is short sentences, numerals for numbers, 24-hour time, no idioms,
 so that the isiZulu, isiXhosa, Afrikaans and Sesotho packs read as naturally as the English.
 
-## Scene 1 — Scheme member: lumbar spine X-rays booked on WhatsApp
+## Scene 1 - Scheme member: lumbar spine X-rays booked on WhatsApp
 
 **Situation.** Nomvula, 41, has a referral note from her GP for lumbar spine X-rays (AP and lateral).
 She is a member of a large open medical scheme on a hospital-plus-savings option. It is 17:10, she is
@@ -44,14 +44,14 @@ questions (pregnancy possibility, previous X-rays of the back, implants, preferr
 consent with her finger, and add the appointment to her phone calendar from the link.
 
 **What the Platform does.**
-* M04 Referral & Orders: the Intake Hand (M20, automation A2) extracts referrer, practice number,
+* M04 Referral & Orders: the Referral Hand (M20, automation A2) extracts referrer, practice number,
   requested study and clinical indication from the photo, with a `Provenance` chip on every field.
   Fields under the confidence threshold go to the BKG exception queue; here all fields clear and the
   order is created. Event: `referral.received.v1`, `order.created.v1`.
 * M03 Patient Master Index: matches the ID number and mobile number to an existing patient record from
   a visit two years ago at a different Practice in the Group (cross-tenant lookup under the recorded
   data-sharing agreement); no re-registration.
-* M06 Funding & Authorisation: the Funding Hand (A3) runs a real-time benefit check through the
+* M06 Funding & Authorisation: the Authorisation Hand (A3) runs a real-time benefit check through the
   scheme's API or the claims switch, applies the scheme's rule pack for the two tariff codes
   (illustrative: 30110 and 30120 stored as reference data), confirms no pre-authorisation is required
   for plain radiography, and issues a guaranteed quote. Event: `quote.issued.v1`.
@@ -75,7 +75,7 @@ consent with her finger, and add the appointment to her phone calendar from the 
 **Success measure.** Booking completed in under 90 seconds on WhatsApp; quote later matches the
 claim outcome to the rand (quote accuracy is a headline PAT metric); zero re-keying at the desk.
 
-## Scene 2 — Cash patient: chest X-ray with price certainty
+## Scene 2 - Cash patient: chest X-ray with price certainty
 
 **Situation.** Sipho, 29, has no medical scheme. A clinic nurse has written "CXR, cough 3 weeks" on a
 slip. He earns weekly and cannot be surprised by a bill.
@@ -110,7 +110,7 @@ he uses, and later pays with a QR code at the desk.
 **Success measure.** Price shown before slot offer in 100 % of cash bookings; no cash patient ever
 receives an invoice for more than the quoted amount.
 
-## Scene 3 — RAF claimant: CT cervical spine after a motor vehicle accident
+## Scene 3 - RAF claimant: CT cervical spine after a motor vehicle accident
 
 **Situation.** Lerato, 35, was a passenger in a taxi collision. Her attorney's paralegal phones
 central booking with a referral for CT of the cervical spine and a Road Accident Fund (RAF) matter
@@ -149,7 +149,7 @@ to results with a single toggle in Family & Sharing.
 **Success measure.** No RAF or COIDA patient asked for money at the desk unless the policy says so;
 zero claims sent to the wrong funder.
 
-## Scene 4 — Occupational health worker: annual chest X-ray for a mine
+## Scene 4 - Occupational health worker: annual chest X-ray for a mine
 
 **Situation.** Thabo, 52, is an underground worker. His employer's occupational health doctor has
 ordered annual chest X-rays for 40 workers under the Occupational Diseases in Mines and Works Act
@@ -186,7 +186,7 @@ Patient Space to see his own image and report.
 **Success measure.** 40 workers imaged in one visit with no paper; occupational health doctor receives
 all reports within the contracted turnaround; worker access to own record at 100 %.
 
-## Scene 5 — Child with guardian: forearm X-ray for a four-year-old
+## Scene 5 - Child with guardian: forearm X-ray for a four-year-old
 
 **Situation.** Zanele, 4, fell off a jungle gym. Her mother, Ayanda, brings her with a GP referral.
 Ayanda is the scheme's principal member; Zanele is a dependant.
@@ -226,7 +226,7 @@ check in on the kiosk with the wristband QR.
 **Success measure.** Guardian consent captured before arrival in most cases; paediatric dose within
 reference level; no child registered as a duplicate adult record.
 
-## Scene 6 — Elderly patient with a family helper: hip X-rays and a lift to the site
+## Scene 6 - Elderly patient with a family helper: hip X-rays and a lift to the site
 
 **Situation.** Oom Pieter, 78, lives in a retirement village in Bloemfontein. His daughter, Marlize,
 lives in Cape Town and manages his medical scheme and appointments. His Afrikaans is his first
@@ -257,7 +257,7 @@ the front desk sees on the day screen that he has a helper and prefers Afrikaans
   `PayLink` before he arrives so that nobody asks an elderly man for money at the desk.
 
 **Edge cases.**
-* Pieter has no phone: all messages go to Marlize; the site's reminder call (a Reminder Hand voice
+* Pieter has no phone: all messages go to Marlize; the site's reminder call (a Booking Hand voice
   call in Afrikaans, A3) goes to the village office number with his consent.
 * Cognitive impairment: consent capacity is a clinical judgement; the Platform records that a
   helper or curator consented and the basis, and the radiographer confirms the patient's assent.
@@ -267,7 +267,7 @@ the front desk sees on the day screen that he has a helper and prefers Afrikaans
 **Success measure.** Helper-booked appointments complete without a single phone call to the patient;
 large-print and language preferences honoured on every message.
 
-## Scene 7 — Non-English speaker: booking in isiZulu on WhatsApp
+## Scene 7 - Non-English speaker: booking in isiZulu on WhatsApp
 
 **Situation.** MaDlamini, 63, from Umlazi, has a referral for an abdominal ultrasound. Her English is
 limited; her daughter set up WhatsApp for her. She writes to the Bonakala number in isiZulu.
@@ -313,7 +313,7 @@ replies "Yebo" to confirm.
 **Success measure.** Conversations in isiZulu complete at the same rate as English ones; catalogue
 coverage of patient-facing messages at 100 % for launch languages.
 
-## Scene 8 — MRI-anxious patient: knee MRI with claustrophobia
+## Scene 8 - MRI-anxious patient: knee MRI with claustrophobia
 
 **Situation.** Kevin, 47, has been referred for a knee MRI. He had a panic attack in a scanner ten
 years ago and has been avoiding this for months.
@@ -339,7 +339,7 @@ and adds "please talk to me through the headphones".
 * M08: the protocol card offers the shortest adequate knee protocol as the radiologist-approved
   default, with a note that a "feet-first, head out" position is possible for this study.
 * M13: a message the evening before repeats what to expect and offers a WhatsApp voice reply from a
-  radiographer for questions (routed to the site's MRI radiographer during hours; the Reminder Hand
+  radiographer for questions (routed to the site's MRI radiographer during hours; the Booking Hand
   handles routine questions from the approved FAQ and escalates anything else).
 
 **Edge cases.**
@@ -353,7 +353,7 @@ and adds "please talk to me through the headphones".
 **Success measure.** MRI incomplete-for-anxiety rate falls against the baseline; anxiety disclosed
 before arrival, not on the table.
 
-## Scene 9 — Mammography screening invitee
+## Scene 9 - Mammography screening invitee
 
 **Situation.** Precious, 46, receives an invitation to screening mammography. Her scheme funds an
 annual screening mammogram from a certain age (age thresholds vary by scheme and are stored as
@@ -397,7 +397,7 @@ attends, and receives her result.
 **Success measure.** Screening invitations converted to attended studies; recall delivered with a
 booked follow-up in the same message; no recall lost.
 
-## Scene 10 — Emergency: casualty patient at 02:00 in a hospital-based site
+## Scene 10 - Emergency: casualty patient at 02:00 in a hospital-based site
 
 **Situation.** An unidentified man, about 30, is brought to a private hospital casualty unit after a
 fall. The casualty doctor orders a STAT CT head. Bonakala Practice C runs the imaging department in
@@ -440,7 +440,7 @@ account.
 **Success measure.** STAT CT head reported within target; critical finding acknowledged by the
 casualty doctor within minutes; identity merged the next day with zero orphaned charges.
 
-## Scene 11 — Results and follow-up: a lung nodule and a reminder six months later
+## Scene 11 - Results and follow-up: a lung nodule and a reminder six months later
 
 **Situation.** Back to Sipho from Scene 2 (chest X-ray for a cough). His radiologist noted a small
 pulmonary nodule, incidental, and recommended a follow-up CT in six months per the Practice's

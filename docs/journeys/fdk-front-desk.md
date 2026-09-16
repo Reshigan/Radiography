@@ -20,7 +20,7 @@ the standard `AppFrame`: left rail, top bar with site and date context and the `
 the day `Queue` as the main content, and the `Inspector` for the selected patient. Front desk staff
 sign in with SSO and MFA (M01) and are scoped to their Site.
 
-## Scene 1 — 07:20: opening the day
+## Scene 1 - 07:20: opening the day
 
 **Situation.** Busisiwe opens the Randburg site. First patients are due at 07:30. Load-shedding is
 scheduled for 08:00 to 10:30 in this area today.
@@ -45,7 +45,7 @@ She assigns herself the first two and leaves the rest to her colleague.
   matched to the site's area (illustrative capability, configurable per site).
 * M05 Scheduling & Capacity: the day queue is a projection of appointments joined with M06 funding
   status, M07 pre-check-in status and M14 balances.
-* M06 Funding & Authorisation: overnight, the Funding Hand (M20, automation A3) ran benefit checks
+* M06 Funding & Authorisation: overnight, the Authorisation Hand (M20, automation A3) ran benefit checks
   and authorisation requests for every appointment in the next 48 hours; anything it could not
   resolve inside its mandate (scheme portal down, clinical motivation required, member not found)
   is an attention item with the Hand's notes attached.
@@ -60,7 +60,7 @@ She assigns herself the first two and leaves the rest to her colleague.
 **Success measure.** The day is understood in under two minutes; every attention item has an owner
 before the first patient arrives.
 
-## Scene 2 — 07:34: a pre-checked-in scheme member arrives
+## Scene 2 - 07:34: a pre-checked-in scheme member arrives
 
 **Situation.** Nomvula (PAT journey, Scene 1) arrives for lumbar spine X-rays. She did everything
 on WhatsApp last night.
@@ -94,12 +94,12 @@ seconds), hands Nomvula a printed or WhatsApp queue status: "You are 2nd in line
 * She forgot her scheme card: not needed; the benefit check was done with her membership number and
   ID.
 * She brings a second referral for a different study: the desk adds an order from the photo (Intake
-  Hand, same as booking) and the Funding Hand runs a quote in seconds; she is told the cost before
+  Hand, same as booking) and the Authorisation Hand runs a quote in seconds; she is told the cost before
   the study is added.
 
 **Success measure.** Check-in under 60 seconds; zero questions the patient already answered.
 
-## Scene 3 — 08:05: cash patient at the desk during load-shedding
+## Scene 3 - 08:05: cash patient at the desk during load-shedding
 
 **Situation.** Sipho (PAT journey, Scene 2) arrives for his chest X-ray. The power has just gone
 off; the UPS beeps once and the lights on the desk stay on.
@@ -131,26 +131,26 @@ no card fee for him), confirms payment, arrives him.
 **Success measure.** Front-desk collection rate for cash patients at or near 100 %; every payment has
 a receipt within seconds, power or no power.
 
-## Scene 4 — 08:40: an authorisation that is not there yet
+## Scene 4 - 08:40: an authorisation that is not there yet
 
 **Situation.** Mr Khumalo arrives for a CT abdomen with contrast. His scheme requires
-pre-authorisation. The Funding Hand requested it two days ago; the scheme has not responded, and this
+pre-authorisation. The Authorisation Hand requested it two days ago; the scheme has not responded, and this
 morning the scheme's portal is returning errors.
 
 **What they see.** The row shows the `Status` chip "Needs auth" in Beam and the attention item with
-the Funding Hand's timeline: request submitted, reference number, two follow-up attempts, portal
+the Authorisation Hand's timeline: request submitted, reference number, two follow-up attempts, portal
 error at 06:10. The `CollectCard` shows two scenarios side by side: "If authorised: scheme R4 180,
 you R0" and "If not authorised: cash R3 900" (illustrative), with a third option: proceed under a
 signed acknowledgement that the patient accepts liability if the scheme declines, which the
 Practice's policy allows for this scheme and study class.
 
-**What they do.** Asks the Funding Hand to phone the scheme now (the Hand places the call, navigates
+**What they do.** Asks the Authorisation Hand to phone the scheme now (the Hand places the call, navigates
 the scheme's line, and reports back in the attention item), explains the options to Mr Khumalo in
 the meantime in plain words, and when the Hand returns an authorisation number six minutes later,
 arrives him with the scheme scenario locked in.
 
 **What the Platform does.**
-* M06: the Funding Hand's mandate includes phoning scheme authorisation lines with a script, quoting
+* M06: the Authorisation Hand's mandate includes phoning scheme authorisation lines with a script, quoting
   the practice number, member number, tariff codes and ICD-10, and capturing the authorisation
   number and any conditions (for example, "authorised for CT abdomen, contrast included, valid 30
   days"); the call is recorded and transcribed; the authorisation is stored on the order. Anything
@@ -163,19 +163,19 @@ arrives him with the scheme scenario locked in.
 * The scheme declines: the console shows the reason code in plain language; the desk offers the cash
   price, a payment plan, or rebooking after an appeal; nothing is scanned on an assumption.
 * The authorisation covers a different tariff code than the radiologist's protocol: the RAD console
-  flags the mismatch before the scan; the Funding Hand requests an amendment.
+  flags the mismatch before the scan; the Authorisation Hand requests an amendment.
 * The patient insists on proceeding without any funding position: PRM approval is required and
   recorded.
 
 **Success measure.** No patient scanned without a known funding position or a recorded, informed
 choice; scheme phone time moved from the desk to the Hand.
 
-## Scene 5 — 09:15: walk-in without a booking
+## Scene 5 - 09:15: walk-in without a booking
 
 **Situation.** A woman walks in with a referral for a wrist X-ray from an orthopaedic clinic across
 the road; no booking, no message, a taxi to catch in an hour.
 
-**What they see.** *New walk-in* opens a three-step flow: photograph the referral (Intake Hand
+**What they see.** *New walk-in* opens a three-step flow: photograph the referral (Referral Hand
 extraction, annotated fields), find or create the patient (search by ID, mobile, name and date of
 birth; the `Id` component validates the number), and the funding position and next slot. The slot
 engine shows "Room 2, next available 09:32" with the radiographer's current load.
@@ -202,7 +202,7 @@ the patient chooses), collects R0 because the scheme covers it, and tells her sh
 
 **Success measure.** Walk-in to arrived in under three minutes; no paper form created.
 
-## Scene 6 — 10:10: a duplicate record and a merge
+## Scene 6 - 10:10: a duplicate record and a merge
 
 **Situation.** The overnight attention item: a patient booked via WhatsApp matched two existing
 records, one under a maiden name at another Practice in the Group and one at this site with a
@@ -229,7 +229,7 @@ survivor, types MERGE.
 
 **Success measure.** Zero unmerged duplicates persisting more than a day; zero incorrect merges.
 
-## Scene 7 — 12:30: a patient with an outstanding balance
+## Scene 7 - 12:30: a patient with an outstanding balance
 
 **Situation.** Mrs Adams arrives for an ultrasound. She has R760 outstanding from a CT last year that
 her scheme paid short. She was never told clearly why.
@@ -257,7 +257,7 @@ pay now, payment plan, or dispute.
 **Success measure.** Previous balances explained in one sentence, never argued; collection at the
 desk without conflict.
 
-## Scene 8 — 14:00: kiosk supervisor mode and an anxious first-time kiosk user
+## Scene 8 - 14:00: kiosk supervisor mode and an anxious first-time kiosk user
 
 **Situation.** An older patient is stuck on the kiosk's language screen.
 
@@ -270,11 +270,11 @@ finish the flow on her tablet, or switch the kiosk to large-touch mode with the 
 
 **Success measure.** No patient abandoned at a kiosk; assisted check-ins are counted for training.
 
-## Scene 9 — 16:45: closing the day
+## Scene 9 - 16:45: closing the day
 
 **Situation.** End of day cash-up and hand-over.
 
-**What they see.** The day's summary: arrivals, no-shows (with the Reminder Hand's contact
+**What they see.** The day's summary: arrivals, no-shows (with the Booking Hand's contact
 attempts), collections by method by user, unpaid cash due, the float, and any open attention items
 handed to tomorrow. A Beam item lists three patients whose ID verification is still outstanding, which
 will block their claims.
@@ -293,7 +293,7 @@ will block their claims.
 * One screen for the whole day, developing most-critical-first, with every attention item owned.
 * The `CollectCard` says what to collect, why, and how, including previous balances with the
   arithmetic shown, so money conversations are explanations rather than arguments.
-* The Funding Hand makes the scheme calls and reports back; the desk never waits on hold.
+* The Authorisation Hand makes the scheme calls and reports back; the desk never waits on hold.
 * ID scan with check-digit validation and annual re-verification; merges require a typed
   confirmation and are reversible.
 * Walk-ins take the same three-step path as remote bookings and never create paper.
@@ -304,7 +304,7 @@ will block their claims.
 
 ## Failure modes designed out
 
-* Re-keying from paper: the Intake Hand extracts, the desk corrects only flagged fields.
+* Re-keying from paper: the Referral Hand extracts, the desk corrects only flagged fields.
 * Scanning before the funding position is known: the row cannot be arrived without a quote,
   authorisation, cash payment or recorded informed choice.
 * Wrong-patient arrival: ID scan plus name and date of birth; mismatches block.

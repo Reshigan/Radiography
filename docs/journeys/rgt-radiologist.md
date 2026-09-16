@@ -24,7 +24,7 @@ full-bleed layout: `Viewer` (Cornerstone3D) on the left or on the diagnostic mon
 collapsible panel. Chrome luminance stays low; nothing flashes white. AI overlays are on by default
 for triage priorities and off by default for mammography.
 
-## Scene 1 — 07:30: the morning STAT list
+## Scene 1 - 07:30: the morning STAT list
 
 **Situation.** Dr Sithole starts the day at Sandton, reading for Practices A and C. Overnight, the
 Hub covered on-call; three studies acquired since 06:00 are STAT.
@@ -64,7 +64,7 @@ draft, signs. Repeats for the other two. Twelve minutes.
 
 **Success measure.** STAT turnaround within target every morning; no STAT study waits for a prior.
 
-## Scene 2 — 08:15: the chest X-ray triage queue
+## Scene 2 - 08:15: the chest X-ray triage queue
 
 **Situation.** 140 chest X-rays from four sites and a mine mobile unit arrived overnight and this
 morning. Most are normal. A few are not.
@@ -106,7 +106,7 @@ normal, and the interface never implies it.
 **Success measure.** Flagged studies read first with a measured time-to-read; override rate stable;
 no reduction in detection on unflagged studies (monitored by peer review sampling).
 
-## Scene 3 — 09:40: CT head with an AI intracranial haemorrhage flag
+## Scene 3 - 09:40: CT head with an AI intracranial haemorrhage flag
 
 **Situation.** A CT head from Practice C's hospital site arrives with a high triage priority from
 the intracranial haemorrhage model.
@@ -146,7 +146,7 @@ measures the shift (the measurement is a data field, not prose); sets the critic
 **Success measure.** ICH-flagged CT heads signed within the STAT target; every critical finding
 carries a coded category and a recorded acknowledgement.
 
-## Scene 4 — 10:30: mammography double read
+## Scene 4 - 10:30: mammography double read
 
 **Situation.** Screening mammograms, including Precious's (PAT journey, Scene 9), are on the
 double-read worklist. Dr Sithole is the first reader; Dr Van Wyk in Cape Town is the second, blind.
@@ -184,7 +184,7 @@ now toggle the AI overlay and score as an additional input.
 **Success measure.** Double-read completion within the programme's turnaround; reader agreement
 tracked; no screening result released on a single read.
 
-## Scene 5 — 11:20: dictation and draft acceptance
+## Scene 5 - 11:20: dictation and draft acceptance
 
 **Situation.** A routine CT abdomen and pelvis with a long list of findings.
 
@@ -226,7 +226,7 @@ shows the referrer, the delivery channels and any critical or urgent category.
 **Success measure.** Time from dictation end to signature falls; draft edit rate monitored; zero
 signed reports containing annotated content.
 
-## Scene 6 — 11:45: the critical finding call
+## Scene 6 - 11:45: the critical finding call
 
 **Situation.** The subdural haematoma from Scene 3 was signed with a critical category. The referrer
 is Dr Botha in casualty (REF journey, Scene 3), who is with the patient.
@@ -267,7 +267,7 @@ by the neurosurgeon for the images, she sends a share link from the study page.
 **Success measure.** Acknowledgement within minutes on every critical finding; radiologist phone
 time on critical results near zero; zero critical findings closed without a named acknowledger.
 
-## Scene 7 — 13:00: an addendum
+## Scene 7 - 13:00: an addendum
 
 **Situation.** The mammography priors for Precious arrived after Dr Sithole's first read and change
 nothing, but a CT from yesterday needs an addendum: the referrer phoned to say the clinical
@@ -297,7 +297,7 @@ Critical Results Hand.
 **Success measure.** Addenda delivered to every original recipient; corrections visible as
 corrections.
 
-## Scene 8 — 14:00: peer review
+## Scene 8 - 14:00: peer review
 
 **Situation.** The Practice's peer review programme samples reads for learning, and Dr Sithole's
 turn to review comes daily as a small batch.
@@ -328,7 +328,7 @@ constructive note.
 **Success measure.** Peer review completed daily rather than at quarter-end; learning notes read;
 discrepancy trends visible per radiologist.
 
-## Scene 9 — 22:15: on call from home through the Hub
+## Scene 9 - 22:15: on call from home through the Hub
 
 **Situation.** Dr Van Wyk is on call for the Hub, covering six Practices from home in Cape Town.
 Load-shedding is scheduled in her suburb from 22:00 to 00:30.
@@ -368,7 +368,7 @@ generated from her signed studies.
 **Success measure.** Night STAT turnaround equal to daytime; no STAT study unclaimed past the
 threshold; Hub reads billed automatically to the right Practice.
 
-## Scene 10 — Month-end: the reading-fee statement
+## Scene 10 - Month-end: the reading-fee statement
 
 **Situation.** The first working day of the month. Dr Sithole is a JV partner in Practice A and reads
 for Practice C and the Hub.

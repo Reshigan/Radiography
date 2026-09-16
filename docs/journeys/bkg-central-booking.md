@@ -19,7 +19,7 @@ is a `Queue` of conversations and tasks with the `Inspector` showing the patient
 funding position and the slot search. Agents are MSO users acting as operator for each Practice
 under POPIA, and the console shows which Practice's tenant they are working in at all times.
 
-## Scene 1 — 08:00: the omnichannel inbox
+## Scene 1 - 08:00: the omnichannel inbox
 
 **Situation.** Thuli starts her shift. Overnight, the Booking Hand (M20, automation A3) handled
 routine WhatsApp bookings on its own. What remains is the exception queue.
@@ -36,10 +36,10 @@ escalated 11, and 4 patients asked for a person.
 
 **What the Platform does.**
 * M21 Platform Core: every channel lands in one conversation object with the patient, referral and
-  order attached where matched; fax and email attachments go through the Intake Hand for extraction
+  order attached where matched; fax and email attachments go through the Referral Hand for extraction
   (M04).
 * M20: the Booking Hand's mandate covers: match patient (single high-confidence candidate only),
-  create order from referral, run benefit check and quote (via the Funding Hand), offer up to three
+  create order from referral, run benefit check and quote (via the Authorisation Hand), offer up to three
   slots at sites within a configurable radius, confirm and send preparation; its leash forbids
   booking studies needing pre-authorisation that has not been granted, booking outside licence or
   roster constraints, and any conversation where the patient asks for a person or expresses
@@ -56,14 +56,14 @@ escalated 11, and 4 patients asked for a person.
 **Success measure.** Routine bookings handled without an agent at a rising share; exception items
 answered inside SLA.
 
-## Scene 2 — 08:10: a referrer's rooms phone for a same-day CT
+## Scene 2 - 08:10: a referrer's rooms phone for a same-day CT
 
 **Situation.** A receptionist from a pulmonologist's rooms calls: a patient with suspected
 pulmonary embolism needs a CT pulmonary angiogram today; the patient is in the rooms now.
 
 **What they see.** The caller's number matches the referrer's practice; the `Inspector` opens with
 their recent referrals. Thuli captures the patient by ID number; the order form is pre-filled with
-the referrer and the study; the Funding Hand runs the benefit check while she talks; the slot search
+the referrer and the study; the Authorisation Hand runs the benefit check while she talks; the slot search
 shows CT capacity across the three nearest sites with the contrast nurse (NUR) resource, the
 radiologist coverage, and an "urgent" priority that can pull a slot forward within the Practice's
 urgent policy. The quote shows the scheme portion and the PMB position for a suspected pulmonary
@@ -78,7 +78,7 @@ patient a WhatsApp confirmation with the safety questions.
   Booking Hand offers the displaced routine patient a same-day alternative with a courtesy message,
   within its mandate; if the patient declines, the item escalates to Thuli.
 * M06: authorisation is requested immediately; the scheme's emergency and PMB rules are applied by
-  the Funding Hand; where the scheme requires authorisation within a window after an emergency, the
+  the Authorisation Hand; where the scheme requires authorisation within a window after an emergency, the
   Hand schedules the follow-up.
 * M07 and M13: the contrast safety questions and the eGFR requirement go to the patient in the
   confirmation; the NUR console shows the pending eGFR.
@@ -93,7 +93,7 @@ patient a WhatsApp confirmation with the safety questions.
 **Success measure.** Urgent referral to confirmed slot in one call under five minutes; the displaced
 patient rebooked the same day.
 
-## Scene 3 — 09:30: a photo of a referral on WhatsApp with a mismatch
+## Scene 3 - 09:30: a photo of a referral on WhatsApp with a mismatch
 
 **Situation.** The Booking Hand escalated a WhatsApp thread: the photo of a referral names a patient
 whose ID number belongs to a different person in the Patient Master Index.
@@ -121,7 +121,7 @@ Hand, which completes the booking and the quote.
 **Success measure.** No booking created against a wrong identity; agent time spent only on the
 ambiguous digit.
 
-## Scene 4 — 11:00: finding MRI capacity across the network
+## Scene 4 - 11:00: finding MRI capacity across the network
 
 **Situation.** A patient with a knee MRI referral on a scheme that requires authorisation wants the
 earliest slot anywhere in Gauteng, after 16:00, because he cannot take leave.
@@ -141,7 +141,7 @@ when the scheme responds.
 * M05: the slot engine ranks by hard constraints (licence, roster, modality capability, room type,
   slot type) then soft constraints (distance, transport, patient preference, predicted no-show risk,
   site utilisation targets); the ranking reasons are visible to the agent.
-* M06: the appointment carries a funding condition; the Funding Hand resolves it and emits
+* M06: the appointment carries a funding condition; the Authorisation Hand resolves it and emits
   `authorisation.granted.v1` or `authorisation.declined.v1`; the Booking Hand acts on either within
   its mandate (confirm, or offer cash quote and alternatives).
 * M13: the patient receives the conditional status honestly ("Your slot is held. We are waiting for
@@ -157,7 +157,7 @@ when the scheme responds.
 **Success measure.** Fill rate on evening MRI slots; time-to-appointment for MRI measured across the
 network, not per site.
 
-## Scene 5 — 13:20: a cancellation and the waitlist
+## Scene 5 - 13:20: a cancellation and the waitlist
 
 **Situation.** A patient cancels tomorrow's 08:00 ultrasound by WhatsApp.
 
@@ -183,9 +183,9 @@ patients declined, 1 accepted; quote re-issued."
 **Success measure.** Cancelled slots refilled without agent effort; overbooking used only where the
 policy allows and never for MRI or contrast studies.
 
-## Scene 6 — 15:00: no-show risk and the day-before pass
+## Scene 6 - 15:00: no-show risk and the day-before pass
 
-**Situation.** The Reminder Hand (A4 for routine reminders) has sent tomorrow's reminders. Some
+**Situation.** The Booking Hand (A4 for routine reminders) has sent tomorrow's reminders. Some
 patients have not confirmed.
 
 **What they see.** A list of tomorrow's unconfirmed appointments ranked by predicted no-show risk
@@ -213,7 +213,7 @@ language, with a script that offers to reschedule rather than pressure.
 **Success measure.** No-show rate falling against baseline; every no-show has a reason where one
 could be learned.
 
-## Scene 7 — 16:30: quality, handling time and the Hand's leash
+## Scene 7 - 16:30: quality, handling time and the Hand's leash
 
 **Situation.** End of shift review with the team lead.
 

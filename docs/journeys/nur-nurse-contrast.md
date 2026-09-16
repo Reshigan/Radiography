@@ -20,7 +20,7 @@ Technologist console is a `Queue` of today's contrast patients with the `SafetyC
 `ContrastCalculator` and the reaction protocol card in the `Inspector`. It runs against the Edge
 Gateway and works offline.
 
-## Scene 1 — 07:45: the contrast list for the day
+## Scene 1 - 07:45: the contrast list for the day
 
 **Situation.** Sister Mahlangu opens the contrast queue at Sandton: 14 CT contrast studies and 6 MRI
 gadolinium studies.
@@ -36,10 +36,10 @@ ID), the study, the time, the weight on record, the cannula status and the check
 **What the Platform does.**
 * M07 Registration & Safety: contrast safety answers from the Patient Space, the referrer's order and
   lab results (where the referrer's system sends them, or where the patient uploaded a photo of the
-  result which the Intake Hand extracted with provenance) are combined into the `SafetyChecklist`.
+  result which the Referral Hand extracted with provenance) are combined into the `SafetyChecklist`.
 * M06 Funding & Authorisation and M14 Revenue Cycle: the contrast material tariff codes are already on
   the order so that nothing is billed by memory later.
-* M18 Assets & Engineering: contrast stock levels, batches and expiries are live; the Stock Hand
+* M18 Assets & Engineering: contrast stock levels, batches and expiries are live; the Maintenance Hand
   (M20, automation A3) raises a purchase request when the forecast for the week falls below the
   minimum, within its budget leash.
 
@@ -51,7 +51,7 @@ ID), the study, the time, the weight on record, the cannula status and the check
 **Success measure.** Every contrast patient's checklist resolved before the cannula, not on the
 scanner table.
 
-## Scene 2 — 08:30: eGFR not on file, point-of-care test
+## Scene 2 - 08:30: eGFR not on file, point-of-care test
 
 **Situation.** Mrs Dlamini, 68, diabetic on metformin, arrives for CT abdomen with contrast. No eGFR
 on file.
@@ -89,7 +89,7 @@ explains the metformin instruction to Mrs Dlamini in isiZulu, and confirms the i
 **Success measure.** eGFR check compliance at 100 % for contrast studies; no metformin advice given
 from memory.
 
-## Scene 3 — 09:10: cannulation and dose per weight
+## Scene 3 - 09:10: cannulation and dose per weight
 
 **Situation.** Mr Khumalo (FDK journey, Scene 4; RAD journey, Scene 2) is cleared. Sister Mahlangu
 places the cannula.
@@ -124,7 +124,7 @@ to the radiographer with the console showing "Ready for contrast".
 **Success measure.** Cannulation recorded for every contrast study; administered dose matches the
 plan or carries a reason.
 
-## Scene 4 — 09:40: a contrast reaction
+## Scene 4 - 09:40: a contrast reaction
 
 **Situation.** Three minutes after injection, a young patient in CT develops urticaria and reports
 throat tightness.
@@ -162,7 +162,7 @@ afterwards.
 **Success measure.** Time from first symptom to first protocol action under the Practice's target;
 every reaction recorded once, completely, and visible nationally.
 
-## Scene 5 — 11:15: extravasation
+## Scene 5 - 11:15: extravasation
 
 **Situation.** During an injection the injector's pressure alarm triggers and the patient reports
 pain at the cannula site; a volume of contrast has extravasated.
@@ -185,7 +185,7 @@ calls the radiologist for review, and arranges the follow-up call for the next d
 
 **Success measure.** Every extravasation documented with volume and follow-up; the rate trending down.
 
-## Scene 6 — 12:00: MRI gadolinium and a pregnancy question
+## Scene 6 - 12:00: MRI gadolinium and a pregnancy question
 
 **Situation.** A patient for MRI with gadolinium contrast answered "not sure" to the pregnancy
 question at home.
@@ -204,18 +204,18 @@ records the radiologist's decision and the patient's consent.
 
 **Success measure.** No gadolinium given with an unresolved pregnancy question.
 
-## Scene 7 — 16:30: stock, observations and hand-over
+## Scene 7 - 16:30: stock, observations and hand-over
 
 **Situation.** End of the contrast day.
 
 **What they see.** The day's summary: contrast administered by product and volume, vials opened,
 wastage with reasons, stock on hand versus the physical count she enters, patients still under
-post-contrast observation with their timers, and incidents open. The Stock Hand's proposed order for
+post-contrast observation with their timers, and incidents open. The Maintenance Hand's proposed order for
 next week is shown with its reasoning for her to approve or adjust.
 
 **What the Platform does.**
 * M18: physical count against the system count; variances above a threshold open an incident.
-* M20: the Stock Hand's order sits within a budget leash; approval by NUR or PRM is required above
+* M20: the Maintenance Hand's order sits within a budget leash; approval by NUR or PRM is required above
   it.
 * M16 Analytics & Insight: reactions, extravasations and eGFR check compliance per site, per month,
   benchmarked across the Group with case-mix noted.

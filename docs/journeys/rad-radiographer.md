@@ -22,7 +22,7 @@ safety answers, priors and the protocol card. It runs as a PWA against the site'
 works when the internet, and the grid, do not. Every AI-suggested element is in the annotated
 style with a `Provenance` chip.
 
-## Scene 1 — General X-ray: lumbar spine, first time right
+## Scene 1 - General X-ray: lumbar spine, first time right
 
 **Situation.** Lindiwe runs Room 1 (a DR unit) at Randburg. Nomvula (PAT journey, Scene 1) is next.
 
@@ -69,7 +69,7 @@ exposure check: "Lateral: collimation adequate, exposure index within range." Sh
 **Success measure.** Repeat rate within the Practice's target; exposure within DRL; no study left
 unmatched at the end of the day.
 
-## Scene 2 — CT with contrast: eGFR, protocol and dose
+## Scene 2 - CT with contrast: eGFR, protocol and dose
 
 **Situation.** Sizwe runs the CT at Sandton. Mr Khumalo (FDK journey, Scene 4) is booked for a CT
 abdomen with contrast. The nurse (NUR) has placed the cannula.
@@ -95,7 +95,7 @@ He records the contrast volume actually given (the injector reports it).
 * M11 Clinical Intelligence: protocol suggestions are drafts; the protocolling radiologist accepts,
   edits or rejects (A1); the accepted protocol is what the console shows.
 * M18 Assets & Engineering: contrast stock decrements by barcode scan per study; batch and expiry are
-  recorded against the patient for traceability; low stock raises a Stock Hand task.
+  recorded against the patient for traceability; low stock raises a Maintenance Hand task.
 * M10: the Dose SR from the scanner is parsed; the effective dose estimate is stored; cumulative dose
   for the patient is visible on the `DoseGauge`.
 * M14 Revenue Cycle: the contrast volume and the tariff codes for the study and the contrast material
@@ -115,7 +115,7 @@ He records the contrast volume actually given (the injector reports it).
 **Success measure.** eGFR check compliance at 100 % before contrast; dose-length product within DRL;
 contrast stock reconciles to the vial.
 
-## Scene 3 — MRI safety: Zone IV and an implant that is "not sure"
+## Scene 3 - MRI safety: Zone IV and an implant that is "not sure"
 
 **Situation.** Priya is the MRI radiographer at Umhlanga. Kevin (PAT journey, Scene 8) is booked
 with an extended slot for anxiety, and the next patient, Mrs Naicker, answered "not sure" to the
@@ -162,7 +162,7 @@ Umhlanga scanner is 3 T.
 **Success measure.** Zero MR safety events; every "not sure" resolved with evidence before Zone IV;
 incomplete-for-anxiety rate down.
 
-## Scene 4 — Mammography: screening and a diagnostic conversion
+## Scene 4 - Mammography: screening and a diagnostic conversion
 
 **Situation.** Fatima is a mammographer at Sandton. Precious (PAT journey, Scene 9) is here for
 screening. The next patient was booked as screening but mentions a lump at the desk.
@@ -206,7 +206,7 @@ directs, and walks her to ultrasound.
 **Success measure.** Repeat rate for positioning within target; mean glandular dose within DRL;
 symptomatic conversions completed on the same visit.
 
-## Scene 5 — Mobile X-ray in a hospital ward
+## Scene 5 - Mobile X-ray in a hospital ward
 
 **Situation.** Themba works at Practice C's hospital-based site. A ward calls for a portable chest
 X-ray on a ventilated patient in the ICU.
@@ -244,7 +244,7 @@ panel, marks the study complete, and moves to the next ward request.
 **Success measure.** Ward request to image on the ward monitor within the target; zero
 wrong-patient portables.
 
-## Scene 6 — Load-shedding: two hours without grid or internet
+## Scene 6 - Load-shedding: two hours without grid or internet
 
 **Situation.** Stage 6. The Randburg site loses grid power at 10:00 and, twenty minutes later, the
 fibre link too, because the provider's cabinet has no battery. Generator start is delayed.
