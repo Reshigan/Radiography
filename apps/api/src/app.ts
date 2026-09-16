@@ -13,6 +13,17 @@ export async function bootModules(services: Services) {
   if (booted) return;
   booted = true;
   for (const m of modules) await m.boot?.(services);
+  if (services.demoMode) await ensureDemoSeed(services);
+}
+
+/** Demo environments seed themselves on first boot (idempotent, cheap check). */
+async function ensureDemoSeed(services: Services) {
+  const { schema } = await import('@bonakala/db');
+  const rows = await services.db.select({ id: schema.legalEntities.id }).from(schema.legalEntities).limit(1);
+  if (rows.length) return;
+  const { seedAll } = await import('@bonakala/db/seed');
+  const summary = await seedAll(services.db);
+  console.log('demo seed', summary);
 }
 
 /** Build the Hono app. `getServices` resolves per request (Workers bind per request; Node uses a singleton). */

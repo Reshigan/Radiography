@@ -29,11 +29,6 @@ export async function createNodeServices(env = process.env as Record<string, str
 const isMain = process.argv[1]?.endsWith('node.ts') || process.argv[1]?.endsWith('node.js');
 if (isMain) {
   const services = await createNodeServices();
-  if (services.demoMode) {
-    const { seedAll } = await import('@bonakala/db/seed');
-    const summary = await seedAll(services.db);
-    console.log('seed', summary);
-  }
   await bootModules(services);
   const app = createApp(() => services);
   const port = Number(process.env.PORT ?? 8787);

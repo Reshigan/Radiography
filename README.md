@@ -60,8 +60,27 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 * `infra/cloudflare/wrangler.toml`, `infra/docker/docker-compose.yml`, `infra/docker/.env.example`,
   `infra/docker/orthanc/orthanc.json`, `infra/edge-gateway/docker-compose.yml`, `.github/workflows/ci.yml`
 
+## Running the platform
+The application code lives in `apps/` and `packages/` (pnpm monorepo, TypeScript). One codebase runs on
+Cloudflare (Worker + D1 + R2 + Queues, serving the built web app as static assets) and on Node/Docker
+(SQLite via libsql; see `docs/decisions/ADR-001-storage-dialect.md`).
+
+```bash
+corepack enable && pnpm install
+pnpm dev                    # API on http://localhost:8787 (Node, demo seed) + web on http://localhost:5173
+pnpm lint && pnpm typecheck && pnpm test && pnpm e2e:smoke
+pnpm --filter @bonakala/api dev:worker      # same API on the Workers runtime (local D1/R2)
+docker compose -f infra/docker/docker-compose.yml up --build   # self-hosted: web on :8080, api on :8787
+```
+Demo sign-ins: every persona has `<persona>@demo.bonakala` (for example `rgt@demo.bonakala`), password
+`bonakala-demo`. All data is synthetic and the demo re-seeds itself on an empty database.
+
+Cloudflare: `infra/cloudflare/wrangler.toml` (environments demo, staging, production); CI in
+`.github/workflows/ci.yml` runs lint, typecheck, unit tests, the Worker bundle dry run and the Playwright
+smoke test, and deploys the demo environment from `main` when Cloudflare secrets are configured.
+
 ## Status
-Specification complete (R0). No application code yet; the build starts from `docs/20`.
+Specification complete; platform build in progress on this branch (foundation, all 21 modules, demo).
 
 ## Legal notes
 "Bonakala" and the mark are working names pending trademark clearance (see `docs/05`). Fonts are

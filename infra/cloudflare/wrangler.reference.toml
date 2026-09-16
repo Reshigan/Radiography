@@ -1,0 +1,767 @@
+# =============================================================================
+# Bonakala Platform - Cloudflare - API Worker (apps/api)
+# -----------------------------------------------------------------------------
+# REFERENCE SKELETON. Binding ids, routes, account ids and database ids are
+# placeholders to be completed during the build.
+# See docs/16-deployment-cloudflare-demo.md (Cloud Deployment on Cloudflare).
+#
+# One wrangler.toml per Worker app; this is the canonical example for apps/api.
+# apps/agents, apps/whatsapp, apps/inference and apps/sim follow the same
+# pattern with fewer bindings. Environments:
+#   (default)   preview, per pull request, in the demo account
+#   staging     bonakala-staging account, synthetic data
+#   demo        bonakala-demo account, synthetic data + partner sandboxes
+#   production  bonakala-prod account, identified data (see 16 section 3)
+#
+# Secrets are NEVER in this file. Set per environment with:
+#   wrangler secret put <NAME> --env <staging|demo|production>
+# Required secrets:
+#   ANTHROPIC_API_KEY      Claude API key (or AI Gateway authenticated token)
+#   AI_GATEWAY_URL         https://gateway.ai.cloudflare.com/v1/<account>/<gateway>/anthropic
+#   WHATSAPP_TOKEN, WHATSAPP_VERIFY_TOKEN, WHATSAPP_APP_SECRET
+#   ACCESS_AUD             Cloudflare Access application audience tag
+#   SESSION_SIGNING_KEY    HMAC key for session cookies
+#   TURNSTILE_SECRET       Turnstile server-side secret
+#   TENANT_KEK_REF         key-encryption key reference (envelope encryption)
+#   SWITCH_CLIENT_CERT, PSP_API_KEY, SMS_API_KEY      (production/staging only)
+#   SIM_WEBHOOK_SECRET                                (demo/staging only)
+#
+# Times in [triggers] are UTC. SAST = UTC+2, no DST.
+# D1 tenant pool: one database per Practice tenant (DB_T001...). The tenant
+# directory maps practice_id -> binding name. Extend the pool by config deploy.
+# =============================================================================
+
+name = "bonakala-api-preview"
+main = "../../apps/api/src/worker.ts"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+account_id = "<CF_ACCOUNT_ID_DEMO>"
+
+[observability]
+enabled = true
+
+[placement]
+mode = "smart"
+
+# --- Plain (non-secret) configuration ---------------------------------------
+[vars]
+BONAKALA_ENV = "preview"
+BONAKALA_LABEL = "DEMO"                 # "" in production; rendered on every surface otherwise
+TIMEZONE = "Africa/Johannesburg"
+RESIDENCY_POSTURE = "none"              # none | regional-services | jurisdiction-r2 | both
+HAND_DAILY_BUDGET_ZAR = "150"           # illustrative leash on LLM spend per tenant
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+AI_GATEWAY_ID = "bonakala-preview"
+
+# --- D1: tenant directory + per-tenant pool ---------------------------------
+[[d1_databases]]
+binding = "DIRECTORY"
+database_name = "bonakala-preview-directory"
+database_id = "<D1_ID_PREVIEW_DIRECTORY>"
+migrations_dir = "../../packages/db/migrations/d1-directory"
+
+[[d1_databases]]
+binding = "DB_T001"
+database_name = "bonakala-preview-t001"
+database_id = "<D1_ID_PREVIEW_T001>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[d1_databases]]
+binding = "DB_T002"
+database_name = "bonakala-preview-t002"
+database_id = "<D1_ID_PREVIEW_T002>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+# --- R2: imaging tiers, documents, exports, logs ----------------------------
+[[r2_buckets]]
+binding = "IMAGING_HOT"
+bucket_name = "bonakala-preview-imaging-hot"
+
+[[r2_buckets]]
+binding = "IMAGING_COLD"                # lifecycle target after 18 months (rule set outside this file)
+bucket_name = "bonakala-preview-imaging-cold"
+
+[[r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-preview-documents"
+
+[[r2_buckets]]
+binding = "EXPORTS"                     # D1 exports, DR copies (replicated to a second jurisdiction)
+bucket_name = "bonakala-preview-exports"
+
+# --- KV ---------------------------------------------------------------------
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_PREVIEW_SESSIONS>"
+
+[[kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_PREVIEW_FLAGS>"
+
+[[kv_namespaces]]
+binding = "REFDATA"                     # tenant directory cache, tariff codes, scheme rule packs, ICD-10 subset
+id = "<KV_ID_PREVIEW_REFDATA>"
+
+# --- Queues: producers ------------------------------------------------------
+[[queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-preview-events"
+
+[[queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-preview-inference"
+
+[[queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-preview-claims"
+
+[[queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-preview-notifications"
+
+[[queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-preview-agents"
+
+# --- Queues: consumers (projections + Pipelines ingestion) ------------------
+[[queues.consumers]]
+queue = "bonakala-preview-events"
+max_batch_size = 50
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-preview-events-dlq"
+
+# --- Durable Objects (SQLite-backed) ----------------------------------------
+[durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",        class_name = "SlotHold" },        # booking holds with alarms
+  { name = "WORKLIST_LOCK",    class_name = "WorklistLock" },    # radiologist claim semantics
+  { name = "TENANT_WRITER",    class_name = "TenantWriter" },    # per-tenant write batching, reset flag
+  { name = "CRITICAL_FINDING", class_name = "CriticalFinding" }, # acknowledgement state machine
+  { name = "CONTAINER_HOST",   class_name = "ContainerHost" },   # starts/stops compute containers
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SlotHold", "WorklistLock", "TenantWriter", "CriticalFinding", "ContainerHost"]
+
+# --- Workflows: long-running processes and Hands ----------------------------
+[[workflows]]
+binding = "HAND_RUN"
+name = "bonakala-preview-hand-run"
+class_name = "HandRunWorkflow"
+
+[[workflows]]
+binding = "CLAIMS_RUN"
+name = "bonakala-preview-claims-run"
+class_name = "ClaimsRunWorkflow"
+
+[[workflows]]
+binding = "MONTH_END"
+name = "bonakala-preview-month-end"
+class_name = "MonthEndWorkflow"
+
+[[workflows]]
+binding = "PRACTICE_ONBOARD"
+name = "bonakala-preview-practice-onboard"
+class_name = "PracticeOnboardWorkflow"
+
+[[workflows]]
+binding = "RETENTION_SWEEP"
+name = "bonakala-preview-retention-sweep"
+class_name = "RetentionSweepWorkflow"
+
+[[workflows]]
+binding = "DR_EXPORT"
+name = "bonakala-preview-dr-export"
+class_name = "DrExportWorkflow"
+
+# --- Containers: heavy compute (DICOM parsing, de-identification, ONNX, exports)
+# GPU availability on Containers must be verified; CPU-only models here today.
+[[containers]]
+class_name = "ContainerHost"
+image = "../../apps/inference/Dockerfile"
+max_instances = 2
+instance_type = "standard"
+
+# --- Workers AI (utility tasks; routed through AI Gateway by the adapter) ---
+[ai]
+binding = "AI"
+
+# --- Vectorize --------------------------------------------------------------
+[[vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-preview-search"
+
+# --- Analytics Engine + Pipelines (events -> R2 Data Catalog / Iceberg) -----
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_preview_analytics"
+
+[[pipelines]]
+binding = "PIPELINE"
+pipeline = "bonakala-preview-events"
+
+# --- Browser Rendering (PDF reports and statements) -------------------------
+[browser]
+binding = "BROWSER"
+
+# --- Images (thumbnails, key images) ----------------------------------------
+[images]
+binding = "IMAGES"
+
+# --- Email Workers (outbound; inbound routing configured at zone level) -----
+[[send_email]]
+name = "EMAIL"
+destination_address = "noreply@demo.bonakala.example"
+
+# --- Service bindings: simulator (demo/staging) and inference Worker --------
+[[services]]
+binding = "SIM"
+service = "bonakala-sim-preview"
+
+[[services]]
+binding = "INFERENCE_SVC"
+service = "bonakala-inference-preview"
+
+# --- Cron Triggers (UTC). */5: reminders + hold sweep; hourly: claims run,
+#     dunning; 00:00 UTC (02:00 SAST): retention, DR export, analytics roll-up;
+#     01:00 UTC on the 1st (03:00 SAST): month-end close proposal.
+[triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
+
+# =============================================================================
+# STAGING (bonakala-staging account) - synthetic data, reset nightly
+# =============================================================================
+[env.staging]
+name = "bonakala-api-staging"
+workers_dev = false
+account_id = "<CF_ACCOUNT_ID_STAGING>"
+routes = [{ pattern = "api.staging.bonakala.example/*", zone_name = "staging.bonakala.example" }]
+
+[env.staging.vars]
+BONAKALA_ENV = "staging"
+BONAKALA_LABEL = "STAGING"
+TIMEZONE = "Africa/Johannesburg"
+RESIDENCY_POSTURE = "none"
+HAND_DAILY_BUDGET_ZAR = "150"
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+AI_GATEWAY_ID = "bonakala-staging"
+
+[[env.staging.d1_databases]]
+binding = "DIRECTORY"
+database_name = "bonakala-staging-directory"
+database_id = "<D1_ID_STAGING_DIRECTORY>"
+migrations_dir = "../../packages/db/migrations/d1-directory"
+
+[[env.staging.d1_databases]]
+binding = "DB_T001"
+database_name = "bonakala-staging-t001"
+database_id = "<D1_ID_STAGING_T001>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.staging.d1_databases]]
+binding = "DB_T002"
+database_name = "bonakala-staging-t002"
+database_id = "<D1_ID_STAGING_T002>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.staging.r2_buckets]]
+binding = "IMAGING_HOT"
+bucket_name = "bonakala-staging-imaging-hot"
+
+[[env.staging.r2_buckets]]
+binding = "IMAGING_COLD"
+bucket_name = "bonakala-staging-imaging-cold"
+
+[[env.staging.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-staging-documents"
+
+[[env.staging.r2_buckets]]
+binding = "EXPORTS"
+bucket_name = "bonakala-staging-exports"
+
+[[env.staging.kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_STAGING_SESSIONS>"
+
+[[env.staging.kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_STAGING_FLAGS>"
+
+[[env.staging.kv_namespaces]]
+binding = "REFDATA"
+id = "<KV_ID_STAGING_REFDATA>"
+
+[[env.staging.queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-staging-events"
+
+[[env.staging.queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-staging-inference"
+
+[[env.staging.queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-staging-claims"
+
+[[env.staging.queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-staging-notifications"
+
+[[env.staging.queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-staging-agents"
+
+[[env.staging.queues.consumers]]
+queue = "bonakala-staging-events"
+max_batch_size = 50
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-staging-events-dlq"
+
+[env.staging.durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",        class_name = "SlotHold" },
+  { name = "WORKLIST_LOCK",    class_name = "WorklistLock" },
+  { name = "TENANT_WRITER",    class_name = "TenantWriter" },
+  { name = "CRITICAL_FINDING", class_name = "CriticalFinding" },
+  { name = "CONTAINER_HOST",   class_name = "ContainerHost" },
+]
+
+[[env.staging.workflows]]
+binding = "HAND_RUN"
+name = "bonakala-staging-hand-run"
+class_name = "HandRunWorkflow"
+
+[[env.staging.workflows]]
+binding = "CLAIMS_RUN"
+name = "bonakala-staging-claims-run"
+class_name = "ClaimsRunWorkflow"
+
+[[env.staging.workflows]]
+binding = "MONTH_END"
+name = "bonakala-staging-month-end"
+class_name = "MonthEndWorkflow"
+
+[[env.staging.workflows]]
+binding = "PRACTICE_ONBOARD"
+name = "bonakala-staging-practice-onboard"
+class_name = "PracticeOnboardWorkflow"
+
+[[env.staging.workflows]]
+binding = "RETENTION_SWEEP"
+name = "bonakala-staging-retention-sweep"
+class_name = "RetentionSweepWorkflow"
+
+[[env.staging.workflows]]
+binding = "DR_EXPORT"
+name = "bonakala-staging-dr-export"
+class_name = "DrExportWorkflow"
+
+[[env.staging.containers]]
+class_name = "ContainerHost"
+image = "../../apps/inference/Dockerfile"
+max_instances = 2
+instance_type = "standard"
+
+[env.staging.ai]
+binding = "AI"
+
+[[env.staging.vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-staging-search"
+
+[[env.staging.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_staging_analytics"
+
+[[env.staging.pipelines]]
+binding = "PIPELINE"
+pipeline = "bonakala-staging-events"
+
+[env.staging.browser]
+binding = "BROWSER"
+
+[env.staging.images]
+binding = "IMAGES"
+
+[[env.staging.send_email]]
+name = "EMAIL"
+destination_address = "noreply@staging.bonakala.example"
+
+[[env.staging.services]]
+binding = "SIM"
+service = "bonakala-sim-staging"
+
+[[env.staging.services]]
+binding = "INFERENCE_SVC"
+service = "bonakala-inference-staging"
+
+[env.staging.triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
+
+# =============================================================================
+# DEMO (bonakala-demo account) - public demo + partner sandboxes, synthetic only
+# =============================================================================
+[env.demo]
+name = "bonakala-api-demo"
+workers_dev = false
+account_id = "<CF_ACCOUNT_ID_DEMO>"
+routes = [
+  { pattern = "api.demo.bonakala.example/*", zone_name = "demo.bonakala.example" },
+]
+
+[env.demo.vars]
+BONAKALA_ENV = "demo"
+BONAKALA_LABEL = "DEMO"
+TIMEZONE = "Africa/Johannesburg"
+RESIDENCY_POSTURE = "none"
+HAND_DAILY_BUDGET_ZAR = "150"
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com"
+AI_GATEWAY_ID = "bonakala-demo"
+
+[[env.demo.d1_databases]]
+binding = "DIRECTORY"
+database_name = "bonakala-demo-directory"
+database_id = "<D1_ID_DEMO_DIRECTORY>"
+migrations_dir = "../../packages/db/migrations/d1-directory"
+
+# Pool: demo-main, guided-tour tenants and partner sandboxes (extend as needed)
+[[env.demo.d1_databases]]
+binding = "DB_T001"
+database_name = "bonakala-demo-t001"
+database_id = "<D1_ID_DEMO_T001>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.demo.d1_databases]]
+binding = "DB_T002"
+database_name = "bonakala-demo-t002"
+database_id = "<D1_ID_DEMO_T002>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.demo.d1_databases]]
+binding = "DB_T003"
+database_name = "bonakala-demo-t003"
+database_id = "<D1_ID_DEMO_T003>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.demo.r2_buckets]]
+binding = "IMAGING_HOT"
+bucket_name = "bonakala-demo-imaging-hot"
+
+[[env.demo.r2_buckets]]
+binding = "IMAGING_COLD"
+bucket_name = "bonakala-demo-imaging-cold"
+
+[[env.demo.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-demo-documents"
+
+[[env.demo.r2_buckets]]
+binding = "EXPORTS"
+bucket_name = "bonakala-demo-exports"
+
+[[env.demo.kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_DEMO_SESSIONS>"
+
+[[env.demo.kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_DEMO_FLAGS>"
+
+[[env.demo.kv_namespaces]]
+binding = "REFDATA"
+id = "<KV_ID_DEMO_REFDATA>"
+
+[[env.demo.queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-demo-events"
+
+[[env.demo.queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-demo-inference"
+
+[[env.demo.queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-demo-claims"
+
+[[env.demo.queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-demo-notifications"
+
+[[env.demo.queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-demo-agents"
+
+[[env.demo.queues.consumers]]
+queue = "bonakala-demo-events"
+max_batch_size = 100
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "bonakala-demo-events-dlq"
+
+[env.demo.durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",        class_name = "SlotHold" },
+  { name = "WORKLIST_LOCK",    class_name = "WorklistLock" },
+  { name = "TENANT_WRITER",    class_name = "TenantWriter" },
+  { name = "CRITICAL_FINDING", class_name = "CriticalFinding" },
+  { name = "CONTAINER_HOST",   class_name = "ContainerHost" },
+]
+
+[[env.demo.workflows]]
+binding = "HAND_RUN"
+name = "bonakala-demo-hand-run"
+class_name = "HandRunWorkflow"
+
+[[env.demo.workflows]]
+binding = "CLAIMS_RUN"
+name = "bonakala-demo-claims-run"
+class_name = "ClaimsRunWorkflow"
+
+[[env.demo.workflows]]
+binding = "MONTH_END"
+name = "bonakala-demo-month-end"
+class_name = "MonthEndWorkflow"
+
+[[env.demo.workflows]]
+binding = "PRACTICE_ONBOARD"
+name = "bonakala-demo-practice-onboard"
+class_name = "PracticeOnboardWorkflow"
+
+[[env.demo.workflows]]
+binding = "RETENTION_SWEEP"
+name = "bonakala-demo-retention-sweep"
+class_name = "RetentionSweepWorkflow"
+
+[[env.demo.workflows]]
+binding = "DR_EXPORT"
+name = "bonakala-demo-dr-export"
+class_name = "DrExportWorkflow"
+
+[[env.demo.containers]]
+class_name = "ContainerHost"
+image = "../../apps/inference/Dockerfile"
+max_instances = 2
+instance_type = "standard"
+
+[env.demo.ai]
+binding = "AI"
+
+[[env.demo.vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-demo-search"
+
+[[env.demo.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_demo_analytics"
+
+[[env.demo.pipelines]]
+binding = "PIPELINE"
+pipeline = "bonakala-demo-events"
+
+[env.demo.browser]
+binding = "BROWSER"
+
+[env.demo.images]
+binding = "IMAGES"
+
+[[env.demo.send_email]]
+name = "EMAIL"
+destination_address = "noreply@demo.bonakala.example"
+
+[[env.demo.services]]
+binding = "SIM"
+service = "bonakala-sim-demo"
+
+[[env.demo.services]]
+binding = "INFERENCE_SVC"
+service = "bonakala-inference-demo"
+
+[env.demo.triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
+
+# =============================================================================
+# PRODUCTION (bonakala-prod account) - identified data
+# Residency: Regional Services + R2 jurisdiction restrictions where available
+# for South Africa (verify with Cloudflare); POPIA s.72 conditions and a
+# data-processing agreement apply. No SIM binding. Tenant pool DB_T001..DB_Tnnn.
+# =============================================================================
+[env.production]
+name = "bonakala-api"
+workers_dev = false
+account_id = "<CF_ACCOUNT_ID_PROD>"
+routes = [
+  { pattern = "api.bonakala.example/*", zone_name = "bonakala.example" },
+  { pattern = "*.bonakala.example/api/*", zone_name = "bonakala.example" },   # per-practice hostnames
+]
+
+[env.production.vars]
+BONAKALA_ENV = "production"
+BONAKALA_LABEL = ""
+TIMEZONE = "Africa/Johannesburg"
+RESIDENCY_POSTURE = "both"              # downgrade only with a recorded M19 transfer assessment
+HAND_DAILY_BUDGET_ZAR = "2000"
+EGRESS_ALLOWLIST = "gateway.ai.cloudflare.com,graph.facebook.com,<sms-aggregator-host>,<psp-host>,<switch-host>,<inference-cell-host>"
+AI_GATEWAY_ID = "bonakala-prod"
+
+[[env.production.d1_databases]]
+binding = "DIRECTORY"
+database_name = "bonakala-directory"
+database_id = "<D1_ID_PROD_DIRECTORY>"
+migrations_dir = "../../packages/db/migrations/d1-directory"
+
+# One database per Practice tenant; extend the pool by config deploy.
+[[env.production.d1_databases]]
+binding = "DB_T001"
+database_name = "bonakala-t001"
+database_id = "<D1_ID_PROD_T001>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.production.d1_databases]]
+binding = "DB_T002"
+database_name = "bonakala-t002"
+database_id = "<D1_ID_PROD_T002>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+[[env.production.d1_databases]]
+binding = "DB_T003"
+database_name = "bonakala-t003"
+database_id = "<D1_ID_PROD_T003>"
+migrations_dir = "../../packages/db/migrations/d1"
+
+# R2 buckets created with a jurisdiction restriction where available (e.g. `--jurisdiction <code>`).
+[[env.production.r2_buckets]]
+binding = "IMAGING_HOT"
+bucket_name = "bonakala-imaging-hot"
+
+[[env.production.r2_buckets]]
+binding = "IMAGING_COLD"
+bucket_name = "bonakala-imaging-cold"
+
+[[env.production.r2_buckets]]
+binding = "DOCUMENTS"
+bucket_name = "bonakala-documents"
+
+[[env.production.r2_buckets]]
+binding = "EXPORTS"
+bucket_name = "bonakala-exports"
+
+[[env.production.kv_namespaces]]
+binding = "SESSIONS"
+id = "<KV_ID_PROD_SESSIONS>"
+
+[[env.production.kv_namespaces]]
+binding = "FLAGS"
+id = "<KV_ID_PROD_FLAGS>"
+
+[[env.production.kv_namespaces]]
+binding = "REFDATA"
+id = "<KV_ID_PROD_REFDATA>"
+
+[[env.production.queues.producers]]
+binding = "EVENTS"
+queue = "bonakala-events"
+
+[[env.production.queues.producers]]
+binding = "INFERENCE"
+queue = "bonakala-inference"
+
+[[env.production.queues.producers]]
+binding = "CLAIMS"
+queue = "bonakala-claims"
+
+[[env.production.queues.producers]]
+binding = "NOTIFICATIONS"
+queue = "bonakala-notifications"
+
+[[env.production.queues.producers]]
+binding = "AGENTS"
+queue = "bonakala-agents"
+
+[[env.production.queues.consumers]]
+queue = "bonakala-events"
+max_batch_size = 100
+max_batch_timeout = 5
+max_retries = 10
+dead_letter_queue = "bonakala-events-dlq"
+
+[env.production.durable_objects]
+bindings = [
+  { name = "SLOT_HOLD",        class_name = "SlotHold" },
+  { name = "WORKLIST_LOCK",    class_name = "WorklistLock" },
+  { name = "TENANT_WRITER",    class_name = "TenantWriter" },
+  { name = "CRITICAL_FINDING", class_name = "CriticalFinding" },
+  { name = "CONTAINER_HOST",   class_name = "ContainerHost" },
+]
+
+[[env.production.workflows]]
+binding = "HAND_RUN"
+name = "bonakala-hand-run"
+class_name = "HandRunWorkflow"
+
+[[env.production.workflows]]
+binding = "CLAIMS_RUN"
+name = "bonakala-claims-run"
+class_name = "ClaimsRunWorkflow"
+
+[[env.production.workflows]]
+binding = "MONTH_END"
+name = "bonakala-month-end"
+class_name = "MonthEndWorkflow"
+
+[[env.production.workflows]]
+binding = "PRACTICE_ONBOARD"
+name = "bonakala-practice-onboard"
+class_name = "PracticeOnboardWorkflow"
+
+[[env.production.workflows]]
+binding = "RETENTION_SWEEP"
+name = "bonakala-retention-sweep"
+class_name = "RetentionSweepWorkflow"
+
+[[env.production.workflows]]
+binding = "DR_EXPORT"
+name = "bonakala-dr-export"
+class_name = "DrExportWorkflow"
+
+[[env.production.containers]]
+class_name = "ContainerHost"
+image = "../../apps/inference/Dockerfile"
+max_instances = 10
+instance_type = "standard"
+
+[env.production.ai]
+binding = "AI"
+
+[[env.production.vectorize]]
+binding = "SEARCH"
+index_name = "bonakala-search"
+
+[[env.production.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "bonakala_analytics"
+
+[[env.production.pipelines]]
+binding = "PIPELINE"
+pipeline = "bonakala-events"
+
+[env.production.browser]
+binding = "BROWSER"
+
+[env.production.images]
+binding = "IMAGES"
+
+[[env.production.send_email]]
+name = "EMAIL"
+destination_address = "noreply@bonakala.example"
+
+[[env.production.services]]
+binding = "INFERENCE_SVC"
+service = "bonakala-inference"
+
+[env.production.triggers]
+crons = ["*/5 * * * *", "0 * * * *", "0 0 * * *", "0 1 1 * *"]
