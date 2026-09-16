@@ -60,6 +60,12 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 * `infra/cloudflare/wrangler.toml`, `infra/docker/docker-compose.yml`, `infra/docker/.env.example`,
   `infra/docker/orthanc/orthanc.json`, `infra/edge-gateway/docker-compose.yml`, `.github/workflows/ci.yml`
 
+## Live demo
+**https://bonakala-demo.reshigan-085.workers.dev** — synthetic data only. Sign in with any persona:
+`rgt@demo.bonakala` (radiologist), `fdk@demo.bonakala` (front desk), `bil@demo.bonakala` (billing),
+`exe@demo.bonakala` (group executive), `pat@demo.bonakala` (patient), and the rest listed on the
+sign-in page. Password for all demo accounts: `bonakala-demo`.
+
 ## Running the platform
 The application code lives in `apps/` and `packages/` (pnpm monorepo, TypeScript). One codebase runs on
 Cloudflare (Worker + D1 + R2 + Queues, serving the built web app as static assets) and on Node/Docker
