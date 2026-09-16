@@ -24,40 +24,36 @@ stated as statutory (VAT 15 %).
 
 | Item | Value |
 |---|---|
-| Purpose | Produce trusted management accounts, intercompany invoices, consolidated results and shareholder distributions from Platform data with minimal manual work. |
-| Trigger | Monthly period end (scheduler); `billing.period.checklist.completed.v1` (M14); `readingfee.statement.issued.v1`; bank feed events; shareholding change (M02); capex request. |
-| Actors | EXE (CFO, group finance), PRM, SHR, RGT (reading fees), CMP (audit), external accountants and auditors, the Close Hand. |
-| Preconditions | Chart of accounts and GL mapping configured; intercompany rules posted (M02); cap tables current; bank feeds connected; M14 period checklist complete. |
-| Automation | A3 for P&L construction, intercompany invoicing, consolidation, distribution computation and close checklist; A0 for distribution approval, payment release and reserved matters. |
-| Data produced | Journals, management accounts, intercompany invoices, consolidation packs, distribution runs, shareholder statements, tax certificates, budgets, forecasts, capex cases. |
-| KPIs | §14. |
-| Controls | §13. |
+| Purpose | Trusted management accounts, intercompany invoices, consolidated results and shareholder distributions from Platform data with minimal manual work. |
+| Trigger | Monthly period end (scheduler); `billing.period.checklist.completed.v1` (M14); bank feed events; shareholding change (M02); capex request. |
+| Actors | EXE (CFO, group finance), PRM, SHR, RGT (reading fees), CMP, external accountants and auditors, the Close Hand. |
+| Preconditions | Chart and GL mapping configured; intercompany rules posted (M02); cap tables current; bank feeds connected; M14 checklist complete. |
+| Automation | A3 for P&L construction, intercompany invoicing, consolidation, distribution computation and the close checklist; A0 for distribution approval, payment release and reserved matters. |
+| Data, KPIs, controls | §16, §14, §13. |
 
 ## 3. Chart of accounts and GL mapping
 
-The Platform keeps a **posting ledger** (journals by period, entity, account and dimensions) that is
-the source for management accounts and for export. It is not the statutory general ledger; the
-accounting system remains the book of record for statutory purposes, and the two are reconciled.
+The Platform keeps a **posting ledger** (journals by period, entity, account and dimensions) as the
+source for management accounts and exports. The accounting system remains the statutory book of
+record; the two are reconciled monthly.
 
 | Object | Description |
 |---|---|
-| `chart_of_accounts` | Group standard chart with account codes, types (revenue, contractual adjustment, bad debt, cost of sales, staff, facilities, equipment, intercompany, VAT, debtors, cash, equity), IFRS grouping. Practices may add local sub-accounts mapped to the standard. |
-| `dimension` | Entity, site, modality, funder type, cost centre, project (capex), shareholder class. Every journal line carries the dimensions its account requires. |
-| `gl_mapping` | Rule from a Platform event or M14 journal type (revenue by funder type, contractual adjustment by reason, write-off by reason, contrast cost, reading fee, management fee) to debit and credit accounts plus dimensions, effective-dated. |
-| `accounting_connector` | Per entity: target system (category: cloud SME accounting, mid-market ERP), authentication, account map, export cadence, last export state. |
+| `chart_of_accounts` | Group standard chart: codes, types (revenue, contractual adjustment, bad debt, cost of sales, staff, facilities, equipment, intercompany, VAT, debtors, cash, equity), IFRS grouping; local sub-accounts map to the standard. |
+| `dimension` | Entity, site, modality, funder type, cost centre, project (capex), shareholder class. |
+| `gl_mapping` | Effective-dated rule from a Platform event or M14 journal type to debit and credit accounts plus dimensions. |
+| `accounting_connector` | Per entity: target system category, authentication, account map, cadence, export state. |
 | `journal` | Period, entity, source (M14, M17, M18, intercompany, manual, consolidation), lines, status (draft, posted, exported, reconciled), reversal link. |
 
-Happy path (mapping): M14 emits `gl.journal.exported.v1` with typed journal lines; M15 applies
-`gl_mapping` to produce postings; unmapped types raise a task to group finance and post to a
-suspense account so the period still balances. Manual journals require a reason, an attachment and a
-second approver above a threshold (illustrative: R50 000).
+M14 emits `gl.journal.exported.v1` with typed lines; M15 applies `gl_mapping`; unmapped types post to
+suspense and raise a task so the period still balances. Manual journals need a reason, an attachment
+and a second approver above a threshold (illustrative: R50 000).
 
 * M15-R-100 Every posting MUST reference the Platform event or document that caused it, and every
   Platform financial event MUST map to a posting or an explicit suspense entry.
-* M15-R-101 The posting ledger MUST balance per entity per period at all times; unmapped events MUST
-  post to suspense, never be dropped.
-* M15-R-102 Exports to accounting systems MUST be idempotent per journal and MUST record the target
-  system's document reference for reconciliation.
+* M15-R-101 The posting ledger MUST balance per entity per period at all times.
+* M15-R-102 Exports MUST be idempotent per journal and MUST record the target system's document
+  reference for reconciliation.
 
 ## 4. Practice P&L construction from Platform data
 
@@ -202,33 +198,29 @@ seller). Every recomputation is deterministic and reproducible from M02 history 
 
 ### 8.4 Approval workflow and payment files (A0 approvals)
 
-1. The Close Hand proposes a distribution run when the period closes: bridge, solvency and liquidity
-   test, waterfall, per-shareholder amounts, dividends tax withholding, net payments.
-2. PRM and the Practice's principals review; CFO approves; the board resolution is captured (signed
-   document or e-signature) and attached.
-3. The Platform generates the bank payment file (EFT batch in the bank's format) to verified
-   shareholder accounts (account verification service where available; changes to shareholder bank
-   details require dual approval and a cooling-off period, as in M14 §13.3).
-4. A second, independent approver releases the file in the banking connector; the file hash is
-   verified at release; the bank's acknowledgement and settlement are matched on the bank feed.
-5. Shareholder statements and tax certificates are issued (§8.5); the distribution posts to the
-   ledgers and exports.
+1. The Close Hand proposes a run at period close: bridge, solvency and liquidity test, waterfall,
+   per-shareholder amounts, dividends tax withholding, net payments.
+2. PRM and the Practice's principals review; the CFO approves; the board resolution is attached.
+3. The Platform generates the bank payment file (EFT batch) to verified shareholder accounts; changes
+   to shareholder bank details need dual approval and a cooling-off period (as in M14 §13.3).
+4. A second, independent approver releases the file; the hash is verified at release; the bank's
+   acknowledgement and settlement are matched on the feed.
+5. Statements and tax certificates are issued (§8.5); the distribution posts and exports.
 
-Variants: a shareholder that is a company (dividends tax exemption on declaration with the required
-declaration form on file, configurable); a shareholder loan repayment instead of a dividend (no
-dividends tax; interest per agreement); a deferred or partial distribution (reserves increased with
-a reason); a distribution reversal (only before release; after release, a recovery case).
+Variants: a company shareholder with a dividends tax exemption declaration on file; a shareholder
+loan repayment instead of a dividend (no dividends tax; interest per agreement); a deferred or
+partial distribution (reserves increased with a reason); reversal only before release, afterwards a
+recovery case.
 
 ### 8.5 Shareholder statements and tax certificates
 
-Each shareholder receives, per run: the Practice's summarised P&L and distributable-profit bridge, the
-waterfall steps that applied to them, their shareholding over the period (with any segments), gross
+Per run each shareholder receives: the Practice's summarised P&L and distributable-profit bridge, the
+waterfall steps that applied to them, their shareholding over the period (with segments), gross
 distribution, dividends tax withheld (illustrative statutory rate 20 %, stored as configurable
-reference data with effective dates and exemption handling), net paid, bank reference, cumulative
-year-to-date, and loan account movements. Annual tax certificates for dividends and, where applicable,
-interest on loan accounts are generated per shareholder for the tax year, and the withholding
-summary is exported for the Group's SARS submissions through the accounting connector. Statements
-are available in the shareholder portal (SHR) and by secure link.
+reference data with effective dates and exemption handling), net paid, bank reference, year-to-date
+totals and loan account movements. Annual certificates for dividends and, where applicable, loan
+account interest are generated per shareholder per tax year, and withholding summaries are exported
+for the Group's SARS submissions. Statements live in the shareholder portal (SHR).
 
 ### 8.6 Requirements
 
@@ -360,17 +352,15 @@ because revenue and cost journals are generated continuously, not at month-end.
 | KPI | Definition | Illustrative target | Owner |
 |---|---|---|---|
 | Days to close | Period end to `finance.period.closed.v1` (working days) | ≤ 8, trending to 5 | CFO |
-| Soft-close accuracy | Absolute variance between day-0 soft P&L and hard-close P&L | ≤ 2 % of revenue | CFO |
-| Auto-posted journal share | Journal value posted from rules without manual entry ÷ total | ≥ 95 % | Group finance |
-| Intercompany dispute rate | Disputed intercompany invoices ÷ issued | ≤ 5 % | PRM / EXE |
-| Elimination exceptions | Unmatched intercompany pairs at consolidation | 0 | Group finance |
-| Ledger-to-accounting reconciliation differences | Count and value per entity | 0 unexplained | Group finance |
+| Soft-close accuracy | Variance between day-0 soft P&L and hard-close P&L | ≤ 2 % of revenue | CFO |
+| Auto-posted journal share | Rule-posted journal value ÷ total | ≥ 95 % | Group finance |
+| Intercompany dispute rate | Disputed ÷ issued | ≤ 5 % | PRM / EXE |
+| Elimination exceptions and TB differences | Unmatched pairs; unexplained ledger-to-accounting differences | 0 | Group finance |
 | Distribution timeliness | Period end to shareholder payment (working days) | ≤ 10 | CFO |
-| Distribution recomputation diffs | Recomputed versus paid for closed periods | 0 | CFO |
-| Budget accuracy | Actual versus budget at Practice level (revenue, EBITDA) | Within 5 % | PRM / CFO |
-| Forecast accuracy | Actual versus 3-month-ahead forecast | Within 5 % | CFO |
+| Distribution recomputation diffs | Recomputed versus paid, closed periods | 0 | CFO |
+| Budget and forecast accuracy | Actual versus budget; actual versus 3-month-ahead forecast | Within 5 % | PRM / CFO |
 | Capex approval cycle time | Case submitted to decision | ≤ 15 working days | EXE |
-| Audit query closure | Auditor queries closed within SLA | ≥ 95 % | Group finance |
+| Audit query closure | Queries closed within SLA | ≥ 95 % | Group finance |
 
 ## 15. Automation map
 
@@ -424,9 +414,8 @@ are append-only or versioned.
 | Close | `finance.close.started.v1`, `finance.close.step.completed.v1`, `finance.close.step.blocked.v1`, `finance.pack.released.v1`, `finance.period.closed.v1`, `finance.period.reopened.v1` |
 | Consolidation | `consolidation.completed.v1`, `consolidation.exception.v1` |
 | Distributions | `distribution.proposed.v1`, `distribution.approved.v1`, `distribution.released.v1`, `distribution.paid.v1`, `shareholder.statement.issued.v1`, `tax.certificate.issued.v1` |
-| Planning and capex | `budget.approved.v1`, `forecast.updated.v1`, `capex.case.submitted.v1`, `capex.case.decided.v1`, `reserved.matter.decided.v1` |
-| Banking | `bank.feed.received.v1`, `sweep.executed.v1`, `payment.file.released.v1`, `payment.file.settled.v1`, `cash.forecast.shortfall.v1` |
+| Planning, capex, banking | `budget.approved.v1`, `forecast.updated.v1`, `capex.case.decided.v1`, `reserved.matter.decided.v1`, `bank.feed.received.v1`, `sweep.executed.v1`, `payment.file.released.v1`, `payment.file.settled.v1`, `cash.forecast.shortfall.v1` |
 
-Consumers: M16 (KPIs and benchmarking), M02 (agreement and cap-table links), M18 (capex to assets),
-M14 (period lock, refund and commission payment files), M20 (Close Hand tasks), the shareholder
-portal (SHR) and the accounting connectors.
+Consumers: M16 (KPIs, benchmarking), M02 (agreements, cap tables), M18 (capex to assets), M14 (period
+lock, refund and commission payment files), M20 (Close Hand tasks), the shareholder portal (SHR) and
+the accounting connectors.
