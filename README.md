@@ -61,6 +61,9 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
   `infra/docker/orthanc/orthanc.json`, `infra/edge-gateway/docker-compose.yml`, `.github/workflows/ci.yml`
 
 ## Live demo
+Deploy with `pnpm deploy:demo`. The full fixture is seeded offline and imported, because a Worker
+cannot issue 17 000 D1 statements in one request; see `docs/decisions/ADR-003-demo-deployment.md`.
+
 **https://bonakala-demo.reshigan-085.workers.dev** — synthetic data only. Sign in with any persona:
 `rgt@demo.bonakala` (radiologist), `fdk@demo.bonakala` (front desk), `bil@demo.bonakala` (billing),
 `exe@demo.bonakala` (group executive), `pat@demo.bonakala` (patient), and the rest listed on the

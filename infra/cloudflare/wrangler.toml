@@ -56,7 +56,7 @@ vars = { DEMO_MODE = "true", ANTHROPIC_MODEL = "claude-opus-5", TIMEZONE = "Afri
 [[env.demo.d1_databases]]
 binding = "DB"
 database_name = "bonakala-demo"
-database_id = "a559ce3f-1842-4c65-9de7-f1e99640f40e"
+database_id = "276eddfa-a393-43b0-9f8e-dd9c8dacb952"
 migrations_dir = "../../packages/db/migrations"
 [[env.demo.r2_buckets]]
 binding = "OBJECTS"
