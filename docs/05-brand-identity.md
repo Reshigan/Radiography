@@ -132,7 +132,15 @@ Two-note "reveal" chime (rising minor third), soft, under 400 ms, licensed origi
    finding. This is a brand rule, not just a UI rule.
 
 ## 6. Anti-slip (design) — what Bonakala never looks like
-* No purple-to-blue gradients, no glass blur cards, no floating 3D blobs, no "hero robot".
+* Frosted-glass chrome is used deliberately, not decoratively: the nav rail, topbar, cards, tiles,
+  sheets and toasts sit as translucent, blurred panels (`--blur`, `--glass-line`, `--glass-shadow`
+  in `brand/tokens.json` → `glass`) over a restrained two-tone radial wash in the practice's own
+  palette (teal/navy on bone; teal/iris on carbon) — never a purple-to-blue "AI hero" gradient, and
+  never a floating 3D blob or "hero robot". The wash is a wallpaper, not a headline.
+* Legibility beats effect: data tables, form inputs and the image viewer are always opaque
+  (`--surface-solid` tokens), never blurred or see-through. A radiologist reading a worklist or a
+  biller reading a table must never lose contrast to a visual effect. Glass is for the shell around
+  the data, not the data itself.
 * No generic icon packs with rounded-everything; the icon set is drawn on a 24-px grid with 1.5 px
   strokes, squared terminals, and is published as `brand/icons/` (original).
 * No stock testimonials, no fake logos, no invented statistics. Demo data is synthetic and labelled.
