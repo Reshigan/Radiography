@@ -292,6 +292,9 @@ referrals carried a pre-authorisation delay. Settings lets her choose delivery: 
 STAT and critical, email PDF daily digest for routine, and the plain-language patient layer on or
 off per patient. She can also add locum doctors under her practice number for a fixed period.
 
+**What they do.** Reads the numbers, switches routine delivery to a daily digest, and adds a locum
+for December.
+
 **What the Platform does.**
 * M16 Analytics & Insight: referrer-level KPIs from the semantic layer; she sees only her own
   patients (M01 scoping); the Practice sees referrer analytics in aggregate for relationship work,
@@ -299,6 +302,12 @@ off per patient. She can also add locum doctors under her practice number for a 
   rewards of any kind).
 * M13: delivery preferences per priority class; the Platform records every delivery attempt and
   outcome, which is the referrer's proof that a result reached her.
+
+**Edge cases.**
+* A locum's period ends: the delegated access lapses automatically and any results addressed to
+  the locum route to Dr Naidoo.
+* She moves practices: her identity stays with her HPCSA number; the new practice number is
+  verified before results follow her.
 
 **Success measure.** Referrers can answer "did my patient attend and what did it show" without a
 phone call, every time.

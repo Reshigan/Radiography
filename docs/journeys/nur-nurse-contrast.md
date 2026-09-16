@@ -183,6 +183,11 @@ calls the radiologist for review, and arranges the follow-up call for the next d
 * M14: the study is marked incomplete or repeated per the radiologist; the account follows the
   Practice's policy for repeated contrast after an extravasation.
 
+**Edge cases.**
+* Large-volume extravasation with skin changes: the radiologist's review triggers the referral path
+  in the Practice's policy and the incident is escalated to PRM.
+* The injector log is unavailable: the volume is estimated and recorded as an estimate.
+
 **Success measure.** Every extravasation documented with volume and follow-up; the rate trending down.
 
 ## Scene 6 - 12:00: MRI gadolinium and a pregnancy question
@@ -202,6 +207,11 @@ records the radiologist's decision and the patient's consent.
   checklist and the contrast checklist are separate items and both must be green.
 * M12: the decision appears on the report header for the radiologist.
 
+**Edge cases.**
+* The patient declines the test: the radiologist decides on the evidence available; the decision
+  and the patient's choice are both recorded.
+* Breastfeeding: the Practice's policy wording is shown and sent to the patient after the study.
+
 **Success measure.** No gadolinium given with an unresolved pregnancy question.
 
 ## Scene 7 - 16:30: stock, observations and hand-over
@@ -213,12 +223,22 @@ wastage with reasons, stock on hand versus the physical count she enters, patien
 post-contrast observation with their timers, and incidents open. The Maintenance Hand's proposed order for
 next week is shown with its reasoning for her to approve or adjust.
 
+**What they do.** Enters the physical count, explains one wastage line (a vial opened for a
+cancelled study), approves the order, and hands over the two patients still under observation to
+the late nurse by name.
+
 **What the Platform does.**
 * M18: physical count against the system count; variances above a threshold open an incident.
 * M20: the Maintenance Hand's order sits within a budget leash; approval by NUR or PRM is required above
   it.
 * M16 Analytics & Insight: reactions, extravasations and eGFR check compliance per site, per month,
   benchmarked across the Group with case-mix noted.
+
+**Edge cases.**
+* The count differs from the system by one vial: an incident opens and the barcode log shows which
+  study the vial was bound to.
+* A patient under observation wants to leave early: the console shows the minimum observation time
+  per policy and records the patient's informed choice.
 
 **Success measure.** Stock reconciles to the vial; observations complete before discharge; hand-over
 with no unresolved incident.

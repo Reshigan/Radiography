@@ -269,9 +269,16 @@ desk without conflict.
 **What they see.** Supervisor mode on the console shows the kiosk's current step and lets Busisiwe
 finish the flow on her tablet, or switch the kiosk to large-touch mode with the patient's language.
 
+**What they do.** Walks over, switches the kiosk to large-touch mode in isiXhosa, and finishes the
+check-in with the patient on her tablet.
+
 **What the Platform does.**
 * M07: the kiosk (1080 × 1920, 64 px targets, three-step maximum) and the console share the same
   check-in state; the supervisor takeover is logged.
+
+**Edge cases.**
+* The kiosk loses power or network: it shows a plain "please see the desk" screen and the desk's
+  console takes over the queue.
 
 **Success measure.** No patient abandoned at a kiosk; assisted check-ins are counted for training.
 
@@ -290,6 +297,11 @@ will block their claims.
 * M14 and M15: the cash-up is a posted document; variances above a threshold create an incident for
   PRM (M19).
 * M05: no-shows feed the no-show prediction model with reason codes.
+
+**Edge cases.**
+* A variance above the threshold: the cash-up cannot close without a reason and a PRM sign-off.
+* Internet still down at close: the cash-up posts from the Edge Gateway when the link returns; the
+  desk keeps the printed summary.
 
 **Success measure.** Cash-up variance zero; all blocking items visible to tomorrow's desk.
 

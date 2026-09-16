@@ -76,7 +76,7 @@ for possible pneumothorax, pleural effusion, consolidation or a nodule candidate
 with the priority chip (annotated, with the model version and a confidence band), then the rest by
 age. Opening a flagged study shows the `FindingOverlay` as a dashed bounding region with a mono
 label "pneumothorax candidate, model cxr-triage v3.2, 0.91" that can be toggled off with one key.
-The report template is the chest X-ray structured template with a normal-study macro on a hotkey.
+The chest X-ray structured template has a normal-study macro on a hotkey.
 
 **What they do.** Reads the flagged studies first. For a true pneumothorax, accepts the finding
 candidate into the report (it loses the annotated style and records `accepted_by`, `accepted_at`,
@@ -200,8 +200,7 @@ model label and a `Provenance` chip; a suggested ICD-10 code and suggested tarif
 the sidebar for BIL, annotated. Nothing in the annotated style can be signed.
 
 **What they do.** Reads the draft impression, edits two phrases, accepts. Accepts the comparison
-paragraph after checking the measurements against the images. Ignores the coding suggestions
-(they are for BIL, though she may correct one). Signs with the sign-off hotkey; the signature dialog
+paragraph after checking the measurements against the images. Leaves the coding suggestions to BIL. Signs with the sign-off hotkey; the signature dialog
 shows the referrer, the delivery channels and any critical or urgent category.
 
 **What the Platform does.**
@@ -354,8 +353,7 @@ with a pulmonary embolism findings candidate. She reads it, signs with a critica
 Critical Results Hand reaches the casualty doctor in Umhlanga and connects her to him.
 
 **What they do.** Reads STAT and urgent work through the night, uses the phone app to check the list
-during a short power cut when the UPS is nearly exhausted, and hands over at 07:00 with a shift note
-generated from her signed studies.
+during a short power cut when the UPS is nearly exhausted, and hands over at 07:00 with a generated shift note.
 
 **What the Platform does.**
 * M01 Identity & Access and M02: Hub access is cross-tenant under recorded reading services

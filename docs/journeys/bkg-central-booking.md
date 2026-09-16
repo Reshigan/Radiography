@@ -169,6 +169,9 @@ same site or within radius, preference for earlier). The first accepts within fo
 sees a completed item in the activity feed: "Slot 08:00 US Room 3 backfilled from waitlist; 2
 patients declined, 1 accepted; quote re-issued."
 
+**What they do.** Nothing, except that a second cancellation for the same room in a day is unusual,
+so she checks M18 for a fault on the ultrasound unit; there is none.
+
 **What the Platform does.**
 * M05: waitlist entries carry constraints and expire; offers are time-boxed; the slot is held per
   offer with a lock so it can never be double-booked.
@@ -225,11 +228,20 @@ survey, and the Booking Hand's escalation reasons ranked. The team lead can prop
 (for example, allow the Hand to book contrast CT when the eGFR is on file) as a change request to
 AIO and PRM; nothing changes the Hand's mandate from the console.
 
+**What they do.** Reviews her own numbers, flags one thread where the Hand should have escalated
+sooner (the patient wrote "I am scared"), and drafts the leash change request with the team lead.
+
 **What the Platform does.**
 * M20 Agent Runtime: every Hand action is auditable with inputs, outputs and the mandate check;
   leash changes are versioned approvals.
 * M16: the semantic layer defines conversion and handling time identically for agents and Hands so
   that the comparison is fair.
+
+**Edge cases.**
+* A metric definition changes: the semantic layer versions it and both agent and Hand history are
+  restated together.
+* A leash change is declined by AIO: the reason is recorded against the request and the escalation
+  reason keeps counting.
 
 **Success measure.** Escalation reasons shrinking over time through approved leash changes, not
 through the Hand guessing.
