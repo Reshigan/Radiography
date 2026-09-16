@@ -20,6 +20,7 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 | `docs/20-build-kickoff-claude-code.md` | Exactly how to open a Claude Code session and build this |
 | `CLAUDE.md` | The rules the build session follows |
 | `brand/styleguide.html` | Open in a browser: the design language, lenses and Window/Level control |
+| `brand/screens/index.html` | Open in a browser: high-fidelity mockups of the principal screens for every persona |
 
 ## Specification map
 | # | Document |
@@ -52,9 +53,10 @@ codebase, with a per-site Edge Gateway for load-shedding resilience and on-site 
 | 22 | `docs/22-image-analysis-specification.md` (AI analysis of the images: pipeline, models, training, validation, deployment) |
 | 23 | `docs/23-image-analysis-guide.md` (guide for radiologists, radiographers, engineers and AI operations) |
 | 24 | `docs/24-statutory-and-regulatory-register.md` (every statute and obligation mapped to controls and outputs; imaging results with statutory reporting duties; items awaiting legal confirmation) |
+| 25 | `docs/25-ui-specification.md` (information architecture, every screen with layout, actions and states, key flows; mockups in `brand/screens/`) |
 
 ## Brand and infrastructure references
-* `brand/tokens.json`, `brand/logo.svg`, `brand/logo-dark.svg`, `brand/styleguide.html`
+* `brand/tokens.json`, `brand/bdl.css`, `brand/logo.svg`, `brand/logo-dark.svg`, `brand/styleguide.html`, `brand/screens/*.html`
 * `infra/cloudflare/wrangler.toml`, `infra/docker/docker-compose.yml`, `infra/docker/.env.example`,
   `infra/docker/orthanc/orthanc.json`, `infra/edge-gateway/docker-compose.yml`, `.github/workflows/ci.yml`
 

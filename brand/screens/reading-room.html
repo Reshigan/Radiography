@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en-ZA" data-lens="clinical">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading Room — Bonakala</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../bdl.css">
+<style>
+.rr{display:grid;grid-template-columns:320px 1fr 420px;gap:12px;height:calc(100vh - var(--top) - 32px)}
+.rr>div{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.rr>div>*{flex:none}
+.rr>div.v>.viewer{flex:1}
+.viewer{flex:1;min-height:0}
+.lung{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,#3b3f42 0%,#1d2022 55%,#000 80%)}
+.lung::before,.lung::after{content:"";position:absolute;top:18%;width:24%;height:56%;border-radius:45% 45% 40% 40%;background:radial-gradient(ellipse at 50% 40%,#0c0e0f 0%,#2b2f31 60%,#3b3f42 100%);opacity:.9}
+.lung::before{left:23%}.lung::after{right:23%}
+.spine{position:absolute;left:49%;top:12%;width:2%;height:70%;background:linear-gradient(#8a8f92,#5a5f62);opacity:.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Modules">
+    <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><path fill="#F5F1E9" fill-rule="evenodd" d="M 430.0 202.8 A 182 182 0 1 1 309.2 82.0 L 313.9 98.6 A 150 150 0 1 0 413.4 198.1 Z"/><circle cx="322" cy="190" r="30" fill="#12B5A5"/></svg>
+    <a href="#" title="Worklist" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a href="#" title="Patients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    <a href="#" title="Peer review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12l4 4L19 6"/></svg></a>
+    <a href="#" title="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></a>
+    <a href="#" title="Reading fees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></a>
+    <span class="spacer"></span>
+    <a href="#" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></a>
+    <span class="avatar" title="Dr N. Dlamini">ND</span>
+  </nav>
+  <header class="topbar">
+    <div class="ctx"><span>Reading Hub</span><span class="sep">/</span><span>Umhlanga</span><span class="sep">/</span><span class="mono">Tue 16 Sep · 10:48</span></div>
+    <div class="search">Search patients, studies, accession… <kbd>⌘K</kbd></div>
+    <div class="right">
+      <span class="chip crit"><i></i>2 STAT</span>
+      <span class="wl">Window / Level <i></i></span>
+      <span class="bell"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0"/></svg><b>3</b></span>
+    </div>
+  </header>
+  <main class="content">
+    <div class="rr">
+      <!-- Worklist -->
+      <div>
+        <div class="spread"><h3>My worklist</h3><span class="pill">14</span></div>
+        <div class="row-flex"><span class="chip active"><i></i>Assigned to me</span><span class="chip"><i></i>Pool</span><span class="chip"><i></i>Sub: chest</span></div>
+        <div class="queue">
+          <div class="row wrap"><span class="chip crit"><i></i>STAT</span><div><div class="t">Mokoena, T · 54 M</div><div class="s">CT head w/o · Casualty · 10:31</div></div><div class="aux"><span class="chip ai"><i></i>P1 · ICH candidate</span><span class="mono small">17 min</span></div></div>
+          <div class="row wrap sel"><span class="chip crit"><i></i>P1</span><div><div class="t">Naidoo, P · 29 F</div><div class="s">CXR PA · GP Dr Pillay · 10:12</div></div><div class="aux"><span class="chip ai"><i></i>pneumothorax 0.91</span><span class="mono small">36 min</span></div></div>
+          <div class="row wrap"><span class="chip att"><i></i>P2</span><div><div class="t">Van der Merwe, J · 67 M</div><div class="s">CT chest c+ · Pulmonology · 09:58</div></div><div class="aux"><span class="chip ai"><i></i>nodule 9 mm · new</span><span class="mono small">50 min</span></div></div>
+          <div class="row"><span class="chip"><i></i>P3</span><div><div class="t">Khumalo, S · 41 F</div><div class="s">MRI L-spine · Ortho · 09:40</div></div><span class="mono small">14 min</span></div>
+          <div class="row"><span class="chip"><i></i>P3</span><div><div class="t">Botha, A · 8 M</div><div class="s">XR wrist · Casualty · 09:36</div></div><span class="mono small">72 min</span></div>
+          <div class="row"><span class="chip"><i></i>P3</span><div><div class="t">Sithole, N · 33 F</div><div class="s">US abdomen · GP · 09:20</div></div><span class="mono small">31 min</span></div>
+          <div class="row wrap"><span class="chip att"><i></i>P4</span><div><div class="t">Petersen, L · 72 F</div><div class="s">XR chest AP portable · Ward 3</div></div><div class="aux"><span class="chip ai"><i></i>QC: rotation, repeat suggested</span></div></div>
+        </div>
+        <div class="card">
+          <div class="hd"><h4>Priors (Priors Hand)</h4><span class="more">3 found</span></div>
+          <ul class="tl">
+            <li><span class="tm">2025-11</span><span class="dot ok"></span><span>CXR PA · Sandton · normal</span></li>
+            <li><span class="tm">2024-03</span><span class="dot ok"></span><span>CXR PA · external import · normal</span></li>
+            <li><span class="tm">2023-08</span><span class="dot"></span><span>CT chest · Randburg · fetching</span></li>
+          </ul>
+        </div>
+      </div>
+      <!-- Viewer -->
+      <div class="v">
+        <div class="spread">
+          <div class="row-flex"><h3>Naidoo, Priya</h3><span class="muted">29 F · ID ····3081 · ACC <span class="mono">BUMH-26-0001234-7</span></span></div>
+          <div class="row-flex"><span class="chip active"><i></i>Reading · locked by you</span><button class="btn sm">Hanging: CXR PA/LAT + prior</button></div>
+        </div>
+        <div class="vtools">
+          <button class="btn">W/L</button><button class="btn">Zoom</button><button class="btn">Pan</button><button class="btn">Measure</button><button class="btn">Angle</button><button class="btn">CTR</button><button class="btn">Invert</button><button class="btn">Prior ⇄</button><button class="btn primary">AI overlays: on</button><button class="btn">Key image</button>
+        </div>
+        <div class="viewer" role="img" aria-label="Chest radiograph PA with an AI findings-candidate box over the right apex">
+          <div class="lung"></div><div class="spine"></div>
+          <div class="ovl tl-">NAIDOO^PRIYA · F · 1997<br>BUMH-26-0001234-7<br>DX · PA · 16 Sep 2026 10:09</div>
+          <div class="ovl tr-">Umhlanga R2 · Detector D-4411<br>kVp 120 · mAs 2.5 · EI 310 (target 300)<br>DAP 0.09 Gy·cm²</div>
+          <div class="ovl bl-">W 2400 / L 800 · 1:1</div>
+          <div class="ovl br-">cxr-findings 3.1.0 · overlay ON<br>prior: 2025-11-12 (ready)</div>
+          <div class="box" style="left:29%;top:20%;width:14%;height:16%"><span>pneumothorax · R apex · 0.91</span></div>
+        </div>
+        <div class="thumbs"><div class="on"><span>PA</span></div><div><span>LAT</span></div><div><span>prior PA</span></div><div><span>key</span></div></div>
+      </div>
+      <!-- Findings + report -->
+      <div>
+        <div class="card">
+          <div class="hd"><h4>Findings candidates</h4><span class="chip ai"><i></i>cxr-findings 3.1.0</span></div>
+          <div class="ai">
+            <div class="prov"><span>finding <b>pneumothorax</b></span><span>side <b>R</b></span><span>conf <b>0.91</b></span><span>class <b>1</b></span></div>
+            <div>Right apical pneumothorax candidate, estimated small (apex-to-cupola 21 mm).</div>
+            <div class="acts"><button class="btn sm primary">Accept</button><button class="btn sm">Edit</button><button class="btn sm">Reject</button><button class="btn sm ghost">Show why</button></div>
+          </div>
+          <div class="ai" style="margin-top:8px">
+            <div class="prov"><span>finding <b>cardiomegaly</b></span><span>conf <b>0.22</b></span><span>below threshold</span></div>
+            <div class="muted">CTR 0.46 measured. Not flagged.</div>
+          </div>
+          <div class="ai" style="margin-top:8px">
+            <div class="prov"><span>check <b>laterality</b></span><span>status <b>pass</b></span><span>marker <b>R detected</b></span></div>
+          </div>
+        </div>
+        <div class="report">
+          <div class="spread"><h3>Report</h3><div class="row-flex"><span class="chip"><i></i>Draft</span><span class="chip ai"><i></i>Drafting Hand · from dictation</span></div></div>
+          <h4>Clinical information</h4><p>Sudden right-sided chest pain and dyspnoea, 29-year-old female, non-smoker. Query pneumothorax.</p>
+          <h4>Technique</h4><p>PA and lateral chest radiographs. Comparison with PA radiograph of 12 November 2025.</p>
+          <h4>Findings</h4>
+          <p class="ins">Small right apical pneumothorax, apex-to-cupola distance approximately 21 mm. No tension features: mediastinum is central and the right hemidiaphragm is not depressed.</p>
+          <p>Lungs otherwise clear. Cardiomediastinal contour within normal limits (cardiothoracic ratio 0.46). No pleural effusion. Osseous structures unremarkable.</p>
+          <h4>Impression</h4>
+          <p class="ins">1. Small right apical pneumothorax without tension.<br>2. Otherwise normal chest radiograph.</p>
+          <h4>Recommendation</h4><p>Clinical correlation; repeat radiograph in 4 to 6 hours or sooner if symptoms progress.</p>
+          <div class="row-flex" style="margin-top:6px">
+            <span class="chip att"><i></i>Consistency: candidate accepted → findings mention pneumothorax ✓</span>
+            <span class="chip"><i></i>Reportable result: none selected</span>
+          </div>
+          <div class="row-flex" style="margin-top:8px">
+            <button class="btn primary lg">Sign report</button><button class="btn lg">Flag critical</button><button class="btn">Macro</button><button class="btn">Dictate</button><button class="btn ghost">Peer review note</button>
+          </div>
+          <div class="note">Signing publishes to Dr Pillay (Referrer Space + WhatsApp) and to the Patient Space after the referrer delay rule (2 h). Reading fee: 1.0 RVU-eq.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<span class="demo-tag">DEMO · synthetic data</span>
+</body>
+</html>

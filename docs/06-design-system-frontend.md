@@ -143,6 +143,9 @@ preferences, integration keys).
 * Telemetry: privacy-preserving product analytics (no third-party trackers on patient surfaces).
 
 ## 10. Deliverables in this repo
+* `docs/25-ui-specification.md` — information architecture, screen inventory, flows, states.
+* `brand/bdl.css` — reference stylesheet implementing the tokens and components.
+* `brand/screens/` — high-fidelity mockups of the principal screens (index at `brand/screens/index.html`).
 * `brand/tokens.json` — design tokens (source of truth).
 * `brand/styleguide.html` — static style guide preview (no build step).
 * `brand/logo.svg`, `brand/logo-dark.svg` — the mark.
