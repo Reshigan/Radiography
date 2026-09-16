@@ -38,7 +38,7 @@ table.hands{table-layout:fixed;--row:44px;font-size:12px}
 .tg.on{background:var(--ok);border-color:var(--ok)}.tg.on::after{left:15px}
 .tg.half{background:var(--info);border-color:var(--info)}.tg.half::after{left:8px}
 .st{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:12px}
-.st .s{font-size:11px;color:var(--text-2);white-space:normal}
+.st .s{font-size:11px;color:var(--text-2);white-space:nowrap;display:block}
 .fold{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2)}
 .fold .fh{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer}
 .fold .fh .chev{width:18px;height:18px;color:var(--text-2)}
@@ -131,7 +131,7 @@ table.hands{table-layout:fixed;--row:44px;font-size:12px}
         </div>
 
         <table class="dt hands" aria-label="Hands and leashes">
-          <colgroup><col style="width:126px"><col style="width:206px"><col style="width:50px"><col><col style="width:150px"><col style="width:96px"></colgroup>
+          <colgroup><col style="width:124px"><col style="width:200px"><col style="width:50px"><col><col style="width:148px"><col style="width:104px"></colgroup>
           <thead><tr><th>Hand</th><th>Mandate summary</th><th>Level</th><th>Leash (editable)</th><th>Approval policy</th><th>Status</th></tr></thead>
           <tbody>
             <tr><td class="hn">Referral Hand<span class="small">M04 · exceptions BKG</span></td><td>Turn every inbound referral into a validated order with referrer, examination, urgency and funding type</td><td><span class="lv a3">A3</span></td><td><div class="leash"><span><span class="amt">500</span> referrals per hour per Practice</span><span><span class="amt">1</span> clarification per referral per 24 h · no order below the M03 match threshold</span></div></td><td>A3 when mandatory fields extract above threshold and the referrer is a known practice number; else BKG task</td><td><div class="st"><span class="tg on" role="switch" aria-checked="true" aria-label="Referral Hand active"></span>Active</div></td></tr>

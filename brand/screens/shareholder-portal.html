@@ -19,8 +19,9 @@
 .dt td.lk a{margin-right:10px}
 .two{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px}.two>*{min-width:0}
 .pl.dt th,.pl.dt td{height:auto;padding:6px 10px;white-space:nowrap;vertical-align:top}
-.pl.dt td.why-c{white-space:normal;min-width:180px;line-height:1.3}
-.pl.dt th:first-child,.pl.dt td:first-child{white-space:normal}
+.pl.dt{table-layout:fixed}
+.pl.dt th:first-child,.pl.dt td:first-child{white-space:normal;width:46%}
+.pl.dt td .why{margin-top:1px}
 .holding .pct{white-space:nowrap}
 .vote .spread{flex-wrap:wrap}
 .vote{border:1px solid var(--line-strong);border-left:4px solid var(--warn);border-radius:0 var(--radius) var(--radius) 0;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
@@ -35,7 +36,7 @@
 .docs a:last-child{border-bottom:none}.docs a .s{font-size:11px;color:var(--text-2);display:block}
 .docs a svg{width:16px;height:16px;color:var(--text-2)}
 .docs a .dl{font-size:12px;color:var(--primary)}
-.ph .title{flex:1 1 auto;min-width:0}
+.ph .title{flex:1 1 0;min-width:280px}
 @media (max-width:900px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}.topbar{flex-wrap:wrap;padding:8px 16px;row-gap:6px}.topbar .ctx{flex-wrap:wrap}.app.with-inspector{grid-template-columns:minmax(0,1fr)}.app.with-inspector .content,.app.with-inspector .topbar{grid-column:1}.ph .actions{flex-wrap:wrap;margin-left:0}.topbar .search{max-width:none;flex-basis:100%}.topbar .right{margin-left:0;flex-wrap:wrap}.two{grid-template-columns:1fr}.holding{flex-wrap:wrap}table.dt{display:block;overflow-x:auto}}
 </style>
 </head>
@@ -75,8 +76,8 @@
     </div>
 
     <div class="grid g5" style="grid-template-columns:repeat(5,1fr)">
-      <div class="tile"><span class="l">Revenue</span><span class="v money">R 7 900 000</span><span class="d down">budget R 8 200 000 · −3.7 %</span></div>
-      <div class="tile"><span class="l">EBITDA</span><span class="v money">R 1 980 000</span><span class="d down">25.1 % margin · budget 26.5 %</span></div>
+      <div class="tile"><span class="l">Revenue</span><span class="v money">R 7 900 000</span><span class="d down">budget 8 200 000 · −3.7 %</span></div>
+      <div class="tile"><span class="l">EBITDA</span><span class="v money">R 1 980 000</span><span class="d down">margin 25.1 % · budget 26.5 %</span></div>
       <div class="tile"><span class="l">Distributable profit</span><span class="v money">R 1 412 000</span><span class="d">after tax provision and 10 % reserve</span></div>
       <div class="tile"><span class="l">My entitlement</span><span class="v money">R 691 880</span><span class="d">49 % · before dividends tax</span></div>
       <div class="tile"><span class="l">Next distribution</span><span class="v">10 Oct 2026</span><span class="d">approvals 2 of 3 · yours pending</span></div>
@@ -86,19 +87,19 @@
       <div>
         <div class="spread" style="margin-bottom:8px"><h4>Profit and loss · August vs budget</h4><span class="small muted">R · every variance links to its events</span></div>
         <table class="dt pl" aria-label="Profit and loss summary versus budget">
-          <thead><tr><th>Line</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Variance</th><th>Explained by</th></tr></thead>
+          <thead><tr><th>Line · explained by</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Variance</th></tr></thead>
           <tbody>
-            <tr><td>Revenue</td><td class="num">7 900 000</td><td class="num">8 200 000</td><td class="num neg">−300 000</td><td class="why-c"><span class="why">CT 1 downtime −118 000 · MRI outage windows −64 000 · no-show rate +41 000</span></td></tr>
-            <tr><td>Short-payments and write-offs</td><td class="num neg">(64 000)</td><td class="num">(50 000)</td><td class="num neg">−14 000</td><td class="why-c"><span class="why">38 000 funder rule change, practice absorbs · rule pack fixed by bureau</span><span class="chip att" style="margin-top:2px"><i></i>1 open query</span></td></tr>
-            <tr><td>Reading fees to Hub</td><td class="num neg">(1 580 000)</td><td class="num">(1 640 000)</td><td class="num">+60 000</td><td class="why-c"><span class="why">per Hub schedule · 4 812 studies · by radiologist on request</span></td></tr>
-            <tr><td>Management fee (8 % of collections)</td><td class="num neg">(612 000)</td><td class="num">(640 000)</td><td class="num">+28 000</td><td class="why-c"><span class="why">covers Platform, billing bureau, HR, procurement · first-pass 96.4 % · DSO 36 d</span></td></tr>
-            <tr><td>Rent (intercompany)</td><td class="num neg">(420 000)</td><td class="num">(420 000)</td><td class="num">0</td><td class="why-c"><span class="why">Bonakala Properties lease · escalation 1 Apr</span></td></tr>
-            <tr><td>Staff</td><td class="num neg">(2 130 000)</td><td class="num">(2 110 000)</td><td class="num neg">−20 000</td><td class="why-c"><span class="why">agency mammographer 3 900 · overtime CT 2 extension 16 100</span></td></tr>
-            <tr><td>Consumables</td><td class="num neg">(690 000)</td><td class="num">(720 000)</td><td class="num">+30 000</td><td class="why-c"><span class="why">contrast by barcode · fewer contrast studies during CT 1 downtime</span></td></tr>
-            <tr><td>Other operating costs</td><td class="num neg">(424 000)</td><td class="num">(450 000)</td><td class="num">+26 000</td><td class="why-c"><span class="why">incl. generator diesel 21 400 (load-shedding cost)</span></td></tr>
-            <tr class="tot"><td>EBITDA (−8.8 %)</td><td class="num">1 980 000</td><td class="num">2 170 000</td><td class="num neg">−190 000</td><td class="why-c"><span class="why">bridge computed from events, not narrated</span></td></tr>
-            <tr><td>Depreciation, tax provision, reserve</td><td class="num neg">(568 000)</td><td class="num">(590 000)</td><td class="num">+22 000</td><td class="why-c"><span class="why">reserve policy 10 % per shareholders' agreement</span></td></tr>
-            <tr class="tot"><td>Distributable profit</td><td class="num">1 412 000</td><td class="num">1 580 000</td><td class="num neg">−168 000</td><td class="why-c"><span class="why">waterfall: Holdings 720 120 · you 691 880</span></td></tr>
+            <tr><td>Revenue<span class="why">CT 1 downtime −118 000 · MRI outage windows −64 000 · no-show rate +41 000</span></td><td class="num">7 900 000</td><td class="num">8 200 000</td><td class="num neg">−300 000</td></tr>
+            <tr><td>Short-payments and write-offs<span class="why">38 000 funder rule change, practice absorbs · rule pack fixed by bureau</span><span class="chip att" style="margin-top:2px"><i></i>1 open query</span></td><td class="num neg">(64 000)</td><td class="num">(50 000)</td><td class="num neg">−14 000</td></tr>
+            <tr><td>Reading fees to Hub<span class="why">per Hub schedule · 4 812 studies · by radiologist on request</span></td><td class="num neg">(1 580 000)</td><td class="num">(1 640 000)</td><td class="num">+60 000</td></tr>
+            <tr><td>Management fee (8 % of collections)<span class="why">covers Platform, billing bureau, HR, procurement · first-pass 96.4 % · DSO 36 d</span></td><td class="num neg">(612 000)</td><td class="num">(640 000)</td><td class="num">+28 000</td></tr>
+            <tr><td>Rent (intercompany)<span class="why">Bonakala Properties lease · escalation 1 Apr</span></td><td class="num neg">(420 000)</td><td class="num">(420 000)</td><td class="num">0</td></tr>
+            <tr><td>Staff<span class="why">agency mammographer 3 900 · overtime CT 2 extension 16 100</span></td><td class="num neg">(2 130 000)</td><td class="num">(2 110 000)</td><td class="num neg">−20 000</td></tr>
+            <tr><td>Consumables<span class="why">contrast by barcode · fewer contrast studies during CT 1 downtime</span></td><td class="num neg">(690 000)</td><td class="num">(720 000)</td><td class="num">+30 000</td></tr>
+            <tr><td>Other operating costs<span class="why">incl. generator diesel 21 400 (load-shedding cost)</span></td><td class="num neg">(424 000)</td><td class="num">(450 000)</td><td class="num">+26 000</td></tr>
+            <tr class="tot"><td>EBITDA (−8.8 %)<span class="why">bridge computed from events, not narrated</span></td><td class="num">1 980 000</td><td class="num">2 170 000</td><td class="num neg">−190 000</td></tr>
+            <tr><td>Depreciation, tax provision, reserve<span class="why">reserve policy 10 % per shareholders' agreement</span></td><td class="num neg">(568 000)</td><td class="num">(590 000)</td><td class="num">+22 000</td></tr>
+            <tr class="tot"><td>Distributable profit<span class="why">waterfall: Holdings 720 120 · you 691 880</span></td><td class="num">1 412 000</td><td class="num">1 580 000</td><td class="num neg">−168 000</td></tr>
           </tbody>
         </table>
       </div>
