@@ -7,8 +7,17 @@ import { eq } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { Hono } from 'hono';
 import type { AppEnv } from '../kernel/context.js';
+import type { PaymentGatewayPort } from '../kernel/ports.js';
 import { body, param } from '../kernel/index.js';
 import { settlePendingPayment } from '../modules/m14-billing/service.js';
+
+/** PaymentGatewayPort adapter over this simulator — the seam a real PSP integration replaces. See kernel/ports.ts. */
+export const simPaymentGateway: PaymentGatewayPort = {
+  available: true,
+  async createLink(input) {
+    return { url: `/api/sim/psp/pay/${input.token}` };
+  },
+};
 
 export const pspRoutes = new Hono<AppEnv>();
 

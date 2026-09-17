@@ -6,6 +6,8 @@ import type { JobQueue, ObjectStore, Services } from './kernel/ports.js';
 import { dispatchPending } from './kernel/events.js';
 import { modules } from './modules/index.js';
 import { runJob } from './jobs.js';
+import { simClaimsSwitch } from './sim/switch.js';
+import { simPaymentGateway } from './sim/psp.js';
 
 interface Env {
   DB: D1Database;
@@ -48,6 +50,9 @@ function makeServices(env: Env, ctx: ExecutionContext): Services {
     queue,
     clock: { now: () => new Date() },
     llm: createLlm(env as any),
+    // Only a simulator exists for either port today — swap these two lines for a real adapter when one is built.
+    claimsSwitch: simClaimsSwitch,
+    paymentGateway: simPaymentGateway,
     demoMode: env.DEMO_MODE !== 'false',
     env: env as any,
     defer: (p) => ctx.waitUntil(p),

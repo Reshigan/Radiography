@@ -501,7 +501,7 @@ export async function settlePendingPayment(services: Services, paymentId: string
   return row ?? null;
 }
 
-/** Single-use, expiring payment link (PSP hosted page in production; PSP simulator in demo). */
+/** Single-use, expiring payment link (a real PSP hosted page, once one is connected — see kernel/ports.ts). */
 export async function createPaymentLink(services: Services, input: { practiceId: string; accountId?: string | null; patientId?: string | null; amountCents: number; channel?: string; createdBy?: string | null }) {
   const account = input.accountId ? (await services.db.select().from(schema.patientAccounts).where(eq(schema.patientAccounts.id, input.accountId)).limit(1))[0] ?? null : input.patientId ? await ensureAccount(services, input.practiceId, input.patientId) : null;
   const token = (await sha256Hex(newId('lnk') + Math.random())).slice(0, 24);
@@ -509,8 +509,9 @@ export async function createPaymentLink(services: Services, input: { practiceId:
   const id = newId('pay');
   const seq = await nextSequence(services, `receipt:${input.practiceId}`);
   await services.db.insert(schema.payments).values({ id, practiceId: input.practiceId, accountId: account?.id ?? null, patientId: account?.patientId ?? input.patientId ?? null, method: 'link', amountCents: input.amountCents, status: 'pending', reference: `LNK-${PRACTICE_LETTER[input.practiceId] ?? 'X'}-${String(seq).padStart(6, '0')}`, receiptNo: `RCT-${PRACTICE_LETTER[input.practiceId] ?? 'X'}-${String(seq).padStart(6, '0')}`, linkToken: token, linkExpiresAt: expiresAt, takenBy: input.createdBy ?? null, at: nowIso() });
+  const { url } = await services.paymentGateway.createLink({ paymentId: id, token, amountCents: input.amountCents, expiresAt });
   await emitDirect(services, 'payment.link.created.v1', { paymentId: id, practiceId: input.practiceId, accountId: account?.id ?? null, amountCents: input.amountCents, channel: input.channel ?? 'whatsapp', expiresAt }, { aggregateType: 'payment', aggregateId: id, practiceId: input.practiceId });
-  return { id, token, url: `/api/sim/psp/pay/${token}`, expiresAt, amountCents: input.amountCents, accountId: account?.id ?? null };
+  return { id, token, url, expiresAt, amountCents: input.amountCents, accountId: account?.id ?? null };
 }
 
 /* ---------- Ageing, propensity, register ---------- */

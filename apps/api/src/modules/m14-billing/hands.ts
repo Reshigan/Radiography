@@ -123,7 +123,6 @@ async function runClaims(input: ClaimsInput, ctx: HandRunContext) {
   const services = ctx.services;
   const db = services.db;
   const practiceId = (input.practiceId as string | null) ?? ctx.practiceId;
-  const { submitToSwitch } = await import('../../sim/switch.js');
   const candidates = await ctx.step('db.read', { claimIds: input.claimIds?.length ?? 'all-ready' }, async () =>
     input.claimIds?.length
       ? db.select().from(schema.claims).where(inArray(schema.claims.id, input.claimIds))
@@ -164,7 +163,7 @@ async function runClaims(input: ClaimsInput, ctx: HandRunContext) {
     }
     ctx.leashCheck([{ rule: 'maxDailyCents', actual: dailyCents + claim.totalCents }]);
     try {
-      const { ack, adjudication } = await ctx.step('switch.submit', { claimId: claim.id, claimRef: claim.claimRef, cents: claim.totalCents }, async () => submitToSwitch(claim));
+      const { ack, adjudication } = await ctx.step('switch.submit', { claimId: claim.id, claimRef: claim.claimRef, cents: claim.totalCents }, async () => services.claimsSwitch.submit(claim));
       await ctx.step('claim.record_ack', { claimId: claim.id, switchRef: ack.switchRef }, async () => markSubmitted(services, claim, ack, `hand:claims`, batchId));
       dailyCents += claim.totalCents;
       if (adjudication) {

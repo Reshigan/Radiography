@@ -19,7 +19,7 @@ import {
   ageingForPractice, assembleClaim, chargeContext, claimsInFlight, createPaymentLink, ensureAccount, FUNDER_NAMES, matchRemittance, nowIso, openWaves, postTransaction, priceForCharge, recordPayment,
   repriceCharge, scoreAccount, scrubCharge, shortPaymentReasonText, timelineFor, today, transferPatientLiability, unbilledRegister, loadSchedules, applyClaimResponse,
 } from './service.js';
-import { switchRoutes, switchState, submitToSwitch } from '../../sim/switch.js';
+import { switchRoutes, switchState } from '../../sim/switch.js';
 import { pspRoutes } from '../../sim/psp.js';
 import { bankRoutes } from '../../sim/bank.js';
 
@@ -276,7 +276,7 @@ r.post('/claims/:id/resubmit', allow(...BILLING), async (c) => {
   await emit(c, 'claim.resubmitted.v1', { claimId: id, claimRef: claim.claimRef, practiceId: claim.practiceId, attempt: claim.resubmitCount + 1 }, { aggregateType: 'claim', aggregateId: id, practiceId: claim.practiceId });
   const [fresh] = await db.select().from(schema.claims).where(eq(schema.claims.id, id)).limit(1);
   try {
-    const { ack, adjudication } = submitToSwitch(fresh!);
+    const { ack, adjudication } = await services.claimsSwitch.submit(fresh!);
     const { markSubmitted } = await import('./service.js');
     await markSubmitted(services, fresh!, ack, user.id);
     if (adjudication) {

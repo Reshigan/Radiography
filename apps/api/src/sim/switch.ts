@@ -8,6 +8,7 @@ import { schema } from '@bonakala/db';
 import { newId } from '@bonakala/domain';
 import { Hono } from 'hono';
 import type { AppEnv } from '../kernel/context.js';
+import type { ClaimsSwitchPort } from '../kernel/ports.js';
 import { allow, body, param } from '../kernel/index.js';
 import { applyClaimResponse, matchRemittance, transferPatientLiability, type ClaimRow, type SwitchResponse } from '../modules/m14-billing/service.js';
 import { runHand } from '../kernel/hands.js';
@@ -59,6 +60,15 @@ export function submitToSwitch(claim: ClaimRow): { ack: SwitchResponse; adjudica
   else switchState.pending.push({ claimId: claim.id, response: { ...res, outcome: 'accepted', adjudicatedFunderCents: claim.expectedFunderCents, patientLiabilityCents: 0 } });
   return { ack: { outcome: 'acknowledged', switchRef: res.switchRef, channel: 'batch' }, adjudication: null };
 }
+
+/** ClaimsSwitchPort adapter over this simulator — the seam a real switch integration replaces. See kernel/ports.ts. */
+export const simClaimsSwitch: ClaimsSwitchPort = {
+  available: true,
+  async submit(claim) {
+    const { ack, adjudication } = submitToSwitch(claim as ClaimRow);
+    return { ack, adjudication };
+  },
+};
 
 export const switchRoutes = new Hono<AppEnv>();
 

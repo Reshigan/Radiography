@@ -7,6 +7,8 @@ import { createLlm } from '../src/kernel/llm.js';
 import type { Services } from '../src/kernel/ports.js';
 import { dispatchPending } from '../src/kernel/events.js';
 import { registerJobs } from '../src/jobs.js';
+import { simClaimsSwitch } from '../src/sim/switch.js';
+import { simPaymentGateway } from '../src/sim/psp.js';
 
 export interface TestApp {
   /**
@@ -32,7 +34,8 @@ export async function createTestApp(): Promise<TestApp> {
   const deferred: Promise<unknown>[] = [];
   let pinnedNow: Date | null = null;
   const services: Services = {
-    db, objects: new MemoryObjectStore(), queue, clock: { now: () => pinnedNow ?? new Date() }, llm: createLlm({}), demoMode: true, env: {},
+    db, objects: new MemoryObjectStore(), queue, clock: { now: () => pinnedNow ?? new Date() }, llm: createLlm({}),
+    claimsSwitch: simClaimsSwitch, paymentGateway: simPaymentGateway, demoMode: true, env: {},
     defer: (p) => { deferred.push(p.catch(() => undefined)); },
   };
   registerJobs(queue, services);
