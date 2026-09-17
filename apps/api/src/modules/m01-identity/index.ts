@@ -1,11 +1,16 @@
 import { z } from 'zod';
 import { and, desc, eq, isNull, or } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
-import { PERSONA_HOME, PERSONA_LENS } from '@bonakala/domain';
-import { defineModule, router, login, logout, selectPractice, requireUser, body, audit, allow } from '../../kernel/index.js';
+import { PERSONA_HOME, PERSONA_LENS, PERSONAS, newId, notFound, invalid, hashPassword, randomToken } from '@bonakala/domain';
+import { defineModule, router, login, logout, selectPractice, requireUser, body, audit, allow, param } from '../../kernel/index.js';
 
 const r = router();
 const GOV = ['PRM', 'EXE', 'CMP', 'AIO', 'SUP', 'BIL', 'DEB', 'FDK', 'BKG', 'RGT', 'RAD', 'NUR', 'BIO'] as const;
+const USER_ADMIN = ['EXE', 'SUP'] as const;
+/** Readable temp password: 4 groups of 4, e.g. K7QF-3ZDR-P2XM-9CLA. Shown once; the user changes it on first sign-in in a real deployment. */
+function genTempPassword(): string {
+  return randomToken(8).toUpperCase().match(/.{1,4}/g)!.join('-');
+}
 
 r.post('/login', async (c) => {
   const { email, password } = await body(c, z.object({ email: z.string().email(), password: z.string().min(1) }));
@@ -43,6 +48,56 @@ r.get('/users', allow('EXE', 'SUP', 'PRM', 'CMP'), async (c) => {
   const practiceId = c.get('practiceId');
   const rows = await db.select({ id: schema.users.id, name: schema.users.name, email: schema.users.email, persona: schema.users.persona, practiceId: schema.users.practiceId, hpcsaNo: schema.users.hpcsaNo, status: schema.users.status, lastLoginAt: schema.users.lastLoginAt }).from(schema.users);
   return c.json({ users: practiceId && c.get('user')!.persona === 'PRM' ? rows.filter((u) => u.practiceId === practiceId || u.practiceId === null) : rows });
+});
+
+/** Provision a new account. Group personas (EXE/SUP/AIO/BIO/CMP) may be scoped to a practice or left Group-wide. */
+r.post('/users', allow(...USER_ADMIN), async (c) => {
+  const data = await body(c, z.object({
+    name: z.string().min(1), email: z.string().email(), persona: z.enum(PERSONAS),
+    practiceId: z.string().nullable().optional(), hpcsaNo: z.string().optional(),
+  }));
+  const db = c.get('services').db;
+  const email = data.email.toLowerCase();
+  const [existing] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
+  if (existing) throw invalid('A user with this email already exists');
+  const tempPassword = genTempPassword();
+  const id = newId('user');
+  await db.insert(schema.users).values({
+    id, persona: data.persona, email, name: data.name, practiceId: data.practiceId ?? null,
+    hpcsaNo: data.hpcsaNo ?? null, passwordHash: await hashPassword(tempPassword), status: 'active',
+  });
+  await audit(c, 'user.created', { type: 'user', id }, { persona: data.persona, email, practiceId: data.practiceId ?? null });
+  return c.json({ id, tempPassword }, 201);
+});
+
+/** Update role, scope, credential number or status. Never touches the password. */
+r.patch('/users/:id', allow(...USER_ADMIN), async (c) => {
+  const id = param(c, 'id');
+  const db = c.get('services').db;
+  const [u] = await db.select().from(schema.users).where(eq(schema.users.id, id)).limit(1);
+  if (!u) throw notFound('User');
+  const data = await body(c, z.object({
+    name: z.string().min(1).optional(), persona: z.enum(PERSONAS).optional(), practiceId: z.string().nullable().optional(),
+    hpcsaNo: z.string().nullable().optional(), status: z.enum(['active', 'inactive', 'suspended']).optional(),
+  }));
+  if (id === c.get('user')!.id && data.status && data.status !== 'active') throw invalid('You cannot deactivate your own account');
+  await db.update(schema.users).set({ ...data, updatedAt: new Date().toISOString() }).where(eq(schema.users.id, id));
+  if (data.status && data.status !== 'active') await db.delete(schema.sessions).where(eq(schema.sessions.userId, id));
+  await audit(c, 'user.updated', { type: 'user', id }, { from: { persona: u.persona, practiceId: u.practiceId, status: u.status }, to: data });
+  return c.json({ ok: true });
+});
+
+/** Issue a new temporary password (lost credential / compromised account). Shown once in the response. */
+r.post('/users/:id/reset-password', allow(...USER_ADMIN), async (c) => {
+  const id = param(c, 'id');
+  const db = c.get('services').db;
+  const [u] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.id, id)).limit(1);
+  if (!u) throw notFound('User');
+  const tempPassword = genTempPassword();
+  await db.update(schema.users).set({ passwordHash: await hashPassword(tempPassword), updatedAt: new Date().toISOString() }).where(eq(schema.users.id, id));
+  await db.delete(schema.sessions).where(eq(schema.sessions.userId, id));
+  await audit(c, 'user.password_reset', { type: 'user', id }, {});
+  return c.json({ tempPassword });
 });
 
 /** Demo helper: list persona sign-ins (only in demo mode). */
