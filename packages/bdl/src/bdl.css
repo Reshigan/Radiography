@@ -33,6 +33,13 @@
 [data-lens="clinical"]{--u:4px;--row:36px;--fs:13px}
 [data-lens="patient"]{--u:8px;--row:56px;--fs:16px;--radius:20px}
 [data-lens="referrer"],[data-lens="governance"]{--u:6px;--row:44px;--fs:15px}
+/* Explicit information-density override (topbar "Level" control) — wins over the lens's own
+   default density, which is why these come after every [data-lens] rule above: same specificity,
+   later in source order. Matches brand/tokens.json → level.L1-L4. Colour and radius stay lens-owned. */
+:root[data-level="L1"]{--u:8px;--row:56px;--fs:16px}
+:root[data-level="L2"]{--u:6px;--row:48px;--fs:15px}
+:root[data-level="L3"]{--u:4px;--row:40px;--fs:14px}
+:root[data-level="L4"]{--u:3px;--row:32px;--fs:13px}
 *{box-sizing:border-box}html,body{height:100%}
 body{margin:0;background:var(--body-bg);background-attachment:fixed;color:var(--text);font-family:var(--text-font);font-size:var(--fs);line-height:1.45;font-variant-numeric:tabular-nums}
 a{color:var(--primary);text-decoration:none}
