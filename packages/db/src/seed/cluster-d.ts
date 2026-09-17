@@ -71,12 +71,17 @@ export async function seedClusterD(db: Db, ctx: SeedContext): Promise<Record<str
       { key: 'UMH-NUR1', name: 'Sister Precious Dlamini', role: 'NUR', site: ctx.sites.UMH, comp: ['contrast', 'iv_cannulation'] },
       { key: 'UMH-NUR2', name: 'Sister Karabo Modise', role: 'NUR', site: ctx.sites.UMH, comp: ['contrast'] },
       { key: 'UMH-FDK1', name: 'Thandeka Mthembu', role: 'FDK', site: ctx.sites.UMH, comp: [], userKey: 'BKG' },
+      { key: 'UMH-BKG1', name: 'Zanele Cele', role: 'BKG', site: ctx.sites.UMH, comp: [] },
       { key: 'UMH-PRM1', name: 'Lerato Mahlangu', role: 'PRM', site: ctx.sites.UMH, comp: [], userKey: 'PRM' },
       { key: 'UMH-BIL1', name: 'Thandi Zulu', role: 'BIL', site: ctx.sites.UMH, comp: [], userKey: 'BIL' },
+      { key: 'UMH-DEB1', name: 'Nomsa Buthelezi', role: 'DEB', site: ctx.sites.UMH, comp: [] },
       // Ballito
       { key: 'BAL-RAD1', name: 'Dumisani Zulu', role: 'RAD', site: ctx.sites.BAL, comp: ['DX'], rad: true },
       { key: 'BAL-SON1', name: 'Lindiwe Ngcobo', role: 'RAD', site: ctx.sites.BAL, comp: ['US', 'sonography:obstetric'] },
       { key: 'BAL-FDK1', name: 'Sarah Petersen', role: 'FDK', site: ctx.sites.BAL, comp: [] },
+      // Central Booking and Debtors are Practice A staff too (docs/00: both practices share the M05/M14 back office)
+      { key: 'SAN-BKG1', name: 'Palesa Mokwena', role: 'BKG', site: ctx.sites.SAN, comp: [] },
+      { key: 'SAN-DEB1', name: 'Sarah Adams', role: 'DEB', site: ctx.sites.SAN, comp: [], userKey: 'DEB' },
     ];
     for (const d of defs) {
       const id = newId('stf');

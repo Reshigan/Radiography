@@ -281,6 +281,65 @@ r.get('/revenue-by-funder', allow(...READERS), async (c) => {
   }
 });
 
+/* ---------- Back-office automation and FTE impact ---------- */
+/** Which back-office Hand feeds which role's workload. A Hand's run history (agent_tasks) is the
+ *  source of truth for volume and touchless rate; touchless = the run finished without a human
+ *  approval step (status 'done'), matching each Hand's own leash/approval policy in its definition. */
+const BACK_OFFICE_HANDS: Array<{ handId: string; label: string; role: 'BKG' | 'FDK' | 'BIL' | 'DEB'; roleLabel: string }> = [
+  { handId: 'referral', label: 'Referral conversion', role: 'BKG', roleLabel: 'Central Booking' },
+  { handId: 'booking', label: 'Booking', role: 'BKG', roleLabel: 'Central Booking' },
+  { handId: 'front-desk', label: 'Pre-check-in', role: 'FDK', roleLabel: 'Front Desk' },
+  { handId: 'authorisation', label: 'Pre-authorisation', role: 'BIL', roleLabel: 'Billing' },
+  { handId: 'coding', label: 'Coding', role: 'BIL', roleLabel: 'Billing' },
+  { handId: 'claims', label: 'Claims submission', role: 'BIL', roleLabel: 'Billing' },
+  { handId: 'remittance', label: 'Remittance posting', role: 'DEB', roleLabel: 'Debtors' },
+  { handId: 'collections', label: 'Collections and dunning', role: 'DEB', roleLabel: 'Debtors' },
+];
+r.get('/back-office-automation', allow(...READERS), async (c) => {
+  const { days } = query(c, z.object({ days: z.coerce.number().min(7).max(180).default(30) }));
+  const services = c.get('services');
+  const practiceId = c.get('practiceId');
+  const from = new Date(Date.now() - days * 86400_000).toISOString();
+
+  const functions = [];
+  const roleTotals: Record<string, { touchless: number; total: number }> = { BKG: { touchless: 0, total: 0 }, FDK: { touchless: 0, total: 0 }, BIL: { touchless: 0, total: 0 }, DEB: { touchless: 0, total: 0 } };
+  for (const h of BACK_OFFICE_HANDS) {
+    const def = getHand(h.handId)?.def;
+    const rows = await services.db.select({ status: schema.agentTasks.status }).from(schema.agentTasks)
+      .where(and(eq(schema.agentTasks.handId, h.handId), gte(schema.agentTasks.startedAt, from), practiceId ? eq(schema.agentTasks.practiceId, practiceId) : undefined));
+    const total = rows.length;
+    const touchless = rows.filter((x) => x.status === 'done').length;
+    const needsApproval = rows.filter((x) => x.status === 'needs_approval' || x.status === 'approved').length;
+    functions.push({
+      handId: h.handId, label: h.label, module: def?.module ?? null, mandate: def?.mandate ?? null,
+      role: h.role, roleLabel: h.roleLabel,
+      totalRuns: total, touchlessRuns: touchless, needsApprovalRuns: needsApproval,
+      touchlessPct: total ? round((touchless / total) * 100, 1) : null,
+    });
+    roleTotals[h.role]!.total += total;
+    roleTotals[h.role]!.touchless += touchless;
+  }
+
+  // Current headcount and fully-loaded monthly cost per role, from real staff records — not an
+  // assumption. FTE-equivalent capacity and cost-impact are left to the view: how many touchless
+  // transactions one FTE handles a month is a per-practice judgement call, not a platform fact.
+  const roles = [];
+  for (const [role, roleLabel] of [['BKG', 'Central Booking'], ['FDK', 'Front Desk'], ['BIL', 'Billing'], ['DEB', 'Debtors']] as const) {
+    const staffRows = await services.db.select({ ftePct: schema.staff.ftePct, hourlyCostCents: schema.staff.hourlyCostCents, contractHoursPerWeek: schema.staff.contractHoursPerWeek })
+      .from(schema.staff).where(and(eq(schema.staff.role, role), eq(schema.staff.status, 'active'), practiceId ? eq(schema.staff.practiceId, practiceId) : undefined));
+    const headcount = staffRows.length;
+    const fte = staffRows.reduce((a, x) => a + x.ftePct / 100, 0);
+    const monthlyCostCents = staffRows.reduce((a, x) => a + (x.hourlyCostCents ?? 0) * x.contractHoursPerWeek * (x.ftePct / 100) * (52 / 12), 0);
+    const rt = roleTotals[role]!;
+    roles.push({ role, roleLabel, headcount, fte: round(fte, 1), monthlyCostCents: Math.round(monthlyCostCents), touchlessRuns: rt.touchless, totalRuns: rt.total, touchlessPct: rt.total ? round((rt.touchless / rt.total) * 100, 1) : null });
+  }
+
+  return c.json({
+    windowDays: days, functions, roles,
+    note: 'Touchless = the Hand run completed with no human approval step. FTE-equivalent capacity freed and its cost value are computed in the view from an editable "touchless transactions per FTE per month" assumption — that varies by practice and role, so it is shown as a starting point, not a platform fact.',
+  });
+});
+
 /* ---------- Benchmark ---------- */
 r.get('/benchmark', allow('EXE', 'SUP', 'PRM', 'SHR', 'CMP'), async (c) => {
   const services = c.get('services');

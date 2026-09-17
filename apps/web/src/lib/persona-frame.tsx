@@ -49,6 +49,7 @@ export const RAILS: Record<Persona, RailSpec[]> = {
   EXE: [
     { id: 'group', label: 'Group', icon: 'chart', path: '/group' }, { id: 'practices', label: 'Practices', icon: 'grid', path: '/group/practices' },
     { id: 'money', label: 'Money', icon: 'money', path: '/group/money' }, { id: 'network', label: 'Network', icon: 'people', path: '/group/network' },
+    { id: 'automation', label: 'Automation', icon: 'sparkle', path: '/group/automation' },
     { id: 'acq', label: 'Acquisitions', icon: 'inbox', path: '/group/acquisitions' }, { id: 'board', label: 'Board pack', icon: 'doc', path: '/group/board-pack' },
   ],
   SHR: [
