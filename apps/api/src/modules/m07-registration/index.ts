@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { and, desc, eq, gte, inArray, isNotNull, lt, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNotNull, lt, ne } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { newId, notFound, forbidden, invalid, parseSaId } from '@bonakala/domain';
 import { defineModule, router, allow, body, query, param, audit, emit, requirePractice, on } from '../../kernel/index.js';
@@ -183,7 +183,9 @@ r.post('/kiosk/identify', allow(...DESK, 'PAT'), async (c) => {
     if (t) { const d = await encounterDetail(services, t.encounterId); return c.json({ found: !!d, encounter: d }); }
   }
   if (!patientId) return c.json({ found: false, message: 'We could not find you. Ask for help at the desk.' }, 404);
-  const appts = await services.db.select().from(schema.appointments).where(and(eq(schema.appointments.patientId, patientId), gte(schema.appointments.startsAt, from), lt(schema.appointments.startsAt, to), inArray(schema.appointments.status, ['booked', 'confirmed', 'arrived'])));
+  // A patient can have more than one appointment today (rare, but real — e.g. two modalities on
+  // one visit); the kiosk should always resolve to whichever is soonest, not an arbitrary row.
+  const appts = await services.db.select().from(schema.appointments).where(and(eq(schema.appointments.patientId, patientId), gte(schema.appointments.startsAt, from), lt(schema.appointments.startsAt, to), inArray(schema.appointments.status, ['booked', 'confirmed', 'arrived']))).orderBy(asc(schema.appointments.startsAt));
   if (!appts.length) return c.json({ found: false, message: 'No appointment for today at this site. Ask for help at the desk.' }, 404);
   const appt = appts[0]!;
   const enc = await ensureEncounter(services, { orderId: appt.orderId, appointmentId: appt.id, channel: 'kiosk', c });

@@ -117,16 +117,22 @@ export async function seedClusterC(db: Db, ctx: SeedContext): Promise<Record<str
   }
   if (!plans.length) return;
 
-  // Rejection wave cohort: Scheme B CT claims in the last 14 days rejected for AUTH_REQ.
+  // Rejection wave cohort: Scheme B CT claims in the last 14 days rejected for AUTH_REQ. Pooled
+  // per practice (not globally) and forced past the exception/scrub/unbilled diversions below, so
+  // the cohort reliably clears the >=3 threshold for both practices regardless of how the other,
+  // genuinely random claims land on a given run.
   const waveWindowStart = dayOnly(dayIso(now, 14));
-  const waveCandidates = plans.filter((p) => p.funderId === 'scheme-b' && p.serviceDate >= waveWindowStart && p.codes.some((cd) => CT_CODES.includes(cd)));
-  const recentWave = plans.filter((p) => p.funderId === 'scheme-b' && p.serviceDate >= waveWindowStart);
-  // Force enough Scheme B CT claims in the recent window
-  for (let i = 0; i < recentWave.length && waveCandidates.length < 12; i++) {
-    const p = recentWave[i]!;
-    if (!p.codes.some((cd) => CT_CODES.includes(cd))) { p.codes = [pick(r, CT_CODES)]; p.icd10 = [pick(r, ICD_BY_REGION[TARIFF_BY_CODE[p.codes[0]!]?.bodyRegion ?? 'brain'] ?? ['G43.9'])]; waveCandidates.push(p); }
+  const waveSet = new Set<Plan>();
+  for (const practiceId of [ctx.practiceA, ctx.practiceB]) {
+    const recentWave = plans.filter((p) => p.practiceId === practiceId && p.funderId === 'scheme-b' && p.serviceDate >= waveWindowStart);
+    const waveCandidates = recentWave.filter((p) => p.codes.some((cd) => CT_CODES.includes(cd)));
+    for (let i = 0; i < recentWave.length && waveCandidates.length < 12; i++) {
+      const p = recentWave[i]!;
+      if (!p.codes.some((cd) => CT_CODES.includes(cd))) { p.codes = [pick(r, CT_CODES)]; p.icd10 = [pick(r, ICD_BY_REGION[TARIFF_BY_CODE[p.codes[0]!]?.bodyRegion ?? 'brain'] ?? ['G43.9'])]; waveCandidates.push(p); }
+    }
+    for (const p of waveCandidates.slice(0, 12)) waveSet.add(p);
   }
-  const waveSet = new Set(waveCandidates.slice(0, 12));
+  const authReqGuaranteed: Record<string, number> = { [ctx.practiceA]: 0, [ctx.practiceB]: 0 };
 
   const patientById = new Map(patients.map((p) => [p.id, p]));
   const entities = await db.select().from(s.legalEntities);
@@ -193,16 +199,18 @@ export async function seedClusterC(db: Db, ctx: SeedContext): Promise<Record<str
       if (roll < 0.45) { chargeStatus = 'coded'; claimStatus = null; codingStatus = 'proposed'; confidence = 0.62 + r() * 0.2; blockingReason = `${p.funderType}_a1_by_policy`; owner = 'BIL';
         exception = { family: 'Funder class', reason: p.funderType === 'raf' ? 'Attorney details awaited' : p.funderType === 'coida' ? 'Employer incident details and Fund claim number missing' : 'Purchase order reference missing', code: 'CLAIM_NUMBER_MISSING', suggestion: p.funderType === 'raf' ? 'Human-led per the RAF playbook' : 'Collections Hand requests the details from the employer', openedAt: signedAt };
       } else claimStatus = 'submitted';
-    } else if (ageDays <= 1 && roll < 0.55) {
+      // A wave-cohort claim always reaches the submitted/rejected branch below — it must never be
+      // diverted into an unrelated exception, or the rejection wave cohort loses claims to chance.
+    } else if (!inWave && ageDays <= 1 && roll < 0.55) {
       chargeStatus = 'unbilled'; claimStatus = null; blockingReason = 'awaiting_coding'; owner = 'coding-hand';
-    } else if (roll < 0.09) {
+    } else if (!inWave && roll < 0.09) {
       // coding exception
       chargeStatus = 'coded'; claimStatus = null; codingStatus = 'proposed'; confidence = 0.58 + r() * 0.3; blockingReason = 'coding_confidence'; owner = 'BIL';
       const contrastExtra = p.codes.some((cd) => TARIFF_BY_CODE[cd]?.contrast);
       exception = contrastExtra
         ? { family: 'Coding confidence', reason: 'Report describes an extra contrast phase not on the order', code: 'CONFIDENCE', suggestion: 'Add the delayed-phase line 34322 × 1 if the report supports it', openedAt: signedAt }
         : { family: r() < 0.5 ? 'Referrer' : 'Identity', reason: r() < 0.5 ? 'Referring practitioner practice number missing' : 'Member number on file does not match the scheme response', code: r() < 0.5 ? 'REFERRER_MISSING' : 'MEMBER_NOT_FOUND', suggestion: 'Look up the referrer in the directory, or confirm the member number with the patient', openedAt: signedAt };
-    } else if (roll < 0.14) {
+    } else if (!inWave && roll < 0.14) {
       chargeStatus = 'ready'; claimStatus = 'scrubbed';
     }
 
@@ -266,7 +274,12 @@ export async function seedClusterC(db: Db, ctx: SeedContext): Promise<Record<str
       const respRoll = r();
       if (inWave) {
         claimStatus = 'rejected'; respondedAt = dayIso(now, Math.max(0, ageDays - 2));
-        rejectionCode = r() < 0.72 ? 'AUTH_REQ' : 'ICD_INVALID';
+        // The first 4 per practice are guaranteed AUTH_REQ so the rejection-wave cohort always
+        // clears its >=3 minimum; any further wave claims keep the realistic 72/28 split.
+        const rejRoll = r();
+        const guaranteed = authReqGuaranteed[p.practiceId]! < 4;
+        if (guaranteed) authReqGuaranteed[p.practiceId] = authReqGuaranteed[p.practiceId]! + 1;
+        rejectionCode = guaranteed || rejRoll < 0.72 ? 'AUTH_REQ' : 'ICD_INVALID';
         rejectionClass = rejectionCode === 'AUTH_REQ' ? 'authorisation' : 'coding';
         rejectionReason = rejectionCode === 'AUTH_REQ' ? 'Pre-authorisation number required for out-of-hospital CT (circular 14/2026)' : 'Invalid diagnosis for procedure: symptom code not accepted as primary';
         if (rejectionCode === 'ICD_INVALID') p.icd10 = [pick(r, SYMPTOM_PRIMARY)];
