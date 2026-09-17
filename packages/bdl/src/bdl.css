@@ -1,9 +1,9 @@
 /* Bonakala Design Language (BDL) — reference stylesheet for static mockups.
    Tokens mirror brand/tokens.json. Lenses: data-lens="patient|referrer|clinical|business|governance". */
 :root{
-  --bone:#F5F1E9;--bone-2:#EAE4D8;--carbon:#0E1113;--graphite:#171B1E;--ink:#1B1F22;--marrow:#14324A;
-  --signal:#12B5A5;--signal-ink:#0A7268;--beam:#F0A52B;--beam-ink:#8A5A00;--flare:#E5484D;--flare-ink:#B3262B;
-  --iris:#5B8FE8;--iris-ink:#2A5FC0;
+  --bone:#F5F1E9;--bone-2:#EAE4D8;--carbon:#0E1113;--graphite:#171B1E;--ink:#1B1F22;--marrow:#0F2C43;
+  --signal:#14C4B2;--signal-ink:#086F63;--beam:#F0A52B;--beam-ink:#7A5000;--flare:#E5484D;--flare-ink:#A8232B;
+  --iris:#5B8FE8;--iris-ink:#2856B3;
   --ash-050:#FAF8F4;--ash-100:#F0ECE4;--ash-200:#E2DCD1;--ash-300:#CFC8BB;--ash-400:#B3AC9F;--ash-500:#8E887C;
   --ash-600:#6B665C;--ash-700:#4F4B44;--ash-800:#36332E;--ash-900:#24221F;--ash-950:#151412;
   --display:'Manrope',system-ui,sans-serif;--text-font:'Inter','Noto Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -15,8 +15,8 @@
   --u:4px;--row:40px;--fs:14px;--radius:14px;--radius-sm:9px;--radius-lg:22px;--rail:60px;--top:54px;--inspector:340px;
   /* glass: frosted chrome and floating surfaces only, kept subtle — data tables, inputs and the image viewer stay opaque (docs/05 §6) */
   --blur:10px;--sat:120%;--glass-line:rgba(255,255,255,.5);
-  --glass-shadow:0 6px 18px -10px rgba(20,50,74,.10),0 1px 0 rgba(20,50,74,.04),inset 0 1px 0 rgba(255,255,255,.4);
-  --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(10,114,104,.06),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(20,50,74,.045),transparent 55%),var(--bone);
+  --glass-shadow:0 6px 18px -10px rgba(15,44,67,.10),0 1px 0 rgba(15,44,67,.04),inset 0 1px 0 rgba(255,255,255,.4);
+  --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(8,111,99,.06),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(15,44,67,.045),transparent 55%),var(--bone);
 }
 /* Dark palette is a theme, not a persona: the clinical lens defaults to it, but any lens can
    carry it (toggle, top-right of the app shell) and the clinical lens can be read in light too. */
@@ -27,7 +27,7 @@
   --warn-bg:#3A2A0C;--crit-bg:#3E1518;--ok-bg:#0F3330;--info-bg:#15274A;--ai-line:var(--ash-500);
   --glass-line:rgba(255,255,255,.08);
   --glass-shadow:0 6px 18px -10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
-  --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(18,181,165,.08),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(91,143,232,.05),transparent 55%),var(--carbon);
+  --body-bg:radial-gradient(1100px 720px at 6% -12%,rgba(20,196,178,.08),transparent 60%),radial-gradient(900px 680px at 104% -6%,rgba(91,143,232,.05),transparent 55%),var(--carbon);
 }
 /* Lens-only: information density. Palette comes from data-theme above. */
 [data-lens="clinical"]{--u:4px;--row:36px;--fs:13px}
@@ -44,7 +44,7 @@
 body{margin:0;background:var(--body-bg);background-attachment:fixed;color:var(--text);font-family:var(--text-font);font-size:var(--fs);line-height:1.45;font-variant-numeric:tabular-nums}
 a{color:var(--primary);text-decoration:none}
 h1,h2,h3,h4{font-family:var(--display);color:var(--heading);line-height:1.15;letter-spacing:-.01em;margin:0}
-h1{font-size:28px}h2{font-size:20px}h3{font-size:16px}h4{font-size:14px;font-weight:600}
+h1{font-size:30px;font-weight:700;letter-spacing:-.02em}h2{font-size:20px;font-weight:700}h3{font-size:16px;font-weight:600}h4{font-size:14px;font-weight:600}
 .muted{color:var(--text-2)}.mono{font-family:var(--mono)}.money{font-family:var(--mono)}.neg{color:var(--crit)}
 .small{font-size:12px}.sr{position:absolute;left:-9999px}
 /* App frame */
@@ -69,7 +69,7 @@ h1{font-size:28px}h2{font-size:20px}h3{font-size:16px}h4{font-size:14px;font-wei
 .rail .avatar:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 /* Portaled to document.body (see ProfileMenu) — position:fixed with coordinates set inline, so this
    rule only carries appearance, not placement. z-index just needs to clear the top-layer chrome. */
-.profile-menu{position:fixed;min-width:220px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:0 12px 30px rgba(20,50,74,.18);padding:10px;display:flex;flex-direction:column;gap:10px;z-index:40}
+.profile-menu{position:fixed;min-width:220px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:0 12px 30px rgba(15,44,67,.18);padding:10px;display:flex;flex-direction:column;gap:10px;z-index:40}
 .profile-menu-hd{display:flex;flex-direction:column;gap:1px;padding:2px 4px 8px;border-bottom:1px solid var(--line)}
 .profile-menu-hd b{font-size:13px;color:var(--heading)}
 .profile-menu-section{display:flex;flex-direction:column;gap:6px;padding:0 4px}
@@ -215,7 +215,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px);bac
 .wa .m{max-width:82%;padding:8px 10px;border-radius:8px;background:#fff;color:#1B1F22;box-shadow:0 1px 0 rgba(0,0,0,.05)}
 .wa .m.me{align-self:flex-end;background:#D4F0EC}
 .wa .m .t{font-size:10px;color:#6B665C;text-align:right;margin-top:2px}
-.wa .btns{display:flex;gap:6px;flex-wrap:wrap}.wa .btns span{background:#fff;border:1px solid #CFC8BB;border-radius:6px;padding:4px 10px;font-size:13px;color:#0A7268}
+.wa .btns{display:flex;gap:6px;flex-wrap:wrap}.wa .btns span{background:#fff;border:1px solid #CFC8BB;border-radius:6px;padding:4px 10px;font-size:13px;color:#086F63}
 /* Utilities */
 .row-flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -228,7 +228,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px);bac
 
 /* ---- App additions (React shell) ---- */
 .rail a.item{cursor:pointer}
-.rail .tip{position:absolute;left:52px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius-sm);padding:2px 8px;font-size:12px;white-space:nowrap;display:none;color:var(--text);z-index:5;box-shadow:0 4px 14px rgba(20,50,74,.16)}
+.rail .tip{position:absolute;left:52px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius-sm);padding:2px 8px;font-size:12px;white-space:nowrap;display:none;color:var(--text);z-index:5;box-shadow:0 4px 14px rgba(15,44,67,.16)}
 .rail a:hover .tip{display:block}
 .signin{min-height:100vh;display:grid;place-items:center;padding:24px}
 .signin .box{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px}
@@ -246,7 +246,7 @@ table.dt{border-collapse:collapse;width:100%;font-size:calc(var(--fs) - 1px);bac
 .persona-group h2{font-family:var(--display);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2);margin:0 0 10px;padding-left:2px}
 .persona-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .persona-card{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:12px;border:1px solid var(--glass-line);border-left:3px solid var(--persona-accent,var(--line-strong));border-radius:var(--radius-sm);background:var(--surface-2);backdrop-filter:blur(var(--blur)) saturate(var(--sat));-webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));box-shadow:var(--glass-shadow);cursor:pointer;font:inherit;color:var(--text);transition:border-color .12s,box-shadow .12s,transform .12s}
-.persona-card:hover:not(:disabled){border-color:var(--persona-accent,var(--primary));box-shadow:var(--glass-shadow),0 3px 10px rgba(20,50,74,.08);transform:translateY(-1px)}
+.persona-card:hover:not(:disabled){border-color:var(--persona-accent,var(--primary));box-shadow:var(--glass-shadow),0 3px 10px rgba(15,44,67,.08);transform:translateY(-1px)}
 .persona-card:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .persona-card:disabled{opacity:.55;cursor:default}
 .persona-card[aria-busy="true"]{border-color:var(--persona-accent,var(--primary))}
