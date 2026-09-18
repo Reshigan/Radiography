@@ -5,7 +5,7 @@ import { newId, notFound, invalid, conflict, forbidden, defineHand, minutesBetwe
 import { getDemoModel, PRIORITY_RANK, type BciPriority } from '@bonakala/domain/bci';
 import type { ReportCandidate, ReportSections, StructuredFinding, FollowupItem } from '@bonakala/db/schema';
 import { defineModule, router, allow, body, query, param, audit, emit, requirePractice, on, registerHand, runHand } from '../../kernel/index.js';
-import { ensureDraft, consistencyFor, readingFee, slaMinutes, candidatesForStudy, REPORTABLE_CATEGORIES, CRITICAL_CATEGORIES, EMPTY_SECTIONS } from './service.js';
+import { ensureDraft, consistencyFor, readingFee, slaMinutes, candidatesForStudy, hubSiblingPracticeIds, REPORTABLE_CATEGORIES, CRITICAL_CATEGORIES, EMPTY_SECTIONS } from './service.js';
 
 const r = router();
 const READERS = ['RGT', 'PRM', 'SUP'] as const;
@@ -41,10 +41,18 @@ function assertRadiologist(c: any) {
 r.get('/worklist', allow(...VIEW), async (c) => {
   const practiceId = requirePractice(c);
   const user = c.get('user')!;
-  const q = query(c, z.object({ scope: z.enum(['pool', 'mine', 'all']).default('pool'), subspecialty: z.string().optional(), modality: z.string().optional(), siteId: z.string().optional(), limit: z.coerce.number().min(1).max(200).default(60) }));
+  const q = query(c, z.object({ scope: z.enum(['pool', 'mine', 'all', 'hub']).default('pool'), subspecialty: z.string().optional(), modality: z.string().optional(), siteId: z.string().optional(), limit: z.coerce.number().min(1).max(200).default(60) }));
   const services = c.get('services');
   const now = services.clock.now().toISOString();
-  const rows = await services.db.select().from(schema.reports).where(and(eq(schema.reports.practiceId, practiceId), inArray(schema.reports.status, ['draft', 'prelim']), q.subspecialty ? eq(schema.reports.subspecialty, q.subspecialty) : undefined, q.siteId ? eq(schema.reports.siteId, q.siteId) : undefined, q.scope === 'mine' ? eq(schema.reports.claimedBy, user.id) : q.scope === 'pool' ? or(isNull(schema.reports.claimedBy), lt(schema.reports.lockExpiresAt, now)) : undefined)).limit(400);
+  // Hub scope pools unclaimed work across every practice with a reading_services agreement to the
+  // same hub (docs/19 R3 "Reading Hub") — a radiologist covers overflow at a sibling practice. "mine"
+  // also spans the hub siblings, so a report claimed from hub work still shows once it's claimed.
+  const hubIds = (q.scope === 'hub' || q.scope === 'mine') ? await hubSiblingPracticeIds(services.db, practiceId) : null;
+  const practiceFilter = hubIds ? inArray(schema.reports.practiceId, hubIds) : eq(schema.reports.practiceId, practiceId);
+  const rows = await services.db.select().from(schema.reports).where(and(practiceFilter, inArray(schema.reports.status, ['draft', 'prelim']), q.subspecialty ? eq(schema.reports.subspecialty, q.subspecialty) : undefined, q.siteId ? eq(schema.reports.siteId, q.siteId) : undefined, q.scope === 'mine' ? eq(schema.reports.claimedBy, user.id) : (q.scope === 'pool' || q.scope === 'hub') ? or(isNull(schema.reports.claimedBy), lt(schema.reports.lockExpiresAt, now)) : undefined)).limit(400);
+  const practiceNames = hubIds && hubIds.length > 1
+    ? new Map((await services.db.select({ id: schema.legalEntities.id, name: schema.legalEntities.tradingName }).from(schema.legalEntities).where(inArray(schema.legalEntities.id, hubIds))).map((x) => [x.id, x.name]))
+    : null;
   const studyIds = rows.map((x) => x.studyId);
   const studies = studyIds.length ? await services.db.select().from(schema.studies).where(inArray(schema.studies.id, studyIds)) : [];
   const smap = new Map(studies.map((s) => [s.id, s]));
@@ -64,6 +72,7 @@ r.get('/worklist', allow(...VIEW), async (c) => {
       const sla = slaMinutes(rep.priority);
       return {
         ...rep, study: study ?? null, patient: pmap.get(rep.patientId) ?? null, aiPriority, aiReasons: [...new Set(reasons)],
+        practiceName: practiceNames?.get(rep.practiceId) ?? null, fromHub: rep.practiceId !== practiceId,
         aiProvenance: results.filter((i) => i.priority).map((i) => ({ modelId: i.modelId, modelVersion: i.modelVersion, priority: i.priority, confidence: Math.max(0, ...((i.result as any)?.findings ?? []).filter((f: any) => f.flag).map((f: any) => f.score as number)) })),
         ageMinutes: ageMin, slaMinutes: sla, slaPct: Math.round((ageMin / sla) * 100), priorsReady: (study?.priorIds ?? []).length > 0,
         effectiveRank: Math.min(rep.priority === 'stat' ? 0 : rep.priority === 'urgent' ? 1 : 2, aiPriority === 'P1' ? 0 : aiPriority === 'P2' ? 1 : 2),
@@ -86,6 +95,11 @@ r.post('/reports/:id/claim', allow(...READERS), async (c) => {
   const rep = await loadReport(c, param(c, 'id'));
   const services = c.get('services');
   const user = c.get('user')!;
+  const practiceId = c.get('practiceId');
+  if (practiceId && rep.practiceId !== practiceId) {
+    const hubIds = await hubSiblingPracticeIds(services.db, practiceId);
+    if (!hubIds.includes(rep.practiceId)) throw forbidden('This study is at a practice with no reading-services agreement with yours');
+  }
   const now = services.clock.now();
   if (rep.claimedBy && rep.claimedBy !== user.id && (rep.lockExpiresAt ?? '') > now.toISOString()) throw conflict('Study is locked by another radiologist');
   const lockExpiresAt = new Date(now.getTime() + LOCK_MINUTES * 60_000).toISOString();

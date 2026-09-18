@@ -23,6 +23,22 @@ export const CRITICAL_CATEGORIES = [
   { code: 'unexpected_significant', label: 'Unexpected significant', windowMinutes: 1440, requiresVoice: false, examples: 'incidental mass, unexpected lymphadenopathy, aneurysm below intervention size' },
 ] as const;
 
+/**
+ * Practices pooled with `practiceId` under a shared reading hub: every practice with an active
+ * `reading_services` entityRelationship to the same hub entity `practiceId` reports to (docs/19 R3
+ * "Reading Hub"). Always includes `practiceId` itself. A practice with no reading-services agreement
+ * pools with no one — the return set is just `[practiceId]`.
+ */
+export async function hubSiblingPracticeIds(db: Services['db'], practiceId: string): Promise<string[]> {
+  const asChild = await db.select({ hubId: schema.entityRelationships.parentId }).from(schema.entityRelationships)
+    .where(and(eq(schema.entityRelationships.childId, practiceId), eq(schema.entityRelationships.type, 'reading_services')));
+  const hubIds = [...new Set(asChild.map((x) => x.hubId))];
+  if (!hubIds.length) return [practiceId];
+  const siblings = await db.select({ practiceId: schema.entityRelationships.childId }).from(schema.entityRelationships)
+    .where(and(inArray(schema.entityRelationships.parentId, hubIds), eq(schema.entityRelationships.type, 'reading_services')));
+  return [...new Set([practiceId, ...siblings.map((x) => x.practiceId)])];
+}
+
 /** Study priority class (process 07 §7.1) with the SLA target in minutes. */
 export function slaMinutes(priority: string): number {
   return priority === 'stat' ? 30 : priority === 'urgent' ? 120 : 1440;

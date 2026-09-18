@@ -12,6 +12,7 @@ interface Item {
   ageMinutes: number; slaMinutes: number; slaPct: number; priorsReady: boolean; locked: boolean; lockedByMe: boolean; claimedBy: string | null; effectiveRank: number; raisedByAi: boolean;
   study: { modality: string; procedureDescription: string; bodyPart: string; siteId: string; completedAt: string | null; receivedAt: string } | null;
   patient: { firstName: string; lastName: string; sex: string | null; dateOfBirth: string | null } | null;
+  practiceName: string | null; fromHub: boolean;
 }
 
 const SUBSPECIALTIES = ['', 'chest', 'neuro', 'msk', 'body', 'breast', 'obstetric'];
@@ -37,7 +38,7 @@ function priorityChip(p: string) {
 function Worklist() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [scope, setScope] = useState<'pool' | 'mine' | 'all'>('all');
+  const [scope, setScope] = useState<'pool' | 'mine' | 'all' | 'hub'>('all');
   const [sub, setSub] = useState('');
   const q = useQuery({
     queryKey: ['read-worklist', scope, sub],
@@ -60,6 +61,7 @@ function Worklist() {
               <option value="all">Pool and mine</option>
               <option value="pool">Pool (unclaimed)</option>
               <option value="mine">Assigned to me</option>
+              <option value="hub">Reading hub (network-wide)</option>
             </select>
             <select value={sub} onChange={(e) => setSub(e.target.value)} aria-label="Sub-specialty" style={{ height: 32 }}>
               {SUBSPECIALTIES.map((x) => <option key={x} value={x}>{x ? `Sub: ${x}` : 'All sub-specialties'}</option>)}
@@ -88,7 +90,7 @@ function Worklist() {
               render={(x) => ({
                 lead: x.aiPriority === 'P1' || x.priority === 'stat' ? <Chip kind="crit">{x.priority === 'stat' ? 'STAT' : 'P1'}</Chip> : x.aiPriority === 'P2' ? <Chip kind="att">P2</Chip> : x.aiPriority === 'P4' ? <Chip kind="att">P4</Chip> : x.aiPriority ? <Chip>{x.aiPriority}</Chip> : <Chip title="No AI result for this study">no AI</Chip>,
                 title: <>{ageLabel(x.patient)} <span className="muted small mono">· {x.accession}</span></>,
-                sub: <>{x.study?.procedureDescription ?? ''} · {x.study?.modality} · {x.subspecialty} {x.priorsReady && <span className="muted">· priors ready</span>}</>,
+                sub: <>{x.study?.procedureDescription ?? ''} · {x.study?.modality} · {x.subspecialty} {x.priorsReady && <span className="muted">· priors ready</span>} {x.fromHub && x.practiceName && <span className="muted">· {x.practiceName}</span>}</>,
                 aux: (
                   <>
                     {x.aiReasons.length > 0 && (
@@ -98,6 +100,7 @@ function Worklist() {
                       </span>
                     )}
                     {priorityChip(x.priority)}
+                    {x.fromHub && <Chip kind="att">hub</Chip>}
                     {x.raisedByAi && <Chip kind="ai">raised by triage</Chip>}
                     <span className="mono small">{relative(x.ageMinutes)}</span>
                     <span style={{ width: 64, display: 'inline-block' }}><SlaBar pct={x.slaPct} /></span>
