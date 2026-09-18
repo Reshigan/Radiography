@@ -11,7 +11,7 @@ import { registerSim } from './index.js';
  * in-memory outbox; inbound messages are routed to the Booking Hand (M05) by the handler registered at boot.
  * Content rules from docs/processes/02 §7.6: <= 3 lines, <= 3 buttons, no clinical detail beyond the procedure name.
  */
-export interface OutboundMessage { id: string; to: string; text: string; buttons?: string[]; at: string; by: string; conversationId: string; practiceId: string }
+export interface OutboundMessage { id: string; to: string; text: string; buttons?: string[]; at: string; by: string; conversationId: string; practiceId: string; providerId?: string }
 
 const outbox: OutboundMessage[] = [];
 export function whatsappOutbox() {
@@ -49,7 +49,8 @@ export async function sendWhatsApp(services: Services, input: { practiceId: stri
   const conv = await findOrCreateConversation(services, input.practiceId, input.to, input.patientId);
   const at = new Date().toISOString();
   await appendMessage(services, conv.id, { dir: 'out', text: input.text, at, buttons: input.buttons, by: input.by }, input.patientId && !conv.patientId ? { patientId: input.patientId } : {});
-  const msg: OutboundMessage = { id: newId('wa'), to: conv.mobile, text: input.text, buttons: input.buttons, at, by: input.by, conversationId: conv.id, practiceId: input.practiceId };
+  const sent = await services.whatsAppSender.send({ to: conv.mobile, text: input.text, buttons: input.buttons });
+  const msg: OutboundMessage = { id: newId('wa'), to: conv.mobile, text: input.text, buttons: input.buttons, at, by: input.by, conversationId: conv.id, practiceId: input.practiceId, providerId: sent.providerId };
   outbox.push(msg);
   if (outbox.length > 500) outbox.splice(0, outbox.length - 500);
   return msg;

@@ -1,6 +1,12 @@
 /**
  * Edge Gateway fleet simulator (demo only): heartbeats, offline and UPS states, store-and-forward backlog.
  * Mounted at /api/sim/edge. Mirrors the behaviour described in docs/07 §5 and docs/processes/11 §3.3.
+ *
+ * No hexagonal port here either, for the same reason as sim/modality.ts: a real Edge Gateway appliance
+ * calls INTO these routes (heartbeat, state, telemetry) rather than the platform calling out through an
+ * interface. These routes are already shaped the way a real gateway would call them — the missing piece
+ * is the gateway appliance itself (a deployable binary/container running at each site) plus per-device
+ * authentication in place of the demoMode gate, not a port to swap.
  */
 import { Hono } from 'hono';
 import { z } from 'zod';

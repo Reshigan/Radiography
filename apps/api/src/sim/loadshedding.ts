@@ -9,6 +9,7 @@ import { and, eq, gte } from 'drizzle-orm';
 import { schema } from '@bonakala/db';
 import { newId, todaySast } from '@bonakala/domain';
 import type { AppEnv } from '../kernel/context.js';
+import type { Services } from '../kernel/ports.js';
 import { emitDirect } from '../kernel/events.js';
 import { registerSim } from './index.js';
 
@@ -42,15 +43,11 @@ routes.get('/status', async (c) => {
   });
 });
 
-/** Publish (or clear) windows for a stage. Sites on UPS during their window are also updated. */
-routes.post('/stage', async (c) => {
-  const services = c.get('services');
-  const parsed = z.object({ stage: z.number().int().min(0).max(8), date: z.string().optional(), siteIds: z.array(z.string()).optional() }).safeParse(await c.req.json().catch(() => ({})));
-  if (!parsed.success) return c.json({ error: 'invalid', details: parsed.error.flatten() }, 400);
-  const { stage } = parsed.data;
-  const date = parsed.data.date ?? todaySast();
+/** Publish (or clear) windows for a stage. Sites on UPS during their window are also updated. Shared
+ *  by the manual admin route below and the tick that polls the real schedule source (M18 tick). */
+export async function publishStage(services: Services, stage: number, date = todaySast(), siteIds?: string[], source: 'sim' | 'schedule' = 'sim') {
   const sites = await services.db.select().from(schema.sites);
-  const targets = parsed.data.siteIds?.length ? sites.filter((s) => parsed.data.siteIds!.includes(s.id)) : sites;
+  const targets = siteIds?.length ? sites.filter((s) => siteIds.includes(s.id)) : sites;
   const existing = await services.db.select().from(schema.loadSheddingWindows).where(gte(schema.loadSheddingWindows.startsAt, `${date}T00:00:00.000Z`));
   for (const w of existing.filter((x) => targets.some((t) => t.id === x.siteId) && x.startsAt.slice(0, 10) === date)) {
     await services.db.delete(schema.loadSheddingWindows).where(eq(schema.loadSheddingWindows.id, w.id));
@@ -61,12 +58,21 @@ routes.post('/stage', async (c) => {
       const id = newId('lsw');
       const startsAt = `${date}T${from}:00.000Z`;
       const endsAt = `${date}T${to}:00.000Z`;
-      await services.db.insert(schema.loadSheddingWindows).values({ id, practiceId: site.practiceId, siteId: site.id, stage, startsAt, endsAt, generatorCovers: GENERATOR_COVER[site.id] ?? [], source: 'sim' });
+      await services.db.insert(schema.loadSheddingWindows).values({ id, practiceId: site.practiceId, siteId: site.id, stage, startsAt, endsAt, generatorCovers: GENERATOR_COVER[site.id] ?? [], source });
       created.push({ siteId: site.id, startsAt, endsAt });
       await emitDirect(services, 'site.power.window.v1', { siteId: site.id, stage, startsAt, endsAt, generatorCovers: GENERATOR_COVER[site.id] ?? [] }, { practiceId: site.practiceId, aggregateType: 'site', aggregateId: site.id });
     }
   }
-  return c.json({ ok: true, stage, date, windows: created, cleared: stage === 0 });
+  return { stage, date, windows: created, cleared: stage === 0 };
+}
+
+/** Publish (or clear) windows for a stage. Sites on UPS during their window are also updated. */
+routes.post('/stage', async (c) => {
+  const services = c.get('services');
+  const parsed = z.object({ stage: z.number().int().min(0).max(8), date: z.string().optional(), siteIds: z.array(z.string()).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: 'invalid', details: parsed.error.flatten() }, 400);
+  const result = await publishStage(services, parsed.data.stage, parsed.data.date ?? todaySast(), parsed.data.siteIds);
+  return c.json({ ok: true, ...result });
 });
 
 /** Put the sites whose window is running onto UPS (and back when it ends). */

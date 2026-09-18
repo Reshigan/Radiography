@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Hono } from 'hono';
-import { hashString } from '@bonakala/domain/bci';
 import { newId } from '@bonakala/domain';
 import type { AppEnv } from '../kernel/context.js';
 import { body, requireUser } from '../kernel/index.js';
@@ -18,19 +17,15 @@ export function maskPhone(p: string | null | undefined): string {
 }
 
 /**
- * Telephony adapter simulator used by the Critical Results Hand. The outcome is deterministic per
- * (number, attempt) so demos and tests are repeatable: the first attempt to most numbers goes
- * unanswered, the second is answered; numbers ending in 0000 never answer (unreachable referrer).
+ * Telephony adapter used by the Critical Results Hand. The actual dial goes through
+ * `services.voiceCaller` (kernel/telephony.ts): a real Twilio-shaped call when configured, otherwise a
+ * deterministic per-(number, attempt) stub so demos and tests stay repeatable. This function keeps the
+ * call-log bookkeeping (masking, ids, the demo's call history) around that port.
  */
 export async function placeCall(services: Services, input: { to: string | null | undefined; script: string; attempt: number; relatedId?: string; bridgeTo?: string }): Promise<SimCall> {
   const to = input.to ?? '';
-  const digits = to.replace(/\D/g, '');
-  let outcome: SimCall['outcome'];
-  if (!digits) outcome = 'no_answer';
-  else if (digits.endsWith('0000')) outcome = 'no_answer';
-  else if (input.attempt >= 2) outcome = 'answered';
-  else outcome = hashString(`${digits}|${input.attempt}`) % 5 === 0 ? 'answered' : hashString(digits) % 3 === 0 ? 'voicemail' : 'no_answer';
-  const call: SimCall = { id: newId('call'), at: services.clock.now().toISOString(), to, toMasked: maskPhone(to), script: input.script, outcome, durationSec: outcome === 'answered' ? 45 + (hashString(digits) % 90) : 0, bridged: outcome === 'answered' && !!input.bridgeTo, relatedId: input.relatedId };
+  const result = await services.voiceCaller.call({ to, script: input.script, attempt: input.attempt });
+  const call: SimCall = { id: newId('call'), at: services.clock.now().toISOString(), to, toMasked: maskPhone(to), script: input.script, outcome: result.outcome, durationSec: result.durationSec, bridged: result.outcome === 'answered' && !!input.bridgeTo, relatedId: input.relatedId };
   calls.push(call);
   if (calls.length > 500) calls.splice(0, calls.length - 500);
   return call;

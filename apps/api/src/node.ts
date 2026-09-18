@@ -9,6 +9,9 @@ import { modules } from './modules/index.js';
 import { registerJobs } from './jobs.js';
 import { simClaimsSwitch } from './sim/switch.js';
 import { simPaymentGateway } from './sim/psp.js';
+import { createWhatsAppSender } from './kernel/whatsapp.js';
+import { createVoiceCaller } from './kernel/telephony.js';
+import { createLoadSheddingSchedule } from './kernel/loadshedding.js';
 
 export async function createNodeServices(env = process.env as Record<string, string | undefined>): Promise<Services> {
   const db = createNodeDb(env.DATABASE_URL ?? 'file:./data/bonakala.db');
@@ -20,9 +23,12 @@ export async function createNodeServices(env = process.env as Record<string, str
     queue,
     clock: systemClock,
     llm: createLlm(env),
-    // Only a simulator exists for either port today — swap these two lines for a real adapter when one is built.
+    // Only a simulator exists for the switch/PSP today — swap these two lines for a real adapter when one is built.
     claimsSwitch: simClaimsSwitch,
     paymentGateway: simPaymentGateway,
+    whatsAppSender: createWhatsAppSender(env),
+    voiceCaller: createVoiceCaller(env),
+    loadSheddingSchedule: createLoadSheddingSchedule(env),
     demoMode: env.DEMO_MODE !== 'false',
     env,
     defer: (p) => setImmediate(() => void p.catch((e) => console.error('deferred failed', e))),

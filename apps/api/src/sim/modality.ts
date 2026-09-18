@@ -19,6 +19,13 @@ import { completeAcquisition } from '../modules/m08-acquisition/service.js';
  *                               emits study.received.v1 and, unless autoComplete=false, completes MPPS
  *                               (study.completed.v1 → dose, BCI inference, reading worklist).
  * POST /api/sim/modality/run-day generates studies for today's booked worklist items at a site.
+ *
+ * No hexagonal port here: this simulates an INBOUND call (a modality pushing images to the Edge
+ * Gateway), not an outbound one the domain calls through — a real modality never gets "swapped in"
+ * behind an interface the way the claims switch or WhatsApp does. `simulateSend()` already is the
+ * shape a real integration takes over: a real Edge Gateway would run a genuine DICOM C-STORE (SCP)
+ * listener and call `createStudy()`/`completeAcquisition()` the same way this function does. That
+ * listener is a separate, substantial piece of work (DICOM network protocol, not a REST port).
  */
 export async function simulateSend(services: Services, input: { siteId: string; roomId?: string; roomKey?: string; procedureCode: string; patientId: string; worklistItemId?: string | null; priority?: string; laterality?: string | null; indication?: string | null; referrerId?: string | null; orderId?: string | null; appointmentId?: string | null; technologistUserId?: string | null; autoComplete?: boolean; unmatched?: boolean; receivedAt?: string }) {
   const db = services.db;

@@ -5,7 +5,7 @@ import { defineHand, newId, notFound, invalid, conflict, todaySast, Refused } fr
 import { defineModule, router, allow, body, query, param, audit, emit, emitDirect, requirePractice, registerHand, runHand, on, nextSequence } from '../../kernel/index.js';
 import type { Services } from '../../kernel/ports.js';
 import { registerEdgeSim } from '../../sim/edge.js';
-import { registerLoadSheddingSim } from '../../sim/loadshedding.js';
+import { registerLoadSheddingSim, publishStage } from '../../sim/loadshedding.js';
 
 const r = router();
 const READERS = ['BIO', 'PRM', 'EXE', 'SUP', 'CMP', 'RAD', 'NUR', 'AIO'] as const;
@@ -621,6 +621,17 @@ export default defineModule({
       const task = await runHand(services, 'maintenance', { action: 'reorder_stock', siteId: s.id }, { practiceId: s.practiceId, trigger: 'schedule', title: `Maintenance Hand: stock cover ${s.id}` }).catch(() => null);
       if (task?.output?.reordered) reorders++;
     }
-    return { predictiveScans: assets.length, reorders };
+    // Poll the real schedule source (EskomSePush, when configured) and republish only when the stage changed.
+    let loadSheddingStageApplied: number | undefined;
+    const scheduled = await services.loadSheddingSchedule.currentStage('national').catch(() => null);
+    if (scheduled) {
+      const today = todaySast();
+      const [latest] = await services.db.select().from(schema.loadSheddingWindows).where(gte(schema.loadSheddingWindows.startsAt, `${today}T00:00:00.000Z`)).orderBy(desc(schema.loadSheddingWindows.createdAt)).limit(1);
+      if (!latest || latest.stage !== scheduled.stage) {
+        await publishStage(services, scheduled.stage, today, undefined, 'schedule');
+        loadSheddingStageApplied = scheduled.stage;
+      }
+    }
+    return { predictiveScans: assets.length, reorders, ...(loadSheddingStageApplied !== undefined ? { loadSheddingStageApplied } : {}) };
   },
 });

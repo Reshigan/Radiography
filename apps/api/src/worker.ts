@@ -8,6 +8,9 @@ import { modules } from './modules/index.js';
 import { runJob } from './jobs.js';
 import { simClaimsSwitch } from './sim/switch.js';
 import { simPaymentGateway } from './sim/psp.js';
+import { createWhatsAppSender } from './kernel/whatsapp.js';
+import { createVoiceCaller } from './kernel/telephony.js';
+import { createLoadSheddingSchedule } from './kernel/loadshedding.js';
 
 interface Env {
   DB: D1Database;
@@ -50,9 +53,12 @@ function makeServices(env: Env, ctx: ExecutionContext): Services {
     queue,
     clock: { now: () => new Date() },
     llm: createLlm(env as any),
-    // Only a simulator exists for either port today — swap these two lines for a real adapter when one is built.
+    // Only a simulator exists for the switch/PSP today — swap these two lines for a real adapter when one is built.
     claimsSwitch: simClaimsSwitch,
     paymentGateway: simPaymentGateway,
+    whatsAppSender: createWhatsAppSender(env as any),
+    voiceCaller: createVoiceCaller(env as any),
+    loadSheddingSchedule: createLoadSheddingSchedule(env as any),
     demoMode: env.DEMO_MODE !== 'false',
     env: env as any,
     defer: (p) => ctx.waitUntil(p),

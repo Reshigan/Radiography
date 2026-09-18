@@ -53,6 +53,39 @@ export interface PaymentGatewayPort {
   createLink(input: { paymentId: string; token: string; amountCents: number; expiresAt: string }): Promise<{ url: string }>;
 }
 
+/**
+ * WhatsApp Business delivery: the wire transport only. Content rules, conversation threading and the
+ * demo outbox stay in `sim/whatsapp.ts`'s `sendWhatsApp()`, which calls this port to actually hand the
+ * message to a provider. Real adapter (WhatsApp Business Cloud API) when WHATSAPP_ACCESS_TOKEN and
+ * WHATSAPP_PHONE_NUMBER_ID are configured; a deterministic stub otherwise (see kernel/whatsapp.ts).
+ */
+export interface WhatsAppSenderPort {
+  readonly available: boolean;
+  send(input: { to: string; text: string; buttons?: string[] }): Promise<{ providerId: string }>;
+}
+
+/**
+ * Outbound voice call: dial a number and read a script. `sim/telephony.ts`'s `placeCall()` keeps the
+ * call-log bookkeeping and calls this port for the actual dial. Real adapter (a Twilio-shaped Calls
+ * API) when TWILIO_ACCOUNT_SID/TWILIO_AUTH_TOKEN/TWILIO_FROM_NUMBER are configured; a deterministic
+ * stub otherwise (see kernel/telephony.ts).
+ */
+export interface VoiceCallerPort {
+  readonly available: boolean;
+  call(input: { to: string; script: string; attempt: number }): Promise<{ outcome: 'answered' | 'no_answer' | 'busy' | 'voicemail'; durationSec: number; providerId?: string }>;
+}
+
+/**
+ * Load-shedding stage for an area: `sim/loadshedding.ts` still owns publishing windows and applying
+ * them to gateways; this port is only where the current stage number comes from. Real adapter (the
+ * EskomSePush API) when ESP_API_KEY is configured; a manual/stub source otherwise (the demo's existing
+ * `POST /sim/loadshedding/stage` behaviour — see kernel/loadshedding.ts).
+ */
+export interface LoadSheddingSchedulePort {
+  readonly available: boolean;
+  currentStage(areaId: string): Promise<{ stage: number } | null>;
+}
+
 export interface Services {
   db: Db;
   objects: ObjectStore;
@@ -61,6 +94,9 @@ export interface Services {
   llm: LlmPort;
   claimsSwitch: ClaimsSwitchPort;
   paymentGateway: PaymentGatewayPort;
+  whatsAppSender: WhatsAppSenderPort;
+  voiceCaller: VoiceCallerPort;
+  loadSheddingSchedule: LoadSheddingSchedulePort;
   demoMode: boolean;
   env: Record<string, string | undefined>;
   /** Defer work until after the response (waitUntil on Workers, setImmediate on Node). */

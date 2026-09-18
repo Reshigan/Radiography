@@ -1,6 +1,13 @@
 /**
  * Bank feed simulator (demo only): credits that match remittances (ERA totals), EFT payments by
  * reference, and distribution payment-file settlement. Unmatched credits are surfaced for DEB.
+ *
+ * No hexagonal port here: unlike the switch/PSP/WhatsApp/voice integrations, there is no generic South
+ * African bank-feed API to adapt to — each bank's statement/webhook integration (format, auth, delivery)
+ * is proprietary and would need to be built against a specific bank's spec. The real integration point
+ * is `POST /credit` itself: move it out from behind the demoMode gate (`sim/index.ts`), replace the
+ * `allow(...)` staff-persona check with that bank's webhook signature verification, and this matching
+ * logic runs unchanged.
  */
 import { z } from 'zod';
 import { and, eq, isNull } from 'drizzle-orm';

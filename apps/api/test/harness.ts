@@ -9,6 +9,9 @@ import { dispatchPending } from '../src/kernel/events.js';
 import { registerJobs } from '../src/jobs.js';
 import { simClaimsSwitch } from '../src/sim/switch.js';
 import { simPaymentGateway } from '../src/sim/psp.js';
+import { createWhatsAppSender } from '../src/kernel/whatsapp.js';
+import { createVoiceCaller } from '../src/kernel/telephony.js';
+import { createLoadSheddingSchedule } from '../src/kernel/loadshedding.js';
 
 export interface TestApp {
   /**
@@ -35,7 +38,9 @@ export async function createTestApp(): Promise<TestApp> {
   let pinnedNow: Date | null = null;
   const services: Services = {
     db, objects: new MemoryObjectStore(), queue, clock: { now: () => pinnedNow ?? new Date() }, llm: createLlm({}),
-    claimsSwitch: simClaimsSwitch, paymentGateway: simPaymentGateway, demoMode: true, env: {},
+    claimsSwitch: simClaimsSwitch, paymentGateway: simPaymentGateway,
+    whatsAppSender: createWhatsAppSender({}), voiceCaller: createVoiceCaller({}), loadSheddingSchedule: createLoadSheddingSchedule({}),
+    demoMode: true, env: {},
     defer: (p) => { deferred.push(p.catch(() => undefined)); },
   };
   registerJobs(queue, services);
